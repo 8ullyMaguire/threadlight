@@ -2,7 +2,6 @@ use axum::{extract::State, Json};
 use serde_json::json;
 use sqlx::PgPool;
 
-use crate::app_state::AppState;
 use crate::error::AppError;
 use crate::model::response::ApiResponse;
 
@@ -13,25 +12,25 @@ pub async fn about(
     let site_config = sqlx::query_as::<_, crate::model::site_config::SiteConfig>(
         r#"SELECT * FROM site_config ORDER BY id DESC LIMIT 1"#,
     )
-    .fetch_optional(&*pool)
+    .fetch_optional(&pool)
     .await?;
 
     let total_users = sqlx::query_scalar::<_, i64>(
         r#"SELECT COUNT(*) FROM users WHERE is_deleted = false"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let total_posts = sqlx::query_scalar::<_, i64>(
         r#"SELECT COUNT(*) FROM posts WHERE is_deleted = false"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let total_communities = sqlx::query_scalar::<_, i64>(
         r#"SELECT COUNT(*) FROM communities"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let info = json!({

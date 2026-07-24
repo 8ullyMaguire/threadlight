@@ -5,3 +5,5 @@ pub mod db;
 pub mod error;
 pub mod model;
 pub mod services;
+
+pub use app_state::AppState;

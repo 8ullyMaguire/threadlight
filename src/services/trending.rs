@@ -1,10 +1,11 @@
 use sqlx::PgPool;
 use serde::Serialize;
+use sqlx::FromRow;
 
 use crate::error::AppError;
 
 /// A trending post result.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, FromRow)]
 pub struct TrendingPost {
     pub post_id: i64,
     pub title: Option<String>,
@@ -19,7 +20,7 @@ pub struct TrendingPost {
 }
 
 /// A trending community result.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, FromRow)]
 pub struct TrendingCommunity {
     pub community_id: i64,
     pub name: String,
@@ -31,7 +32,7 @@ pub struct TrendingCommunity {
 }
 
 /// A trending tag result.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, FromRow)]
 pub struct TrendingTag {
     pub tag_id: i32,
     pub name: String,
@@ -40,7 +41,7 @@ pub struct TrendingTag {
 }
 
 /// A trending user result.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, FromRow)]
 pub struct TrendingUser {
     pub user_id: i64,
     pub username: String,

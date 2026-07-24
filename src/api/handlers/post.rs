@@ -23,11 +23,10 @@ pub async fn create(
 /// GET /api/v1/posts
 pub async fn list(
     State(pool): State<PgPool>,
-    auth: AuthUser,
+    _auth: AuthUser,
     Query(query): Query<PostListQuery>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
     let (posts, total) = services::post::list_posts(&pool, query).await?;
-
     Ok(Json(ApiResponse::new(serde_json::json!({
         "items": posts,
         "total": total,
@@ -39,10 +38,10 @@ pub async fn list(
 /// GET /api/v1/posts/{id}
 pub async fn get_by_id(
     State(pool): State<PgPool>,
-    auth: AuthUser,
+    _auth: AuthUser,
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<PostResponse>>, AppError> {
-    let post = services::post::get_post_with_details(&pool, id, auth.user_id).await?;
+    let post = services::post::get_post_with_details(&pool, id, _auth.user_id).await?;
     Ok(Json(ApiResponse::new(post)))
 }
 
@@ -70,14 +69,12 @@ pub async fn delete(
 /// GET /api/v1/posts/author/{author_id}
 pub async fn list_by_author(
     State(pool): State<PgPool>,
-    auth: AuthUser,
+    _auth: AuthUser,
     Path(author_id): Path<i64>,
     Query(query): Query<PostListQuery>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
     let (posts, total) = services::post::list_posts(&pool, query).await?;
-    // Filter to only this author's posts
     let author_posts: Vec<Post> = posts.into_iter().filter(|p| p.author_id == author_id).collect();
-
     Ok(Json(ApiResponse::new(serde_json::json!({
         "items": author_posts,
         "total": total,
@@ -100,42 +97,18 @@ pub async fn archive(
     State(pool): State<PgPool>,
     auth: RequiredAuth,
     Path(id): Path<i64>,
-) -> Result<Json<ApiResponse<Post>>, AppError> {
+) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     let post = services::post::get_post(&pool, id).await?;
-
     if post.author_id != auth.user_id {
         return Err(AppError::Forbidden(
             "You do not have permission to archive this post".to_string(),
         ));
     }
-
-    let archived = services::post::update_post(
-        &pool,
-        id,
-        auth.user_id,
-        UpdatePostRequest {
-            title: None,
-            body: None,
-            content_type: None,
-            mood: None,
-            is_educational: None,
-            is_entertaining: None,
-            is_nsfw: None,
-            content_warning: None,
-            language: None,
-            is_ai_generated: None,
-            license: None,
-        },
-    )
-    .await?;
-
-    // Also set archived_at in the database directly
-    sqlx::query("UPDATE posts SET archived_at = NOW() WHERE id = $1")
+    sqlx::query("UPDATE posts SET archived_at = NOW(), updated_at = NOW() WHERE id = $1")
         .bind(id)
         .execute(&pool)
         .await?;
-
-    Ok(Json(ApiResponse::with_message(archived, "Post archived".to_string())))
+    Ok(Json(ApiResponse::with_message("archived", "Post archived".to_string())))
 }
 
 /// POST /api/v1/posts/{id}/remove (moderator removal)
@@ -144,19 +117,15 @@ pub async fn mod_remove(
     auth: RequiredAuth,
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
-    // Only admins or moderators can remove posts
     if !auth.is_admin {
         return Err(AppError::Forbidden(
             "Only moderators can remove posts".to_string(),
         ));
     }
-
-    // Soft delete by setting is_deleted
     sqlx::query("UPDATE posts SET is_deleted = true, updated_at = NOW() WHERE id = $1")
         .bind(id)
         .execute(&pool)
         .await?;
-
     Ok(Json(ApiResponse::with_message(
         "removed",
         "Post removed by moderator".to_string(),
@@ -167,8 +136,7 @@ pub async fn mod_remove(
 pub async fn upload_image(
     State(_pool): State<PgPool>,
     _auth: RequiredAuth,
-) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
-    // Placeholder — file upload handling would depend on storage backend (S3/local/etc.)
+) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     Err(AppError::Internal(
         "Media upload not yet implemented".to_string(),
     ))

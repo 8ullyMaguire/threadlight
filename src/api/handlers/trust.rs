@@ -1,104 +1,64 @@
-use axum::extract::{Path, Query, State};
-use axum::routing::{delete, get, patch, post};
-use axum::{Json, Router};
-use serde::Deserialize;
-use sqlx::PgPool;
-
-use crate::api::middleware::auth::{AuthUser, RequiredAuth};
+use axum::{extract::{Path, State}, Json};
+use serde_json::{json, Value};
+use crate::api::middleware::auth::RequiredAuth;
+use crate::AppState;
 use crate::error::AppError;
-use crate::model::response::ApiResponse;
-use crate::model::trust::{CreateTrustConnectionRequest, TrustConnection, UpdateTrustConnectionRequest};
-use crate::services;
+use crate::model::trust::*;
 
-pub fn routes() -> Router<super::super::AppState> {
-    Router::new()
-        .route("/trust", post(create_trust))
-        .route("/trust/{truster_id}/{trustee_id}", get(get_trust))
-        .route("/trust/outgoing/{user_id}", get(list_outgoing))
-        .route("/trust/incoming/{user_id}", get(list_incoming))
-        .route("/trust/{trustee_id}", patch(update_trust))
-        .route("/trust/{trustee_id}", delete(delete_trust))
-        .route("/trust/score/{user_id}", get(get_score))
-}
-
-#[derive(Deserialize)]
-pub struct PaginationQuery {
-    limit: Option<i64>,
-    offset: Option<i64>,
-}
-
-async fn create_trust(
-    State(pool): State<PgPool>,
+pub async fn create_connection(
     auth: RequiredAuth,
+    State(state): State<AppState>,
     Json(req): Json<CreateTrustConnectionRequest>,
-) -> Result<Json<ApiResponse<TrustConnection>>, AppError> {
-    let connection = services::trust::create_trust_connection(&pool, auth.user_id, req).await?;
-    Ok(Json(ApiResponse::with_message(
-        connection,
-        "Trust connection created".into(),
-    )))
+) -> Result<Json<Value>, AppError> {
+    let conn = crate::services::trust::create_connection(&state.pool, auth.user_id, req.trustee_id, req.weight.unwrap_or(1.0)).await?;
+    Ok(Json(json!(conn)))
 }
 
-async fn get_trust(
-    State(pool): State<PgPool>,
-    _auth: AuthUser,
-    Path((truster_id, trustee_id)): Path<(i64, i64)>,
-) -> Result<Json<ApiResponse<TrustConnection>>, AppError> {
-    let connection = services::trust::get_trust_connection(&pool, truster_id, trustee_id).await?;
-    Ok(Json(ApiResponse::new(connection)))
-}
-
-async fn list_outgoing(
-    State(pool): State<PgPool>,
-    _auth: AuthUser,
-    Path(user_id): Path<i64>,
-    Query(pagination): Query<PaginationQuery>,
-) -> Result<Json<ApiResponse<Vec<TrustConnection>>>, AppError> {
-    let limit = pagination.limit.unwrap_or(20).min(100);
-    let offset = pagination.offset.unwrap_or(0);
-    let connections = services::trust::list_outgoing_connections(&pool, user_id, limit, offset).await?;
-    Ok(Json(ApiResponse::new(connections)))
-}
-
-async fn list_incoming(
-    State(pool): State<PgPool>,
-    _auth: AuthUser,
-    Path(user_id): Path<i64>,
-    Query(pagination): Query<PaginationQuery>,
-) -> Result<Json<ApiResponse<Vec<TrustConnection>>>, AppError> {
-    let limit = pagination.limit.unwrap_or(20).min(100);
-    let offset = pagination.offset.unwrap_or(0);
-    let connections = services::trust::list_incoming_connections(&pool, user_id, limit, offset).await?;
-    Ok(Json(ApiResponse::new(connections)))
-}
-
-async fn update_trust(
-    State(pool): State<PgPool>,
+pub async fn get_outgoing(
     auth: RequiredAuth,
-    Path(trustee_id): Path<i64>,
+    State(state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    let conns = crate::services::trust::get_outgoing(&state.pool, auth.user_id).await?;
+    Ok(Json(json!({"connections": conns})))
+}
+
+pub async fn get_incoming(
+    auth: RequiredAuth,
+    State(state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    let conns = crate::services::trust::get_incoming(&state.pool, auth.user_id).await?;
+    Ok(Json(json!({"connections": conns})))
+}
+
+pub async fn get_connection(
+    _auth: RequiredAuth,
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+) -> Result<Json<Value>, AppError> {
+    let conn: TrustConnection = sqlx::query_as("SELECT * FROM trust_connections WHERE id = $1")
+        .bind(id).fetch_optional(&state.pool).await?
+        .ok_or(AppError::NotFound)?;
+    Ok(Json(json!(conn)))
+}
+
+pub async fn update_connection(
+    _auth: RequiredAuth,
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
     Json(req): Json<UpdateTrustConnectionRequest>,
-) -> Result<Json<ApiResponse<TrustConnection>>, AppError> {
-    let connection = services::trust::update_trust_connection(&pool, auth.user_id, trustee_id, req).await?;
-    Ok(Json(ApiResponse::with_message(
-        connection,
-        "Trust connection updated".into(),
-    )))
+) -> Result<Json<Value>, AppError> {
+    sqlx::query("UPDATE trust_connections SET weight = COALESCE($1, weight) WHERE id = $2")
+        .bind(req.weight).bind(id)
+        .execute(&state.pool).await?;
+    Ok(Json(json!({"message": "updated"})))
 }
 
-async fn delete_trust(
-    State(pool): State<PgPool>,
-    auth: RequiredAuth,
-    Path(trustee_id): Path<i64>,
-) -> Result<Json<ApiResponse<()>>, AppError> {
-    services::trust::delete_trust_connection(&pool, auth.user_id, trustee_id).await?;
-    Ok(Json(ApiResponse::with_message((), "Trust connection deleted".into())))
-}
-
-async fn get_score(
-    State(pool): State<PgPool>,
-    _auth: AuthUser,
-    Path(user_id): Path<i64>,
-) -> Result<Json<ApiResponse<f64>>, AppError> {
-    let score = services::trust::get_trust_score(&pool, user_id).await?;
-    Ok(Json(ApiResponse::new(score)))
+pub async fn delete_connection(
+    _auth: RequiredAuth,
+    State(state): State<AppState>,
+    Path(id): Path<i64>,
+) -> Result<Json<Value>, AppError> {
+    sqlx::query("DELETE FROM trust_connections WHERE id = $1")
+        .bind(id).execute(&state.pool).await?;
+    Ok(Json(json!({"message": "deleted"})))
 }

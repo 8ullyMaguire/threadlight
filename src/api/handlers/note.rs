@@ -6,7 +6,6 @@ use serde::Deserialize;
 use sqlx::PgPool;
 
 use crate::api::middleware::auth::{AuthUser, RequiredAuth};
-use crate::app_state::AppState;
 use crate::error::AppError;
 use crate::model::note::{CommunityNote, CreateNoteRequest, UpdateNoteRequest, VoteNoteRequest};
 use crate::model::response::{ApiResponse, PaginatedResponse};
@@ -45,7 +44,7 @@ pub async fn list(
     .bind(params.status)
     .bind(limit)
     .bind(offset)
-    .fetch_all(&*pool)
+    .fetch_all(&pool)
     .await?;
 
     let total = sqlx::query_scalar::<_, i64>(
@@ -61,7 +60,7 @@ pub async fn list(
     .bind(params.post_id)
     .bind(params.author_id)
     .bind(params.status)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let page = (offset / limit) + 1;
@@ -79,7 +78,7 @@ pub async fn get(
         "#,
     )
     .bind(id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(note)))
@@ -111,7 +110,7 @@ pub async fn create(
     .bind(user_id)
     .bind(&req.body)
     .bind(req.requires_author.unwrap_or(false))
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(note)))
@@ -137,7 +136,7 @@ pub async fn update(
         r#"SELECT * FROM community_notes WHERE id = $1"#,
     )
     .bind(id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     if existing.author_id != user_id && !auth.is_admin {
@@ -156,7 +155,7 @@ pub async fn update(
     )
     .bind(&req.body)
     .bind(id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(note)))
@@ -176,7 +175,7 @@ pub async fn delete(
         r#"SELECT * FROM community_notes WHERE id = $1"#,
     )
     .bind(id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     if existing.author_id != user_id && !auth.is_admin {
@@ -187,7 +186,7 @@ pub async fn delete(
 
     sqlx::query(r#"DELETE FROM community_notes WHERE id = $1"#)
         .bind(id)
-        .execute(&*pool)
+        .execute(&pool)
         .await?;
 
     Ok(Json(ApiResponse::with_message(
@@ -208,7 +207,7 @@ pub async fn vote(
         r#"SELECT * FROM community_notes WHERE id = $1"#,
     )
     .bind(id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     // Upsert vote
@@ -223,7 +222,7 @@ pub async fn vote(
     .bind(id)
     .bind(auth.user_id)
     .bind(req.vote)
-    .execute(&*pool)
+    .execute(&pool)
     .await?;
 
     // Update helpful counts
@@ -236,7 +235,7 @@ pub async fn vote(
         "#,
     )
     .bind(id)
-    .execute(&*pool)
+    .execute(&pool)
     .await?;
 
     let result = serde_json::json!({

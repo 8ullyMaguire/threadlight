@@ -1,190 +1,108 @@
-use axum::extract::{Path, Query, State};
-use axum::routing::{get, patch, post};
-use axum::{Json, Router};
-use serde::Deserialize;
-use sqlx::PgPool;
-
-use crate::api::middleware::auth::{AuthUser, RequiredAuth};
+use axum::{extract::{Path, State}, Json};
+use serde_json::{json, Value};
+use crate::api::middleware::auth::RequiredAuth;
+use crate::AppState;
 use crate::error::AppError;
-use crate::model::credit::{
-    AwardBountyRequest, Bounty, CompleteQuestRequest, CreateBountyRequest, CreditTransaction,
-    DailyQuest, DailyReward, TransferCreditsRequest,
-};
-use crate::model::response::ApiResponse;
-use crate::services;
+use crate::model::credit::*;
 
-pub fn routes() -> Router<super::super::AppState> {
-    Router::new()
-        // Transactions
-        .route("/credits/transfer", post(transfer))
-        .route("/credits/transactions", get(list_transactions_handler))
-        .route("/credits/transactions/{id}", get(get_transaction))
-        .route("/credits/balance/{user_id}", get(get_balance))
-        // Daily rewards
-        .route("/credits/daily-reward/claim", post(claim_daily_reward))
-        .route("/credits/daily-reward/status", get(daily_reward_status))
-        // Bounties
-        .route("/credits/bounties", post(create_bounty))
-        .route("/credits/bounties", get(list_bounties))
-        .route("/credits/bounties/{id}", get(get_bounty))
-        .route("/credits/bounties/{id}/award", post(award_bounty))
-        .route("/credits/bounties/{id}/cancel", post(cancel_bounty))
-        // Daily quests
-        .route("/credits/quests/complete", post(complete_quest))
-        .route("/credits/quests", get(list_quests))
-}
-
-#[derive(Deserialize)]
-pub struct PaginationQuery {
-    limit: Option<i64>,
-    offset: Option<i64>,
-}
-
-#[derive(Deserialize)]
-pub struct BountyListQuery {
-    status: Option<i16>,
-    limit: Option<i64>,
-    offset: Option<i64>,
-}
-
-// ── Transactions ──
-
-async fn transfer(
-    State(pool): State<PgPool>,
+pub async fn transfer(
     auth: RequiredAuth,
+    State(state): State<AppState>,
     Json(req): Json<TransferCreditsRequest>,
-) -> Result<Json<ApiResponse<CreditTransaction>>, AppError> {
-    let tx = services::credit::transfer_credits(&pool, auth.user_id, req).await?;
-    Ok(Json(ApiResponse::with_message(tx, "Transfer completed".into())))
+) -> Result<Json<Value>, AppError> {
+    let tx = crate::services::credit::transfer(&state.pool, auth.user_id, req.to_user_id, req.amount).await?;
+    Ok(Json(json!(tx)))
 }
 
-async fn get_transaction(
-    State(pool): State<PgPool>,
-    _auth: AuthUser,
-    Path(id): Path<i64>,
-) -> Result<Json<ApiResponse<CreditTransaction>>, AppError> {
-    let tx = services::credit::get_transaction(&pool, id).await?;
-    Ok(Json(ApiResponse::new(tx)))
-}
-
-async fn list_transactions_handler(
-    State(pool): State<PgPool>,
+pub async fn get_transactions(
     auth: RequiredAuth,
-    Query(pagination): Query<PaginationQuery>,
-) -> Result<Json<ApiResponse<Vec<CreditTransaction>>>, AppError> {
-    let limit = pagination.limit.unwrap_or(20).min(100);
-    let offset = pagination.offset.unwrap_or(0);
-    let transactions = services::credit::list_transactions(&pool, auth.user_id, limit, offset).await?;
-    Ok(Json(ApiResponse::new(transactions)))
+    State(state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    let txs = crate::services::credit::list_transactions(&state.pool, auth.user_id, 50, 0).await?;
+    Ok(Json(json!({"transactions": txs})))
 }
 
-async fn get_balance(
-    State(pool): State<PgPool>,
-    _auth: AuthUser,
-    Path(user_id): Path<i64>,
-) -> Result<Json<ApiResponse<i64>>, AppError> {
-    let balance = services::credit::get_balance(&pool, user_id).await?;
-    Ok(Json(ApiResponse::new(balance)))
-}
-
-// ── Daily Rewards ──
-
-async fn claim_daily_reward(
-    State(pool): State<PgPool>,
+pub async fn claim_daily_reward(
     auth: RequiredAuth,
-) -> Result<Json<ApiResponse<DailyReward>>, AppError> {
-    let reward = services::credit::claim_daily_reward(&pool, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message(
-        reward,
-        "Daily reward claimed".into(),
-    )))
+    State(state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    let reward = crate::services::credit::claim_daily_reward(&state.pool, auth.user_id).await?;
+    Ok(Json(json!(reward)))
 }
 
-async fn daily_reward_status(
-    State(pool): State<PgPool>,
+pub async fn get_daily_reward_status(
     auth: RequiredAuth,
-) -> Result<Json<ApiResponse<Option<DailyReward>>>, AppError> {
-    let status = services::credit::get_daily_reward_status(&pool, auth.user_id).await?;
-    Ok(Json(ApiResponse::new(status)))
+    State(state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    let reward = crate::services::credit::get_daily_reward_status(&state.pool, auth.user_id).await?;
+    Ok(Json(json!({"reward": reward})))
 }
 
-// ── Bounties ──
-
-async fn create_bounty(
-    State(pool): State<PgPool>,
+pub async fn get_balance(
     auth: RequiredAuth,
+    State(state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    let balance = crate::services::credit::get_balance(&state.pool, auth.user_id).await?;
+    Ok(Json(json!({"balance": balance})))
+}
+
+pub async fn create_bounty(
+    auth: RequiredAuth,
+    State(state): State<AppState>,
     Json(req): Json<CreateBountyRequest>,
-) -> Result<Json<ApiResponse<Bounty>>, AppError> {
-    let bounty = services::credit::create_bounty(&pool, auth.user_id, req).await?;
-    Ok(Json(ApiResponse::with_message(
-        bounty,
-        "Bounty created".into(),
-    )))
+) -> Result<Json<Value>, AppError> {
+    let bounty: Bounty = sqlx::query_as(
+        "INSERT INTO bounties (post_id, creator_id, total_amount) VALUES ($1, $2, $3) RETURNING *"
+    )
+    .bind(req.post_id).bind(auth.user_id).bind(req.total_amount)
+    .fetch_one(&state.pool).await?;
+    Ok(Json(json!(bounty)))
 }
 
-async fn list_bounties(
-    State(pool): State<PgPool>,
-    _auth: AuthUser,
-    Query(query): Query<BountyListQuery>,
-) -> Result<Json<ApiResponse<Vec<Bounty>>>, AppError> {
-    let limit = query.limit.unwrap_or(20).min(100);
-    let offset = query.offset.unwrap_or(0);
-    let bounties = services::credit::list_bounties(&pool, query.status, limit, offset).await?;
-    Ok(Json(ApiResponse::new(bounties)))
-}
-
-async fn get_bounty(
-    State(pool): State<PgPool>,
-    _auth: AuthUser,
+pub async fn get_bounty(
+    _auth: RequiredAuth,
+    State(state): State<AppState>,
     Path(id): Path<i64>,
-) -> Result<Json<ApiResponse<Bounty>>, AppError> {
-    let bounty = services::credit::get_bounty(&pool, id).await?;
-    Ok(Json(ApiResponse::new(bounty)))
+) -> Result<Json<Value>, AppError> {
+    let bounty: Bounty = sqlx::query_as("SELECT * FROM bounties WHERE id = $1")
+        .bind(id).fetch_optional(&state.pool).await?
+        .ok_or(AppError::NotFound)?;
+    Ok(Json(json!(bounty)))
 }
 
-async fn award_bounty(
-    State(pool): State<PgPool>,
-    auth: RequiredAuth,
+pub async fn award_bounty(
+    _auth: RequiredAuth,
+    State(state): State<AppState>,
     Path(id): Path<i64>,
     Json(req): Json<AwardBountyRequest>,
-) -> Result<Json<ApiResponse<Bounty>>, AppError> {
-    let bounty = services::credit::award_bounty(&pool, id, req).await?;
-    Ok(Json(ApiResponse::with_message(
-        bounty,
-        "Bounty awarded".into(),
-    )))
+) -> Result<Json<Value>, AppError> {
+    sqlx::query("UPDATE bounties SET status = 1, best_answer_id = $1 WHERE id = $2")
+        .bind(req.answer_id).bind(id)
+        .execute(&state.pool).await?;
+    Ok(Json(json!({"message": "bounty awarded"})))
 }
 
-async fn cancel_bounty(
-    State(pool): State<PgPool>,
+pub async fn complete_quest(
     auth: RequiredAuth,
-    Path(id): Path<i64>,
-) -> Result<Json<ApiResponse<Bounty>>, AppError> {
-    let bounty = services::credit::cancel_bounty(&pool, id).await?;
-    Ok(Json(ApiResponse::with_message(
-        bounty,
-        "Bounty cancelled".into(),
-    )))
-}
-
-// ── Daily Quests ──
-
-async fn complete_quest(
-    State(pool): State<PgPool>,
-    auth: RequiredAuth,
+    State(state): State<AppState>,
     Json(req): Json<CompleteQuestRequest>,
-) -> Result<Json<ApiResponse<DailyQuest>>, AppError> {
-    let quest = services::credit::complete_quest(&pool, auth.user_id, req).await?;
-    Ok(Json(ApiResponse::with_message(
-        quest,
-        "Quest completed".into(),
-    )))
+) -> Result<Json<Value>, AppError> {
+    sqlx::query(
+        "INSERT INTO daily_quests (user_id, date, quest_type, completed)
+         VALUES ($1, CURRENT_DATE, $2, true) ON CONFLICT DO NOTHING"
+    )
+    .bind(auth.user_id).bind(req.quest_type)
+    .execute(&state.pool).await?;
+    Ok(Json(json!({"message": "quest completed"})))
 }
 
-async fn list_quests(
-    State(pool): State<PgPool>,
-    auth: RequiredAuth,
-) -> Result<Json<ApiResponse<Vec<DailyQuest>>>, AppError> {
-    let quests = services::credit::list_daily_quests(&pool, auth.user_id).await?;
-    Ok(Json(ApiResponse::new(quests)))
+pub async fn get_costs(
+    _auth: RequiredAuth,
+    State(state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    let costs: Option<serde_json::Value> = sqlx::query_scalar(
+        "SELECT credit_action_costs FROM site_config WHERE id = 1"
+    )
+    .fetch_optional(&state.pool).await?;
+    Ok(Json(json!({"costs": costs.unwrap_or(serde_json::Value::Null)})))
 }

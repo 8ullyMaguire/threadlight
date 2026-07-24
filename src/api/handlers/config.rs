@@ -6,7 +6,6 @@ use serde::Deserialize;
 use sqlx::PgPool;
 
 use crate::api::middleware::auth::AuthUser;
-use crate::app_state::AppState;
 use crate::error::AppError;
 use crate::model::response::ApiResponse;
 use crate::model::site_config::{CustomPage, GenerateInviteRequest, SiteConfig};
@@ -29,7 +28,7 @@ pub async fn get_config(
     let config = sqlx::query_as::<_, SiteConfig>(
         r#"SELECT * FROM site_config ORDER BY id DESC LIMIT 1"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(config)))
@@ -49,7 +48,7 @@ pub async fn update_config(
     let current = sqlx::query_as::<_, SiteConfig>(
         r#"SELECT * FROM site_config ORDER BY id DESC LIMIT 1"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let registration_mode = req
@@ -130,7 +129,7 @@ pub async fn update_config(
     .bind(code_of_conduct_url)
     .bind(donation_url)
     .bind(donate_text)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(config)))
@@ -148,37 +147,37 @@ pub async fn get_stats(
     let total_users = sqlx::query_scalar::<_, i64>(
         r#"SELECT COUNT(*) FROM users WHERE is_deleted = false"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let total_posts = sqlx::query_scalar::<_, i64>(
         r#"SELECT COUNT(*) FROM posts WHERE is_deleted = false"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let total_communities = sqlx::query_scalar::<_, i64>(
         r#"SELECT COUNT(*) FROM communities"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let total_active_today = sqlx::query_scalar::<_, i64>(
         r#"SELECT COUNT(*) FROM users WHERE last_active_at >= NOW() - INTERVAL '24 hours'"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let total_notes = sqlx::query_scalar::<_, i64>(
         r#"SELECT COUNT(*) FROM community_notes WHERE status >= 0"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let total_mod_actions = sqlx::query_scalar::<_, i64>(
         r#"SELECT COUNT(*) FROM moderation_actions"#,
     )
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let result = serde_json::json!({
@@ -206,9 +205,9 @@ pub async fn list_invites(
     let limit = params.limit.unwrap_or(50).min(200);
     let offset = params.offset.unwrap_or(0);
 
-    let invites = sqlx::query_as::<_, serde_json::Value>(
+    let invites_raw = sqlx::query_as::<_, (i64, String, Option<String>, Option<i64>, Option<chrono::DateTime<chrono::Utc>>,)>(
         r#"
-        SELECT ui.*, u.username AS inviter_username
+        SELECT ui.id, ui.code, u.username AS inviter_username, ui.used_by, ui.used_at
         FROM user_invites ui
         LEFT JOIN users u ON u.id = ui.inviter_id
         ORDER BY ui.created_at DESC
@@ -217,8 +216,12 @@ pub async fn list_invites(
     )
     .bind(limit)
     .bind(offset)
-    .fetch_all(&*pool)
+    .fetch_all(&pool)
     .await?;
+
+    let invites: Vec<serde_json::Value> = invites_raw.into_iter().map(|(id, code, username, used_by, used_at)| {
+        serde_json::json!({"id": id, "code": code, "inviter_username": username, "used_by": used_by, "used_at": used_at})
+    }).collect();
 
     Ok(Json(ApiResponse::new(invites)))
 }
@@ -238,19 +241,18 @@ pub async fn generate_invites(
 
     for _ in 0..count {
         let code = uuid::Uuid::new_v4().to_string();
-        let invite = sqlx::query_as::<_, UserInvite>(
+        let invite = sqlx::query_as::<_, (i64, String)>(
             r#"
-            INSERT INTO user_invites (inviter_id, code, created_at)
-            VALUES ($1, $2, NOW())
-            RETURNING *
+            INSERT INTO user_invites (inviter_id, code)
+            VALUES ($1, $2)
+            RETURNING id, code
             "#,
         )
         .bind(auth.user_id)
         .bind(&code)
-        .fetch_one(&*pool)
+        .fetch_one(&pool)
         .await?;
-
-        invites.push(invite);
+        invites.push(serde_json::json!({"id": invite.0, "code": invite.1}));
     }
 
     Ok(Json(ApiResponse::with_message(
@@ -269,7 +271,7 @@ pub async fn list_pages(
         ORDER BY slug ASC
         "#,
     )
-    .fetch_all(&*pool)
+    .fetch_all(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(pages)))
@@ -284,7 +286,7 @@ pub async fn get_page(
         r#"SELECT * FROM custom_pages WHERE slug = $1"#,
     )
     .bind(&slug)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(page)))

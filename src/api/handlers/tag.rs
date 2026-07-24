@@ -18,7 +18,7 @@ pub async fn create(
     Json(req): Json<CreateTagRequest>,
 ) -> Result<Json<ApiResponse<Tag>>, AppError> {
     let tag = services::tag::create_tag(&pool, req, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message(tag, "Tag created")))
+    Ok(Json(ApiResponse::with_message(tag, "Tag created".to_string())))
 }
 
 /// GET /api/v1/tags
@@ -60,7 +60,7 @@ pub async fn update(
     Json(req): Json<UpdateTagRequest>,
 ) -> Result<Json<ApiResponse<Tag>>, AppError> {
     let tag = services::tag::update_tag(&pool, id, req).await?;
-    Ok(Json(ApiResponse::with_message(tag, "Tag updated")))
+    Ok(Json(ApiResponse::with_message(tag, "Tag updated".to_string())))
 }
 
 /// DELETE /api/v1/tags/{id}
@@ -70,7 +70,7 @@ pub async fn delete(
     Path(id): Path<i32>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::tag::delete_tag(&pool, id).await?;
-    Ok(Json(ApiResponse::with_message("deleted", "Tag deleted")))
+    Ok(Json(ApiResponse::with_message("deleted", "Tag deleted".to_string())))
 }
 
 /// POST /api/v1/tags/{id}/vote
@@ -81,7 +81,7 @@ pub async fn vote_tag(
     Json(req): Json<VoteTagRequest>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::tag::vote_tag(&pool, id, auth.user_id, req.vote).await?;
-    Ok(Json(ApiResponse::with_message("voted", "Vote recorded")))
+    Ok(Json(ApiResponse::with_message("voted", "Vote recorded".to_string())))
 }
 
 /// POST /api/v1/tags/posts/{post_id}/tags/{tag_id}

@@ -1,88 +1,72 @@
-use axum::extract::{Path, State};
-use axum::Json;
-use sqlx::PgPool;
-
-use crate::api::middleware::auth::RequiredAuth;
+use axum::{extract::{Path, State}, Json};
+use serde_json::{json, Value};
+use crate::api::middleware::auth::{AuthUser, RequiredAuth};
+use crate::AppState;
 use crate::error::AppError;
-use crate::model::response::ApiResponse;
-use crate::model::user::{UpdateProfileRequest, UserProfile};
-use crate::services;
+use crate::model::user::{UpdateProfileRequest};
 
-/// GET /api/v1/users/:username
-pub async fn get_user(
-    State(pool): State<PgPool>,
+pub async fn get_profile_by_username(
+    State(state): State<AppState>,
     Path(username): Path<String>,
-) -> Result<Json<ApiResponse<UserProfile>>, AppError> {
-    let user = services::user::UserService::get_profile_by_username(&pool, &username).await?;
-    Ok(Json(ApiResponse::new(user)))
+) -> Result<Json<Value>, AppError> {
+    let user = crate::services::user::UserService::get_profile_by_username(&state.pool, &username).await?;
+    Ok(Json(json!(user)))
 }
 
-/// GET /api/v1/users/@me
-pub async fn get_me(
-    State(pool): State<PgPool>,
+pub async fn get_profile(
     auth: RequiredAuth,
-) -> Result<Json<ApiResponse<UserProfile>>, AppError> {
-    let user = services::user::UserService::get_profile(&pool, auth.user_id).await?;
-    Ok(Json(ApiResponse::new(user)))
+    State(state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    let user = crate::services::user::UserService::get_profile(&state.pool, auth.user_id).await?;
+    Ok(Json(json!(user)))
 }
 
-/// PUT /api/v1/users/@me
 pub async fn update_profile(
-    State(pool): State<PgPool>,
     auth: RequiredAuth,
+    State(state): State<AppState>,
     Json(req): Json<UpdateProfileRequest>,
-) -> Result<Json<ApiResponse<UserProfile>>, AppError> {
-    let user = services::user::UserService::update_profile(&pool, auth.user_id, &req).await?;
-    Ok(Json(ApiResponse::with_message(
-        user,
-        "profile updated".to_string(),
-    )))
+) -> Result<Json<Value>, AppError> {
+    let user = crate::services::user::UserService::update_profile(&state.pool, auth.user_id, &req).await?;
+    Ok(Json(json!(user)))
 }
 
-/// POST /api/v1/users/@me/avatar
-pub async fn update_avatar(
-    State(pool): State<PgPool>,
-    auth: RequiredAuth,
-    Json(body): Json<serde_json::Value>,
-) -> Result<Json<ApiResponse<UserProfile>>, AppError> {
-    let avatar_url = body
-        .get("avatar_url")
-        .and_then(|v| v.as_str())
-        .ok_or_else(|| AppError::Validation("avatar_url is required".to_string()))?;
-
-    sqlx::query("UPDATE users SET avatar_url = $1 WHERE id = $2")
-        .bind(avatar_url)
-        .bind(auth.user_id)
-        .execute(&pool)
-        .await?;
-
-    let user = services::user::UserService::get_profile(&pool, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message(
-        user,
-        "avatar updated".to_string(),
-    )))
+pub async fn upload_avatar(
+    _auth: RequiredAuth,
+    State(_state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    Ok(Json(json!({"message": "not implemented"})))
 }
 
-/// POST /api/v1/users/@me/banner
-pub async fn update_banner(
-    State(pool): State<PgPool>,
+pub async fn upload_banner(
+    _auth: RequiredAuth,
+    State(_state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    Ok(Json(json!({"message": "not implemented"})))
+}
+
+pub async fn get_notifications(
     auth: RequiredAuth,
-    Json(body): Json<serde_json::Value>,
-) -> Result<Json<ApiResponse<UserProfile>>, AppError> {
-    let banner_url = body
-        .get("banner_url")
-        .and_then(|v| v.as_str())
-        .ok_or_else(|| AppError::Validation("banner_url is required".to_string()))?;
+    State(state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    let notifications: Vec<serde_json::Value> = sqlx::query_as::<_, (i64, String, bool,)>(
+        "SELECT id, body, is_read FROM user_notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50"
+    )
+    .bind(auth.user_id)
+    .fetch_all(&state.pool)
+    .await?
+    .into_iter()
+    .map(|(id, body, is_read)| json!({"id": id, "body": body, "is_read": is_read}))
+    .collect();
+    Ok(Json(json!({"notifications": notifications})))
+}
 
-    sqlx::query("UPDATE users SET banner_url = $1 WHERE id = $2")
-        .bind(banner_url)
+pub async fn list_blocked_users(
+    auth: RequiredAuth,
+    State(state): State<AppState>,
+) -> Result<Json<Value>, AppError> {
+    let blocked: Vec<(i64,)> = sqlx::query_as("SELECT blocked_id FROM blocked_users WHERE blocker_id = $1")
         .bind(auth.user_id)
-        .execute(&pool)
+        .fetch_all(&state.pool)
         .await?;
-
-    let user = services::user::UserService::get_profile(&pool, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message(
-        user,
-        "banner updated".to_string(),
-    )))
+    Ok(Json(json!({"blocked": blocked.iter().map(|(id,)| id).collect::<Vec<_>>()})))
 }

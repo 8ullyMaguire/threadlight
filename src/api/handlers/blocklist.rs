@@ -6,7 +6,6 @@ use serde::Deserialize;
 use sqlx::PgPool;
 
 use crate::api::middleware::auth::AuthUser;
-use crate::app_state::AppState;
 use crate::error::AppError;
 use crate::model::blocklist::{
     BlocklistEntry, CheckBlocklistQuery, CreateBlocklistEntryRequest,
@@ -48,7 +47,7 @@ pub async fn list(
     .bind(params.severity)
     .bind(limit)
     .bind(offset)
-    .fetch_all(&*pool)
+    .fetch_all(&pool)
     .await?;
 
     let total = sqlx::query_scalar::<_, i64>(
@@ -61,7 +60,7 @@ pub async fn list(
     )
     .bind(params.entry_type)
     .bind(params.severity)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let page = (offset / limit) + 1;
@@ -82,7 +81,7 @@ pub async fn get(
         r#"SELECT * FROM blocklist WHERE id = $1"#,
     )
     .bind(id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(entry)))
@@ -118,7 +117,7 @@ pub async fn create(
     .bind(severity)
     .bind(auth.user_id)
     .bind(shared)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(entry)))
@@ -153,7 +152,7 @@ pub async fn update(
     .bind(severity.map(|s| s as i16))
     .bind(shared)
     .bind(id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(entry)))
@@ -171,7 +170,7 @@ pub async fn delete(
 
     sqlx::query(r#"DELETE FROM blocklist WHERE id = $1"#)
         .bind(id)
-        .execute(&*pool)
+        .execute(&pool)
         .await?;
 
     Ok(Json(ApiResponse::with_message((), "Blocklist entry deleted".into())))
@@ -192,7 +191,7 @@ pub async fn check(
     )
     .bind(params.entry_type)
     .bind(&params.entry_value)
-    .fetch_optional(&*pool)
+    .fetch_optional(&pool)
     .await?;
 
     let result = serde_json::json!({

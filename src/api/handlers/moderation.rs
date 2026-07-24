@@ -6,7 +6,6 @@ use serde::Deserialize;
 use sqlx::PgPool;
 
 use crate::api::middleware::auth::{AuthUser, RequiredAuth};
-use crate::app_state::AppState;
 use crate::error::AppError;
 use crate::model::moderation::{
     AddJurorRequest, CastReviewVoteRequest, CreateModActionRequest, JuryPanel, ModDecisionReview,
@@ -52,7 +51,7 @@ pub async fn create_action(
     .bind(auth.user_id)
     .bind(&req.reason)
     .bind(&req.duration)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(action)))
@@ -67,7 +66,7 @@ pub async fn get_action(
         r#"SELECT * FROM moderation_actions WHERE id = $1"#,
     )
     .bind(id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(action)))
@@ -97,7 +96,7 @@ pub async fn list_actions(
     .bind(params.target_post_id)
     .bind(limit)
     .bind(offset)
-    .fetch_all(&*pool)
+    .fetch_all(&pool)
     .await?;
 
     let total = sqlx::query_scalar::<_, i64>(
@@ -112,7 +111,7 @@ pub async fn list_actions(
     .bind(params.action_type)
     .bind(params.target_user_id)
     .bind(params.target_post_id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let page = (offset / limit) + 1;
@@ -135,7 +134,7 @@ pub async fn add_juror(
         r#"SELECT * FROM moderation_actions WHERE id = $1"#,
     )
     .bind(action_id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let juror = sqlx::query_as::<_, JuryPanel>(
@@ -148,7 +147,7 @@ pub async fn add_juror(
     .bind(action_id)
     .bind(req.juror_id)
     .bind(&req.reason)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(juror)))
@@ -168,7 +167,7 @@ pub async fn list_jurors(
         "#,
     )
     .bind(action_id)
-    .fetch_all(&*pool)
+    .fetch_all(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(jurors)))
@@ -186,7 +185,7 @@ pub async fn vote_jury(
         r#"SELECT * FROM jury_panel WHERE id = $1"#,
     )
     .bind(jury_id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     if existing.juror_id != Some(auth.user_id) && !auth.is_admin {
@@ -206,7 +205,7 @@ pub async fn vote_jury(
     .bind(req.vote)
     .bind(&req.reason)
     .bind(jury_id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     // Update action jury counts
@@ -221,7 +220,7 @@ pub async fn vote_jury(
             "#,
         )
         .bind(action_id)
-        .execute(&*pool)
+        .execute(&pool)
         .await?;
     }
 
@@ -238,7 +237,7 @@ pub async fn list_jury_votes(
         r#"SELECT * FROM jury_panel WHERE id = $1"#,
     )
     .bind(jury_id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     let votes = if let Some(action_id) = panel_entry.target_action_id {
@@ -250,7 +249,7 @@ pub async fn list_jury_votes(
             "#,
         )
         .bind(action_id)
-        .fetch_all(&*pool)
+        .fetch_all(&pool)
         .await?
     } else {
         vec![]
@@ -285,7 +284,7 @@ pub async fn cast_review_vote(
     .bind(auth.user_id)
     .bind(req.vote)
     .bind(review_id)
-    .fetch_one(&*pool)
+    .fetch_one(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(review)))
@@ -305,7 +304,7 @@ pub async fn list_review_votes(
         "#,
     )
     .bind(action_id)
-    .fetch_all(&*pool)
+    .fetch_all(&pool)
     .await?;
 
     Ok(Json(ApiResponse::new(votes)))

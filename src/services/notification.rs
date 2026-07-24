@@ -1,7 +1,7 @@
 use sqlx::PgPool;
 
 use crate::error::AppError;
-use crate::model::notification::{UnreadCount, UserNotification};
+use crate::model::notification::UserNotification;
 
 pub async fn get_notifications(
     pool: &PgPool,
