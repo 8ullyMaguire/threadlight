@@ -131,7 +131,7 @@ pub async fn update_plugin(
     let name = req.get("name").and_then(|v| v.as_str()).map(|s| s.to_string()).unwrap_or(existing.name);
     let description = req.get("description")
         .and_then(|v| v.as_str())
-        .map(|s| Some(s.to_string()))
+        .map(|s| s.to_string())
         .or(existing.description);
     let plugin_type = req.get("plugin_type").and_then(|v| v.as_i64()).map(|v| v as i16).unwrap_or(existing.plugin_type);
     let price_credits = req.get("price_credits").and_then(|v| v.as_i64()).unwrap_or(existing.price_credits);

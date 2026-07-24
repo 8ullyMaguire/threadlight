@@ -93,14 +93,14 @@ pub async fn cast_review_vote(
     }
 
     // Get voter's trust score
-    let trust_score: (Option<f64>,) = sqlx::query_as(
-        "SELECT trust_score FROM user_trust_scores WHERE user_id = $1",
+    let trust_row: Option<(Option<f64>,)> = sqlx::query_as(
+        "SELECT trust_score FROM users WHERE id = $1",
     )
     .bind(auth.user_id)
     .fetch_optional(&pool)
     .await?;
 
-    let voter_trust_score = trust_score.0.unwrap_or(0.0);
+    let voter_trust_score = trust_row.and_then(|r| r.0).unwrap_or(0.0);
 
     // Upsert the review vote
     let review = sqlx::query_as::<_, ModDecisionReview>(

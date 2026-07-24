@@ -292,36 +292,33 @@ pub async fn search_posts(
     let limit = params.limit.unwrap_or(20).min(100);
     let offset = params.offset.unwrap_or(0);
 
-    let sort_clause = match params.sort.as_deref() {
+    let base = "SELECT p.id, p.title, p.body, p.content_type, p.mood, p.is_nsfw, p.created_at, p.interaction_count,\
+               u.username AS author_username, u.display_name AS author_display_name,\
+               u.avatar_url AS author_avatar_url\
+        FROM posts p\
+        LEFT JOIN users u ON u.id = p.author_id\
+        WHERE p.is_deleted = false\
+          AND (p.title ILIKE '%' || ";
+    let mut qb = sqlx::QueryBuilder::new(base);
+    qb.push_bind(params.q.clone());
+    qb.push(" || '%' OR p.body ILIKE '%' || ");
+    qb.push_bind(params.q.clone());
+    qb.push(" || '%')
+          AND (");
+    qb.push_bind(params.time_range.clone());
+    qb.push("::text IS NULL OR p.created_at >= NOW() - ");
+    qb.push_bind(params.time_range.clone());
+    qb.push("::interval)
+        ");
+    qb.push(match params.sort.as_deref() {
         Some("oldest") => "ORDER BY p.created_at ASC",
         Some("interactions") => "ORDER BY p.interaction_count DESC",
         Some("relevance") => "ORDER BY p.cumulative_interactions DESC",
         _ => "ORDER BY p.created_at DESC",
-    };
+    });
+    qb.push(" LIMIT ").push_bind(limit).push(" OFFSET ").push_bind(offset);
 
-    let query_str = format!(
-        r#"
-        SELECT p.id, p.title, p.body, p.content_type, p.mood, p.is_nsfw, p.created_at, p.interaction_count,
-               u.username AS author_username, u.display_name AS author_display_name,
-               u.avatar_url AS author_avatar_url
-        FROM posts p
-        LEFT JOIN users u ON u.id = p.author_id
-        WHERE p.is_deleted = false
-          AND (p.title ILIKE '%' || $1 || '%' OR p.body ILIKE '%' || $1 || '%')
-          AND ($2::text IS NULL OR p.created_at >= NOW() - $2::interval)
-        {}
-        LIMIT $3 OFFSET $4
-        "#,
-        sort_clause
-    );
-
-    let rows = sqlx::query(&query_str)
-        .bind(&params.q)
-        .bind(&params.time_range)
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&pool)
-        .await?;
+    let rows = qb.build().fetch_all(&pool).await?;
 
     let posts: Vec<serde_json::Value> = rows.iter().map(row_to_search_post).collect();
     Ok(Json(ApiResponse::new(posts)))
