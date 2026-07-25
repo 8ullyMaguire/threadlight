@@ -116,6 +116,10 @@ pub async fn get_site(
             "display_name": a.display_name,
             "avatar_url": a.avatar_url,
         })).collect::<Vec<_>>(),
+        "site_config": {
+            "disable_downvotes": site_config.as_ref().map(|c| c.disable_downvotes).unwrap_or(false),
+            "registration_mode": site_config.as_ref().map(|c| c.registration_mode.as_str()),
+        },
         "stats": {
             "total_users": total_users,
             "total_posts": total_posts,

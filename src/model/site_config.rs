@@ -5,6 +5,7 @@ use sqlx::FromRow;
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct SiteConfig {
     pub id: i32,
+    pub disable_downvotes: bool,
     pub registration_mode: String,
     pub invite_limit_threshold_0: i32,
     pub invite_limit_threshold_1: i32,
