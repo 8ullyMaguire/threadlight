@@ -1,7 +1,7 @@
 use axum::{extract::State, Json};
 use serde_json::{json, Value};
 use crate::api::middleware::auth::RequiredAuth;
-use crate::AppState;
+use crate::app_state::AppState;
 use crate::error::AppError;
 
 pub async fn get_config(

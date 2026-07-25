@@ -1,7 +1,7 @@
-use axum::{extract::{State, Query}, Json};
+use axum::{extract::State, Json};
 use serde_json::{json, Value};
 use crate::api::middleware::auth::RequiredAuth;
-use crate::AppState;
+use crate::app_state::AppState;
 use crate::error::AppError;
 use crate::model::userlist::*;
 
@@ -106,7 +106,7 @@ pub async fn add_member(
 }
 
 pub async fn remove_member(
-    auth: RequiredAuth,
+    _auth: RequiredAuth,
     State(state): State<AppState>,
     axum::extract::Path((id, user_id)): axum::extract::Path<(i64, i64)>,
 ) -> Result<Json<Value>, AppError> {
@@ -269,7 +269,7 @@ pub async fn create_algorithmic(
 
 pub async fn evaluate_algorithmic(
     _auth: RequiredAuth,
-    State(state): State<AppState>,
+    State(_state): State<AppState>,
     axum::extract::Path(_id): axum::extract::Path<i64>,
     Json(req): Json<EvaluateAlgorithmicRequest>,
 ) -> Result<Json<Value>, AppError> {

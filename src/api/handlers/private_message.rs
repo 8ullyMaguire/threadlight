@@ -11,7 +11,6 @@ use crate::model::private_message::{
 };
 use crate::model::response::ApiResponse;
 use crate::model::user::UserProfile;
-use crate::services;
 
 /// POST /api/v1/private-messages — Send a private message
 pub async fn send(

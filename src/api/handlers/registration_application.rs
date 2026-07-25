@@ -1,13 +1,12 @@
 use axum::{extract::State, Json};
 use sqlx::PgPool;
 
-use crate::api::middleware::auth::{AuthUser, RequiredAuth};
+use crate::api::middleware::auth::RequiredAuth;
 use crate::error::AppError;
 use crate::model::registration_application::{
     CreateRegistrationApplication, ReviewRegistrationApplication,
 };
 use crate::model::response::ApiResponse;
-use crate::model::user::UserProfile;
 
 /// POST /api/v1/registration-applications — Submit a registration application
 pub async fn submit(

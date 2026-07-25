@@ -5,7 +5,7 @@ use axum::{
 use serde::Deserialize;
 use sqlx::PgPool;
 
-use crate::api::middleware::auth::{AuthUser, RequiredAuth};
+use crate::api::middleware::auth::RequiredAuth;
 use crate::error::AppError;
 use crate::model::moderation::{
     AddJurorRequest, CastReviewVoteRequest, CreateModActionRequest, JuryPanel, ModDecisionReview,

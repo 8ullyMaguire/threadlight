@@ -120,7 +120,7 @@ impl UserService {
 
     pub async fn update_site_config(pool: &PgPool, updates: &serde_json::Value) -> Result<SiteConfig, AppError> {
         // Dynamic update - build individual column updates from JSON
-        let mut query = String::from("UPDATE site_config SET updated_at = NOW()");
+        let _query = String::from("UPDATE site_config SET updated_at = NOW()");
         if let Some(val) = updates.get("registration_mode").and_then(|v| v.as_str()) {
             sqlx::query("UPDATE site_config SET registration_mode = $1 WHERE id = 1")
                 .bind(val)

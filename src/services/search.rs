@@ -1,6 +1,5 @@
 use sqlx::PgPool;
 use crate::error::AppError;
-use crate::model::search::*;
 
 pub async fn search_posts(pool: &PgPool, query: &str, limit: i64, offset: i64) -> Result<Vec<serde_json::Value>, AppError> {
     let results = sqlx::query_as::<_, (i64, Option<String>, f64)>(

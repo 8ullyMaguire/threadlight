@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[derive(Debug, Deserialize)]
-struct PaginationParams {
+pub struct PaginationParams {
     page: Option<i64>,
     per_page: Option<i64>,
 }
@@ -32,7 +32,7 @@ impl PaginationParams {
 // ── Get controversial mod actions (pending jury review) ─────────────────────
 
 pub async fn get_controversial(
-    auth: RequiredAuth,
+    _auth: RequiredAuth,
     State(pool): State<PgPool>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<PaginatedResponse<ModerationAction>>, AppError> {
@@ -126,7 +126,7 @@ pub async fn cast_review_vote(
 // ── Get all reviews for a moderation action ─────────────────────────────────
 
 pub async fn get_reviews(
-    auth: RequiredAuth,
+    _auth: RequiredAuth,
     State(pool): State<PgPool>,
     Path(action_id): Path<i64>,
     Query(params): Query<PaginationParams>,

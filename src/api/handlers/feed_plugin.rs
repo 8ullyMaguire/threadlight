@@ -18,7 +18,7 @@ use crate::{
 };
 
 #[derive(Debug, Deserialize)]
-struct PaginationParams {
+pub struct PaginationParams {
     page: Option<i64>,
     per_page: Option<i64>,
 }
@@ -38,7 +38,7 @@ impl PaginationParams {
 // ── List all plugins (public marketplace) ───────────────────────────────────
 
 pub async fn list_plugins(
-    auth: RequiredAuth,
+    _auth: RequiredAuth,
     State(pool): State<PgPool>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<PaginatedResponse<FeedPlugin>>, AppError> {
@@ -67,7 +67,7 @@ pub async fn list_plugins(
 // ── Get a single plugin ─────────────────────────────────────────────────────
 
 pub async fn get_plugin(
-    auth: RequiredAuth,
+    _auth: RequiredAuth,
     State(pool): State<PgPool>,
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<FeedPlugin>>, AppError> {

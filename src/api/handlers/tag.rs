@@ -93,7 +93,7 @@ pub async fn tag_post(
     services::post::add_post_tag(&pool, post_id, tag_id, auth.user_id).await?;
     Ok(Json(ApiResponse::with_message(
         "tagged",
-        "Tag added to post",
+        "Tag added to post".to_string(),
     )))
 }
 
@@ -106,7 +106,7 @@ pub async fn untag_post(
     services::post::remove_post_tag(&pool, post_id, tag_id).await?;
     Ok(Json(ApiResponse::with_message(
         "untagged",
-        "Tag removed from post",
+        "Tag removed".to_string(),
     )))
 }
 
