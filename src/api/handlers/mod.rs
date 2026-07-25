@@ -25,6 +25,7 @@ pub mod private_message;
 pub mod registration_application;
 pub mod report;
 pub mod search;
+pub mod site;
 pub mod trending;
 pub mod trust;
 pub mod user;
