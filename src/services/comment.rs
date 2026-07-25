@@ -2,7 +2,8 @@ use sqlx::PgPool;
 
 use crate::error::AppError;
 use crate::model::comment::{
-    format_path_segment, Comment, CommentListQuery, CommentResponse, CreateCommentRequest,
+    format_path_segment, Comment, CommentListQuery, CommentResponse, CommentSort,
+    CreateCommentRequest,
 };
 use crate::model::user::UserProfile;
 
@@ -124,8 +125,8 @@ pub async fn get_comment_with_details(
     })
 }
 
-/// List comments for a post, ordered by path (tree order).
-/// Supports filtering by post_id, author_id, max_depth.
+/// List comments for a post, with configurable ordering.
+/// Supports sorting via `sort` query param: hot, top, new, old, controversial.
 pub async fn list_comments(
     pool: &PgPool,
     query: CommentListQuery,
@@ -134,8 +135,9 @@ pub async fn list_comments(
     let limit = query.limit.unwrap_or(50).min(100);
     let page = query.page.unwrap_or(0);
     let offset = page * limit;
+    let sort = query.sort.clone().unwrap_or(CommentSort::Hot);
 
-    // Count total matching comments
+    // Count total matching comments (no JOIN needed)
     let total: (i64,) = sqlx::query_as(
         r#"
         SELECT COUNT(*) FROM comments c
@@ -151,25 +153,133 @@ pub async fn list_comments(
     .fetch_one(pool)
     .await?;
 
-    // Fetch comments ordered by path for tree ordering
-    let comments: Vec<Comment> = sqlx::query_as::<_, Comment>(
-        r#"
-        SELECT c.* FROM comments c
-        WHERE c.deleted = false
-          AND ($1::bigint IS NULL OR c.post_id = $1)
-          AND ($2::bigint IS NULL OR c.author_id = $2)
-          AND ($3::int IS NULL OR c.depth <= $3)
-        ORDER BY c.path ASC
-        LIMIT $4 OFFSET $5
-        "#,
-    )
-    .bind(query.post_id)
-    .bind(query.author_id)
-    .bind(query.max_depth)
-    .bind(limit)
-    .bind(offset)
-    .fetch_all(pool)
-    .await?;
+    // Fetch comments using the appropriate ordering for the requested sort.
+    // Each branch uses a separate static SQL string to satisfy SQLx's
+    // SqlSafeStr requirement (dynamic SQL is not allowed with query_as!).
+    // For vote-based sorts (top, controversial) we LEFT JOIN an aggregate
+    // subquery so the ORDER BY can reference up/down vote counts directly.
+    // For path/date sorts (hot, new, old) the JOIN is skipped for efficiency.
+    let comments: Vec<Comment> = match sort {
+        CommentSort::Hot => {
+            sqlx::query_as::<_, Comment>(
+                r#"
+                SELECT c.* FROM comments c
+                WHERE c.deleted = false
+                  AND ($1::bigint IS NULL OR c.post_id = $1)
+                  AND ($2::bigint IS NULL OR c.author_id = $2)
+                  AND ($3::int IS NULL OR c.depth <= $3)
+                ORDER BY c.path ASC
+                LIMIT $4 OFFSET $5
+                "#,
+            )
+            .bind(query.post_id)
+            .bind(query.author_id)
+            .bind(query.max_depth)
+            .bind(limit)
+            .bind(offset)
+            .fetch_all(pool)
+            .await?
+        }
+        CommentSort::New => {
+            sqlx::query_as::<_, Comment>(
+                r#"
+                SELECT c.* FROM comments c
+                WHERE c.deleted = false
+                  AND ($1::bigint IS NULL OR c.post_id = $1)
+                  AND ($2::bigint IS NULL OR c.author_id = $2)
+                  AND ($3::int IS NULL OR c.depth <= $3)
+                ORDER BY c.created_at DESC, c.path ASC
+                LIMIT $4 OFFSET $5
+                "#,
+            )
+            .bind(query.post_id)
+            .bind(query.author_id)
+            .bind(query.max_depth)
+            .bind(limit)
+            .bind(offset)
+            .fetch_all(pool)
+            .await?
+        }
+        CommentSort::Old => {
+            sqlx::query_as::<_, Comment>(
+                r#"
+                SELECT c.* FROM comments c
+                WHERE c.deleted = false
+                  AND ($1::bigint IS NULL OR c.post_id = $1)
+                  AND ($2::bigint IS NULL OR c.author_id = $2)
+                  AND ($3::int IS NULL OR c.depth <= $3)
+                ORDER BY c.created_at ASC, c.path ASC
+                LIMIT $4 OFFSET $5
+                "#,
+            )
+            .bind(query.post_id)
+            .bind(query.author_id)
+            .bind(query.max_depth)
+            .bind(limit)
+            .bind(offset)
+            .fetch_all(pool)
+            .await?
+        }
+        CommentSort::Top => {
+            sqlx::query_as::<_, Comment>(
+                r#"
+                SELECT c.* FROM comments c
+                LEFT JOIN (
+                    SELECT
+                        comment_id,
+                        COUNT(*) FILTER (WHERE score > 0) AS upvotes,
+                        COUNT(*) FILTER (WHERE score < 0) AS downvotes
+                    FROM comment_likes
+                    GROUP BY comment_id
+                ) v ON v.comment_id = c.id
+                WHERE c.deleted = false
+                  AND ($1::bigint IS NULL OR c.post_id = $1)
+                  AND ($2::bigint IS NULL OR c.author_id = $2)
+                  AND ($3::int IS NULL OR c.depth <= $3)
+                ORDER BY (COALESCE(v.upvotes, 0) - COALESCE(v.downvotes, 0)) DESC, c.path ASC
+                LIMIT $4 OFFSET $5
+                "#,
+            )
+            .bind(query.post_id)
+            .bind(query.author_id)
+            .bind(query.max_depth)
+            .bind(limit)
+            .bind(offset)
+            .fetch_all(pool)
+            .await?
+        }
+        CommentSort::Controversial => {
+            sqlx::query_as::<_, Comment>(
+                r#"
+                SELECT c.* FROM comments c
+                LEFT JOIN (
+                    SELECT
+                        comment_id,
+                        COUNT(*) FILTER (WHERE score > 0) AS upvotes,
+                        COUNT(*) FILTER (WHERE score < 0) AS downvotes
+                    FROM comment_likes
+                    GROUP BY comment_id
+                ) v ON v.comment_id = c.id
+                WHERE c.deleted = false
+                  AND ($1::bigint IS NULL OR c.post_id = $1)
+                  AND ($2::bigint IS NULL OR c.author_id = $2)
+                  AND ($3::int IS NULL OR c.depth <= $3)
+                ORDER BY (
+                    (COALESCE(v.upvotes, 0) + COALESCE(v.downvotes, 0))::float8 /
+                    (ABS(COALESCE(v.upvotes, 0) - COALESCE(v.downvotes, 0)) + 1)
+                ) DESC NULLS LAST, c.path ASC
+                LIMIT $4 OFFSET $5
+                "#,
+            )
+            .bind(query.post_id)
+            .bind(query.author_id)
+            .bind(query.max_depth)
+            .bind(limit)
+            .bind(offset)
+            .fetch_all(pool)
+            .await?
+        }
+    };
 
     // Enrich comments with author info and scores
     let mut responses = Vec::with_capacity(comments.len());
