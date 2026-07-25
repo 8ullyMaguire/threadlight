@@ -3,7 +3,9 @@
 **Source:** `~/code/rust/threadlight/`  
 **Language:** Rust (edition 2021, Axum 0.8 + SQLx 0.9)  
 **License:** AGPL-3.0  
-**Description:** Social media platform — single-instance with trust-based governance, rewrite of the Go threadlight/Polaris backend in Rust  
+**Description:** Social media platform — single-instance with trust-based governance, credit economy, and anti-outrage design. Rust rewrite inspired by Go Threadlight/Polaris and PyFed (PieFed).
+
+**Premise:** Bring people together. Be as addictive as possible without pushing outrage.
 
 ---
 
@@ -16,20 +18,20 @@
                             |                     |
                        [PostgreSQL]          [Redis]
                             |                     |
-                       [FTS Search]    [Rate Limiting + Sessions]
+                       [FTS Search]    [Rate Limiting + Sessions + Vote Quota]
 ```
 
 | Layer | Location | Purpose |
 |---|---|---|
-| Entrypoint | `src/main.rs` | tokio runtime, server bootstrap |
-| Router | `src/api/mod.rs` + `src/api/handlers/*.rs` | Axum route definitions, 27 handler modules |
+| Entrypoint | `src/main.rs` | tokio runtime, DB connect, Redis connect, migration runner, server bootstrap |
+| Router | `src/api/mod.rs` | Axum route definitions (~100+ routes across 32 handler modules) |
 | Middleware | `src/api/middleware/` | JWT auth (RequiredAuth + optional AuthUser), CORS, logging, rate limiting |
-| Models | `src/model/` | 28 model modules (DTOs + DB structs with sqlx::FromRow) |
-| Services | `src/services/` | 25 service modules (business logic + SQLx queries) |
-| DB | `src/db.rs` | Connection pool setup + SQLx migrations |
-| Config | `src/config.rs` | Env-based configuration |
-| Error | `src/error.rs` | Unified AppError type with http status mapping |
-| State | `src/app_state.rs` | Shared application state (pool, redis, config) |
+| Models | `src/model/` | 30 model modules (DTOs + DB structs with sqlx::FromRow) |
+| Services | `src/services/` | 27 service modules (business logic + SQLx compile-time checked queries) |
+| DB | `src/db.rs` | PgPool setup + SQLx migration runner |
+| Config | `src/config.rs` | Env-based configuration with sensible defaults |
+| Error | `src/error.rs` | Unified AppError enum with HTTP status mapping |
+| State | `src/app_state.rs` | Shared state (pool, redis, config) with FromRef extractors |
 | Worker | `src/worker/` | Background tokio interval tasks |
 
 ---
@@ -38,16 +40,16 @@
 
 | Component | Technology |
 |---|---|
-| Web framework | Axum 0.8 (tokio-based, tower middleware) |
-| Database | PostgreSQL via SQLx 0.9 (compile-time checked queries, async) |
-| Cache | Redis via `redis` crate 1.x (connection-manager, tokio-comp) |
+| Web framework | Axum 0.8 (tokio-based, tower middleware, typed extractors) |
+| Database | PostgreSQL via SQLx 0.9 (compile-time checked queries, async, migration runner) |
+| Cache/Quota | Redis via `redis` crate 1.x (connection-manager, tokio-comp) |
 | Auth | JWT (jsonwebtoken 11) + bcrypt 0.19 |
 | Serialization | serde + serde_json |
 | Time | chrono 0.4 with serde support |
-| UUID | uuid 1.x (v4) |
 | Error handling | thiserror 2 + anyhow 1 |
 | Async | tokio 1 (full features) + futures 0.3 |
-| Logging | tracing + tracing-subscriber (json + env-filter) |
+| Logging | tracing + tracing-subscriber (env-filter) |
+| Regex | regex 1 |
 
 ---
 
@@ -55,233 +57,206 @@
 
 ```
 ~/code/rust/threadlight/
-├── Cargo.toml              # Single crate with full dependency tree
-├── migrations/             # SQLx migration files (.up.sql + .down.sql)
+├── Cargo.toml              # Single crate (~30 dependencies)
+├── migrations/             # SQLx migration files (.up.sql)
+│   ├── 20240724_initial_schema.up.sql
+│   ├── 20240725_comments.up.sql
+│   ├── 20240726_filters_settings.up.sql
+│   └── 20240726_pyfed_features.up.sql
 ├── src/
-│   ├── main.rs             # #[tokio::main] entrypoint
-│   ├── lib.rs              # Crate root — re-exports all public modules
-│   ├── config.rs           # Env-based config (struct + from_env)
+│   ├── main.rs             # #[tokio::main] entrypoint (server bootstrap)
+│   ├── lib.rs              # Crate root — re-exports AppState
+│   ├── config.rs           # Env-based config struct + from_env()
 │   ├── db.rs               # PgPool init, migration runner
 │   ├── error.rs            # Unified AppError enum
 │   ├── app_state.rs        # AppState { pool, redis, config }
-│   ├── model/              # 28 data model modules
+│   ├── model/              # 30 data model modules
 │   │   ├── mod.rs
-│   │   ├── post.rs, user.rs, community.rs, tag.rs, ...
-│   │   ├── interaction.rs, note.rs, report.rs, ...
-│   │   ├── credit.rs, trust.rs, circle.rs, ...
-│   │   ├── feed.rs, feed_plugin.rs, filter.rs, ...
-│   │   ├── moderation.rs, notification.rs, search.rs, ...
-│   │   ├── response.rs     # ApiResponse<T> wrapper
-│   │   └── site_config.rs  # Site-level configuration
+│   │   ├── post.rs, user.rs, community.rs, tag.rs
+│   │   ├── comment.rs, private_message.rs, interaction.rs
+│   │   ├── note.rs, report.rs, moderation.rs, mod_log.rs
+│   │   ├── credit.rs, trust.rs, circle.rs, collection.rs
+│   │   ├── feed.rs, feed_plugin.rs, filter.rs, filter_setting.rs
+│   │   ├── achievement.rs, affinity.rs, block.rs, blocklist.rs
+│   │   ├── notification.rs, search.rs, userlist.rs
+│   │   ├── response.rs     # ApiResponse<T> + PaginatedResponse<T>
+│   │   ├── registration_application.rs
+│   │   └── site_config.rs  # Site-level configuration (disable_downvotes, etc.)
 │   ├── api/
-│   │   ├── mod.rs          # Module declarations
+│   │   ├── mod.rs          # create_router() — all route wiring
 │   │   ├── middleware/
 │   │   │   ├── mod.rs
 │   │   │   └── auth.rs     # RequiredAuth, AuthUser extractors
-│   │   └── handlers/       # 27 handler modules (one per resource)
+│   │   └── handlers/       # 32 handler modules
 │   │       ├── mod.rs
-│   │       ├── auth.rs, post.rs, community.rs, user.rs, ...
-│   │       ├── tag.rs, feed.rs, trending.rs, ...
-│   │       ├── circle.rs, collection.rs, credit.rs, ...
-│   │       ├── moderation.rs, note.rs, ...
-│   │       ├── search.rs, block.rs, report.rs, ...
-│   │       ├── admin.rs, config.rs, invite.rs, ...
-│   │       ├── about.rs, health.rs, ...
-│   │       ├── blocklist.rs, achievement.rs, ...
-│   │       ├── affinity.rs, trust.rs, ...
-│   │       ├── filter.rs, feed_plugin.rs, ...
-│   │       ├── userlist.rs, mod_decision.rs, ...
-│   │       └── interaction.rs, notification.rs
-│   ├── services/           # 25 service modules
+│   │       ├── auth.rs, post.rs, post_vote.rs, community.rs
+│   │       ├── comment.rs, private_message.rs, mod_log.rs
+│   │       ├── user.rs, about.rs, site.rs, health.rs
+│   │       ├── tag.rs, feed.rs, trending.rs, search.rs
+│   │       ├── circle.rs, collection.rs, credit.rs, trust.rs
+│   │       ├── moderation.rs, note.rs, block.rs, report.rs
+│   │       ├── filter_setting.rs, filter.rs, notification.rs
+│   │       ├── registration_application.rs
+│   │       ├── admin.rs, config.rs, invite.rs
+│   │       ├── achievement.rs, affinity.rs, feed_plugin.rs
+│   │       ├── blocklist.rs, userlist.rs, mod_decision.rs
+│   │       └── interaction.rs
+│   ├── services/           # 27 service modules
 │   │   ├── mod.rs
-│   │   ├── post.rs, user.rs, auth.rs, community.rs, ...
-│   │   ├── tag.rs, feed.rs, trending.rs, ...
-│   │   ├── circle.rs, collection.rs, credit.rs, ...
-│   │   ├── moderation.rs, note.rs, ...
-│   │   ├── search.rs, block.rs, report.rs, ...
-│   │   ├── config.rs, stats.rs, ...
-│   │   ├── blocklist.rs, achievement.rs, ...
-│   │   ├── affinity.rs, trust.rs, ...
-│   │   ├── filter.rs, feed_plugin.rs, ...
-│   │   ├── userlist.rs, mod_decision.rs, ...
-│   │   ├── interaction.rs, notification.rs
-│   │   └── media.rs
+│   │   ├── post.rs, user.rs, auth.rs, community.rs
+│   │   ├── comment.rs, private_message.rs, interaction.rs
+│   │   ├── filter_setting.rs, vote_quota.rs
+│   │   ├── tag.rs, feed.rs, trending.rs, search.rs
+│   │   ├── circle.rs, collection.rs, credit.rs, trust.rs
+│   │   ├── moderation.rs, note.rs, block.rs, report.rs
+│   │   ├── config.rs, stats.rs, notification.rs
+│   │   ├── filter.rs, feed_plugin.rs
+│   │   ├── achievement.rs, affinity.rs, userlist.rs
+│   │   ├── mod_decision.rs, media.rs
+│   │   └── blocklist.rs
 │   └── worker/             # Background workers
 │       └── ...
 ```
 
 ---
 
-## API Surface (all under `/api/v1/` — identical to the polaris Go spec)
+## API Surface (all under `/api/v1/`)
 
-The Rust rewrite follows the same API spec as the Go polaris backend at `~/code/go/threadlight/internal/api/router.go`.
+### Health & Metadata
 
-### Health
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/health` | — | Service health check |
+| GET | `/ready` | — | Readiness check (DB + Redis) |
+| GET | `/nodeinfo/2.1` | — | Fediverse nodeinfo protocol |
+| GET | `/api/v1/about` | — | Instance metadata |
+| GET | `/api/v1/site` | Optional | Combined site info + admins + my_user + site_config |
 
-| Method | Path | Description |
-|---|---|---|
-| GET | `/health` | Service health |
-| GET | `/ready` | Readiness check |
-
-### NodeInfo
-
-| Method | Path | Description |
-|---|---|---|
-| GET | `/nodeinfo/2.1` | Fediverse nodeinfo protocol |
-| GET | `/api/v1/about` | Instance metadata |
+**Site response includes:** `site` (name, description, version), `admins`, `stats` (users, posts, comments, communities), `site_config` (disable_downvotes, registration_mode), `my_user` (follows, moderates, blocks, settings)
 
 ### Auth: `/api/v1/auth`
 
-| Method | Path | Auth |
-|---|---|---|
-| POST | `/register` | — |
-| POST | `/login` | — |
-| POST | `/forgot` | — |
-| POST | `/reset` | — |
-| POST | `/logout` | Required |
-| GET | `/session` | Required |
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/register` | — | Create account |
+| POST | `/login` | — | Email/password login |
+| POST | `/logout` | Required | End session |
+| GET | `/session` | Required | Current user session |
 
 ### Posts: `/api/v1/posts`
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| POST | `/` | Required | Create |
-| GET | `/` | Optional | List (paginated) |
-| GET | `/count` | Optional | Total count |
-| GET | `/author/:author_id` | Optional | By author |
-| GET | `/:id` | Optional | By ID |
-| PUT | `/:id` | Required | Update |
-| DELETE | `/:id` | Required | Delete |
-| POST | `/:id/archive` | Required | Archive/lock |
-| POST | `/:id/remove` | Required | Mod remove |
+| POST | `/` | Required | Create post (supports scheduled_at, repeat_interval) |
+| GET | `/` | Optional | List posts (paginated, sort: hot/top/new/old/scaled/active) |
+| GET | `/{id}` | Optional | Get post by ID |
+| PUT | `/{id}` | Required | Update post |
+| DELETE | `/{id}` | Required | Delete post |
+| POST | `/{id}/like` | Required | Vote post (score: -1/0/1, checks vote quota) |
+| GET | `/{id}/likes` | Optional | List voters |
 
-### Media: `/api/v1/media`
+### Comments: `/api/v1/comments`
 
-| Method | Path | Auth |
-|---|---|---|
-| POST | `/upload` | Required |
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/` | Required | Create threaded comment (supports parent_id) |
+| GET | `/` | Optional | List comments by post_id (tree-ordered by path) |
+| GET | `/{id}` | Optional | Get comment by ID |
+| DELETE | `/{id}` | Required | Soft-delete comment |
+| POST | `/{id}/like` | Required | Vote comment (score: -1/0/1) |
+| GET | `/count/{post_id}` | — | Comment count for a post |
 
-### Tags: `/api/v1/tags`
-
-| Method | Path | Auth |
-|---|---|---|
-| POST | `/` | Required |
-| GET | `/` | Optional |
-| GET | `/:id` | Optional |
-| PUT | `/:id` | Required |
-| DELETE | `/:id` | Required |
-| POST | `/:id/vote` | Required |
-| POST | `/posts/:post_id/tags/:tag_id` | Required |
-| DELETE | `/posts/:post_id/tags/:tag_id` | Required |
-| GET | `/posts/:post_id/tags` | Optional |
-
-### Feeds: `/api/v1/feeds`
-
-CRUD + sources management. All auth required.
-
-### Trending: `/api/v1/trending`
-
-List, increment, add topics. All auth required.
-
-### Interactions: `/api/v1/interactions`
-
-Create, get by post, delete, check. All auth required.  
-Interaction model: `{interaction_type: 0=comment, 1=like, metadata: {body, vote_value, parent_id}}`
-
-### Trust: `/api/v1/trust`
-
-Weighted trust connections CRUD. Auth required.
-
-### Achievements: `/api/v1/achievements`
-
-List, user achievements, unlock. Auth required.
-
-### Blocklist: `/api/v1/blocklist`
-
-Entries CRUD + check. Auth required.
-
-### Circles: `/api/v1/circles`
-
-CRUD + join/leave/suggest/members. Auth required.
-
-### Collections: `/api/v1/collections`
-
-CRUD + add/remove/list posts. Auth required.
-
-### Communities: `/api/v1/communities`
-
-CRUD + batch, join, leave, members, curators, fork, trust graph. Auth required for mutations.
-
-### Credits: `/api/v1/credits`
-
-Transfer, transactions, daily reward, bounties, quests, balance, costs. Auth required.
-
-### Filters: `/api/v1/filters`
-
-CRUD + check. Auth required.
-
-### Moderation: `/api/v1/moderation`
-
-Actions CRUD + jurors + jury votes + resolve. Auth required.
-
-### Mod Log: `/api/v1/modlog`
-
-Controversial decisions + review votes. Auth required.
-
-### Notes: `/api/v1/notes`
-
-Community notes CRUD + vote. Auth required.
+**Threading:** Materialized path (zero-padded hex, e.g. `0001.0002.0003`), depth filtering, tree-ordered queries.
 
 ### Users: `/api/v1/users`
 
-| Method | Path | Auth |
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/{username}` | Optional | Profile by username (with posts, moderated communities) |
+| GET | `/@me` | Required | Own profile with settings, follows, blocks |
+| PUT | `/@me` | Required | Update profile |
+| POST | `/@me/avatar` | Required | Upload avatar |
+| POST | `/@me/banner` | Required | Upload banner |
+| GET | `/@me/notifications` | Required | List notifications |
+| PUT | `/notifications/{id}/read` | Required | Mark notification read |
+| POST | `/{id}/block` | Required | Block user |
+| DELETE | `/{id}/block` | Required | Unblock user |
+| GET | `/@me/blocks` | Required | List blocked users |
+
+### Private Messages: `/api/v1/private-messages`
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/` | Required | Send private message |
+| GET | `/` | Required | List conversations |
+| PUT | `/{id}/read` | Required | Mark as read |
+| DELETE | `/{id}` | Required | Soft-delete (per-side) |
+
+### User Filters: `/api/v1/filters`
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/` | Required | Create filter (type: user/word/tag/domain/regex/community) |
+| GET | `/` | Required | List filters (optional type + is_active filter) |
+| PUT | `/{id}` | Required | Update filter (is_active, expires_at) |
+| DELETE | `/{id}` | Required | Delete filter |
+
+### User Settings: `/api/v1/settings`
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/` | Required | Get all user settings |
+| PUT | `/` | Required | Update settings |
+
+**Settings fields:** hide_read_posts, hide_voted_posts, show_upvotes_only, show_score, auto_mark_read, reply_collapse_threshold, reply_hide_threshold, language_filter, vote_privately, nsfw_visibility (show/blur/hide/transparent), ai_visibility (show/hide/label/transparent), ignore_bots
+
+### Community Settings: `/api/v1/communities/{slug}/settings`
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/{slug}/settings` | Required | Get community settings |
+| PUT | `/{slug}/settings` | Admin | Update community settings |
+
+**Settings fields:** disable_downvotes, downvote_accept_mode (-1=none/0=everyone/2=members/4=instance/6=trusted), question_answer_mode, require_curator_approval, slow_mode, slow_mode_hours
+
+### Registration Applications: `/api/v1/registration-applications`
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/` | — | Submit application |
+| GET | `/` | Admin | List pending |
+| PUT | `/{id}/review` | Admin | Approve/reject |
+
+### Mod Log: `/api/v1/mod-log`
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/` | Optional | List moderation actions |
+
+### Standard Resources (all under `/api/v1/`)
+
+| Resource | Endpoints | Description |
 |---|---|---|
-| GET | `/:username` | Optional |
-| GET | `/@me` | Required |
-| PUT | `/@me` | Required |
-| POST | `/@me/avatar` | Required |
-| POST | `/@me/banner` | Required |
-| GET | `/@me/notifications` | Required |
-| PUT | `/notifications/:id/read` | Required |
-| POST | `/:id/block` | Required |
-| DELETE | `/:id/block` | Required |
-| GET | `/@me/blocks` | Required |
-
-### Search: `/api/v1/search`
-
-General, advanced, posts, users, communities, suggest. Auth required.
-
-### Blocks: `/api/v1/blocks`
-
-CRUD + check. Auth required.
-
-### Reports: `/api/v1/reports`
-
-CRUD + resolve. Auth required.
-
-### Notifications: `/api/v1/notifications`
-
-List, mark read, mark all read, unread count. Auth required.
-
-### User Lists: `/api/v1/lists`
-
-CRUD + members + subscribe + collaborators + algorithmic lists. Auth required.
-
-### Affinity: `/api/v1/affinity`
-
-User affinities + similar users. Auth required.
-
-### Feed Plugins: `/api/v1/feed-plugins`
-
-Marketplace CRUD + install/uninstall/review/execute. Auth required.
-
-### Admin: `/api/v1/admin`
-
-Config, stats, invites. Auth required.
-
-### Invites: `/api/v1/invites`
-
-Create, list, limit. Auth required.
+| Tags | `/tags` | CRUD + tag/untag posts + vote tags |
+| Feeds | `/feeds` | Custom feed sources CRUD |
+| Trending | `/trending` | Track trending posts/topics |
+| Interactions | `/interactions` | Generic interaction recording |
+| Trust | `/trust` | Weighted trust connections CRUD |
+| Achievements | `/achievements` | Gamified achievements |
+| Circles | `/circles` | Intimate user groups CRUD + join/leave |
+| Collections | `/collections` | Save and organize posts |
+| Communities | `/communities` | CRUD + join/leave/fork/curators |
+| Credits | `/credits` | Transfer, daily reward, bounties, quests |
+| Moderation | `/moderation` | Actions, jurors, jury voting |
+| Notes | `/notes` | Community notes with helpfulness voting |
+| Search | `/search` | General + advanced search |
+| Blocks | `/blocks` | User block/unblock |
+| Reports | `/reports` | Report content + resolve |
+| Notifications | `/notifications` | List, mark read, unread count |
+| Lists | `/lists` | User-managed lists CRUD |
+| Affinity | `/affinity` | User similarity scoring |
+| Feed Plugins | `/feed-plugins` | Pluggable feed algorithms |
+| Admin | `/admin` | Config, stats, invites |
 
 ---
 
@@ -291,57 +266,137 @@ All responses use a standard `ApiResponse<T>` wrapper:
 
 ```rust
 pub struct ApiResponse<T: Serialize> {
-    pub success: bool,
     pub data: T,
     pub message: Option<String>,
 }
 ```
 
-Paginated responses include `{items, total, page, per_page}` in the data field.
+Paginated responses include `{items, total, page, per_page}` in the data field.  
+Error responses return `{error: string, status: number}` via the AppError system.
 
 ---
 
 ## Key Data Models
 
-### Post (28 fields)
-id, author_id, title, body, content_type, mood, is_educational, is_entertaining, is_nsfw, content_warning, interaction_count, cumulative_interactions, status, scheduled_at, created_at, updated_at, archived_at, edited_at, locked, sticky, sticky_at, language, is_ai_generated, license, cross_post_root_id, moved_from_community_id, is_deleted, community_slug
+### Post (32 fields)
+id, author_id, title, body, content_type, mood, is_educational, is_entertaining, is_nsfw, content_warning, interaction_count, cumulative_interactions, status, **scheduled_at**, **repeat_interval**, **stop_repeating**, created_at, updated_at, archived_at, edited_at, locked, sticky, sticky_at, language, is_ai_generated, license, cross_post_root_id, moved_from_community_id, is_deleted, community_slug
 
-### User (30+ fields)
-id, username, display_name, bio, email, password_hash, trust_level, trust_score, reputation, credits, is_active, is_local, avatar_url, banner_url, theme, hide_read_posts, onboarding_stage, email_verified, created_at (+ internal fields)
+**Bold** = PyFed-inspired additions
 
-### Community (15 fields)
-id, name, description, slug, tags, curator_lock, slow_boot_days, invite_only, min_trust_score, forked_from, created_by, member_count, created_at, updated_at, archived_at
+### Comment (10 fields)
+id, post_id, author_id, parent_id, content, path (materialized path), depth, created_at, updated_at, deleted
 
-### Interaction (generic)
-id, user_id, post_id, interaction_type, metadata (JSON), created_at
+### User (35+ fields)
+id, username, display_name, bio, email, password_hash, trust_level, **trust_score**, **reputation**, credits, is_active, is_local, avatar_url, banner_url, is_admin, **last_active_at**, created_at
+
+### User Settings (15 fields)
+user_id, **hide_read_posts**, **hide_voted_posts**, **show_upvotes_only**, **show_score**, **auto_mark_read**, **reply_collapse_threshold**, **reply_hide_threshold**, **language_filter**, **vote_privately**, **nsfw_visibility**, **ai_visibility**, **ignore_bots**, updated_at
+
+### Community Settings (8 fields)
+community_id, **disable_downvotes**, **downvote_accept_mode** (-1/0/2/4/6), **question_answer_mode**, require_curator_approval, slow_mode, slow_mode_hours, updated_at
+
+### User Filter (8 fields)
+id, user_id, filter_type (user/word/tag/domain/regex/community), filter_value, is_regex, is_active, expires_at, created_at
+
+### User Note (6 fields)
+id, user_id, target_id, note, created_at, updated_at
+
+### Private Message (8 fields)
+id, sender_id, recipient_id, subject, body, is_read, deleted_by_sender, deleted_by_recipient, created_at
+
+### Community (16 fields)
+id, name, description, slug, tags, curator_lock, slow_boot_days, invite_only, min_trust_score, forked_from, created_by, member_count, created_at, updated_at, archived_at, community_slug
+
+### Interaction (generic — for legacy compatibility)
+id, user_id, post_id, interaction_type (0=comment, 1=like), metadata (JSON), created_at
 
 ### CommunityNote
 id, post_id, author_id, body, status, helpful_yes, helpful_no, consensus_score, created_at, updated_at
 
 ---
 
-## Current Status (2026-07-24)
+## Unique Features (Threadlight Innovations)
 
-- **Codebase:** 12,110 lines of Rust across 85+ files
-- **Handlers:** 27 handler modules — all route stubs/skeletons written
-- **Services:** 25 service modules — query logic partially implemented
-- **Models:** 28 model modules — full type definitions
-- **Middleware:** Auth extractors (RequiredAuth, AuthUser)
-- **Migrations:** Migration directory exists
-- **Build:** `main.rs` currently prints placeholder text — router wiring not yet complete
-- **Completion:** Architecture and types in place; service + handler wiring and full query implementation remaining
+| Feature | Description |
+|---|---|
+| **Credit Economy** | Transfer, bounties, quests, daily rewards, transaction history |
+| **Trust Network** | Weighted trust connections with score propagation |
+| **Circles** | Intimate user groups with join/leave/suggest |
+| **Community Forking** | Fork a community with member migration |
+| **Curator System** | Granular moderation permissions |
+| **Community Notes** | Wikipedia-style fact-checking on posts |
+| **Jury Moderation** | Community-based moderation decisions |
+| **Achievements** | Gamified user engagement |
+| **User Affinity** | Similarity scoring between users |
+| **Algorithmic Lists** | Custom feed algorithms |
+| **Feed Plugins** | Pluggable feed ranking |
+
+## Features Ported from PyFed (PieFed)
+
+| Feature | Description |
+|---|---|
+| **User Content Filters** | Multi-type filters (user/word/tag/domain/regex/community) with expiry |
+| **Hide Read/Voted Posts** | Feed-level exclusion of interacted content |
+| **Downvote Controls** | Site-wide + per-community + nuanced (none/everyone/members/instance/trusted) |
+| **Vote Quota** | Redis daily limit (240/day, credit-scaled) |
+| **Reply Thresholds** | Collapse/hide comments by score |
+| **Vote Privacy** | Private voting, upvotes-only display |
+| **NSFW/AI/Bot Visibility** | Graduated visibility levels (show/blur/hide/transparent) |
+| **Language Filter** | Per-user language preferences |
+| **User Notes** | Private notes about other users |
+| **Scheduled Posts** | Future-dated + repeating posts |
+| **Registration Queue** | Application → review → approve/reject |
+| **Mod Log** | Transparent moderation action logging |
 
 ---
 
-## Comparison with Go Threadlight
+## Current Status (2026-07-25)
 
-| Aspect | Go Threadlight | Rust Threadlight |
+- **Codebase:** ~15,000 lines of Rust across 100+ source files
+- **Handlers:** 32 handler modules — all wired into router
+- **Services:** 27 service modules — query logic implemented
+- **Models:** 30 model modules — full type definitions
+- **Middleware:** Auth extractors (RequiredAuth, AuthUser, OptionalAuth)
+- **Migrations:** 4 migration files covering full schema
+- **Server:** `main.rs` fully wired — connects DB, runs migrations, connects Redis, starts Axum
+- **Build:** `cargo check` passes with 0 errors, 0 warnings
+- **Tests:** Unit tests for core services (path formatting, vote quota, filter matching)
+- **Deployment:** Cross-compiled for aarch64-unknown-linux-gnu, deployed on Orange Pi 5 (192.168.1.138:8086)
+- **Frontend:** Photon SPA on port 8000, nginx reverse-proxies `/api/v1/` to port 8086
+
+---
+
+## Comparison: Threadlight Rust vs PyFed (PieFed)
+
+| Aspect | Threadlight (Rust) | PyFed (Python) |
 |---|---|---|
-| Framework | Gin 1.12 | Axum 0.8 |
-| DB driver | pgx 5 (manual queries) | SQLx 0.9 (compile-time checked) |
-| Response format | Ad-hoc `gin.H{...}` | Standardized `ApiResponse<T>` |
-| Auth | JWT middleware | Typed extractors (RequiredAuth/AuthUser) |
-| Error handling | `gin.H{"error":...}` | Unified `AppError` enum with HTTP mapping |
-| Pagination | Raw `gin.H{}` | Standardized `{items, total, page, per_page}` |
-| Codebase health | Running in production | Early development (compiles but no main) |
-| API surface | Identical (same spec) | Identical (same spec) |
+| Framework | Axum 0.8 (single binary) | Flask + SQLAlchemy |
+| Language | Rust | Python |
+| Federation | Single-instance (no ActivityPub) | Full ActivityPub |
+| Auth | JWT + bcrypt | Flask-Login + OAuth + passkeys |
+| Sort types | Hot/Top/New/Old/Scaled/Active | 18+ sort types |
+| Content filters | 6 types + regex + expiry | Keyword-only filters |
+| Voting | +/-1 with quota | Float-effect with quota |
+| Downvote control | 6-level (site → community) | 5-level (site → trusted-instances) |
+| Economy | Credit system | None |
+| Trust | Weighted network | None |
+| Circles | Intimate groups | Communities only |
+| Unique | Forks, curators, jury mod | ActivityPub, OAuth, polls |
+
+---
+
+## Build & Deploy
+
+```bash
+# Local development
+cargo check                  # Compile-check (0 errors, 0 warnings)
+cargo test                   # Run unit tests
+cargo build --release        # Build for current architecture
+
+# Cross-compile for Orange Pi (aarch64)
+cargo build --target aarch64-unknown-linux-gnu --release
+
+# Deploy
+rsync target/aarch64-unknown-linux-gnu/release/threadlight orangepi:~/code/rust-threadlight/
+ssh orangepi "sudo systemctl restart threadlight-rust"
+```
