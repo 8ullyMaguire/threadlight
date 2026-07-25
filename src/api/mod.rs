@@ -68,5 +68,8 @@ pub fn create_router(state: AppState) -> Router {
         // Community Settings
         .route("/api/v1/communities/{slug}/settings", get(handlers::filter_setting::get_community_settings).put(handlers::filter_setting::update_community_settings))
 
+        // Leaderboard
+        .route("/api/v1/leaderboard", get(handlers::leaderboard::get_leaderboard))
+
         .with_state(state)
 }

@@ -28,3 +28,4 @@ pub mod filter_setting;
 pub mod private_message;
 pub mod mod_log;
 pub mod registration_application;
+pub mod leaderboard;

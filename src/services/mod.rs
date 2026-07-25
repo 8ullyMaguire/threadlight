@@ -29,3 +29,4 @@ pub mod trust;
 pub mod user;
 pub mod userlist;
 pub mod vote_quota;
+pub mod leaderboard;
