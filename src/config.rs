@@ -24,7 +24,7 @@ impl Config {
             redis_addr: env::var("REDIS_ADDR")
                 .unwrap_or_else(|_| "localhost:6379".into()),
             listen_addr: env::var("LISTEN_ADDR")
-                .unwrap_or_else(|_| ":8080".into()),
+                .unwrap_or_else(|_| "0.0.0.0:8080".into()),
             jwt_secret: env::var("JWT_SECRET")
                 .unwrap_or_else(|_| "dev-secret-change-in-production".into()),
             docs_dir: env::var("DOCS_DIR")

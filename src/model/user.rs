@@ -12,7 +12,7 @@ pub struct User {
     #[serde(skip)]
     pub password_hash: String,
     pub trust_level: i16,
-    pub trust_score: f64,
+    pub trust_score: f32,
     pub reputation: i64,
     pub invited_by: Option<i64>,
     pub invite_code: Option<String>,
@@ -68,7 +68,7 @@ pub struct UserProfile {
     pub avatar_url: Option<String>,
     pub banner_url: Option<String>,
     pub trust_level: i16,
-    pub trust_score: f64,
+    pub trust_score: f32,
     pub reputation: i64,
     pub credits: i64,
     pub is_admin: bool,
