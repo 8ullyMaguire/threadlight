@@ -7,7 +7,17 @@ mod test_helpers;
 /// Uses DATABASE_URL env var (defaults to postgres://localhost/threadlight_test).
 static POOL_INIT: OnceLock<PgPool> = OnceLock::new();
 
-/// Get or create the test pool. Must be called from within a tokio runtime.
+/// Truncate all tables to ensure a clean state between test runs.
+/// Uses CASCADE to handle all foreign-key dependent tables automatically.
+async fn truncate_tables(pool: &PgPool) {
+    let _ = sqlx::raw_sql(
+        "TRUNCATE TABLE
+            users, site_config, tags, communities
+        RESTART IDENTITY CASCADE"
+    ).execute(pool).await;
+}
+
+/// Get or create the test pool. Truncates tables once on pool creation.
 async fn get_test_pool() -> PgPool {
     if let Some(pool) = POOL_INIT.get() {
         return pool.clone();
@@ -15,35 +25,21 @@ async fn get_test_pool() -> PgPool {
     let database_url = std::env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://postgres@localhost/threadlight_test".to_string());
     let pool = sqlx::postgres::PgPoolOptions::new()
-        .max_connections(10)
+        .max_connections(50)
         .connect(&database_url)
         .await
         .expect("Cannot connect to test database");
-    
+
     // Run migrations by executing each migration file as raw SQL.
-    // raw_sql is designed for runtime SQL strings.
     let _ = sqlx::raw_sql(include_str!("../migrations/20240724_initial_schema.up.sql")).execute(&pool).await;
     let _ = sqlx::raw_sql(include_str!("../migrations/20240725_comments.up.sql")).execute(&pool).await;
     let _ = sqlx::raw_sql(include_str!("../migrations/20240726_filters_settings.up.sql")).execute(&pool).await;
     let _ = sqlx::raw_sql(include_str!("../migrations/20240727_pyfed_features.up.sql")).execute(&pool).await;
     let _ = sqlx::raw_sql(include_str!("../migrations/20250201_leaderboard.up.sql")).execute(&pool).await;
 
-    // Truncate all tables to ensure a clean state between test runs.
-    // This avoids duplicate-key violations from data left by previous runs.
-    let _ = sqlx::raw_sql(
-        "TRUNCATE TABLE
-            users, posts, tags, post_tags, interactions, trust_connections,
-            communities, community_members, site_config, user_invites,
-            user_notifications, blocked_users, post_reports, custom_feeds,
-            feed_sources, collections, collection_posts, circles, circle_members,
-            trending_topics, content_filters, feed_items, moderation_actions,
-            jury_panels, mod_decision_reviews, comments, comment_likes,
-            post_likes, private_messages, mod_log, registration_applications,
-            user_filters, user_settings, community_settings, user_notes,
-            credit_transactions
-        RESTART IDENTITY CASCADE"
-    ).execute(&pool).await;
-    
+    // Truncate after migration for a clean initial state.
+    truncate_tables(&pool).await;
+
     let _ = POOL_INIT.set(pool.clone());
     pool
 }
@@ -79,8 +75,8 @@ async fn test_auth_register() {
     .expect("User should exist");
 
     assert_eq!(row.0, user_id);
-    assert_eq!(row.1, "testuser");
-    assert_eq!(row.2, "test@example.com");
+    assert!(row.1.starts_with("testuser"), "username should start with 'testuser', got: {}", row.1);
+    assert!(row.2.starts_with("test@example.com"), "email should start with 'test@example.com', got: {}", row.2);
 }
 
 #[tokio::test]
@@ -93,7 +89,7 @@ async fn test_auth_login() {
         .fetch_one(&pool)
         .await
         .expect("User should exist");
-    assert_eq!(row.0, "loginuser");
+    assert!(row.0.starts_with("loginuser"), "username should start with 'loginuser', got: {}", row.0);
 }
 
 #[tokio::test]
@@ -438,7 +434,7 @@ async fn test_filter_create() {
     .await
     .expect("Filter should exist");
     assert_eq!(row.0, "word");
-    assert_eq!(row.1, "badword");
+    assert!(row.1.starts_with("badword"), "filter_value should start with badword, got: {}", row.1);
     assert!(row.2);
 }
 
@@ -602,8 +598,8 @@ async fn test_leaderboard_all_categories() {
 
     assert_eq!(response.category, "all");
     assert_eq!(response.period, "all");
-    // Find our user in the entries
-    let our_entry = response.entries.iter().find(|e| e.username == "lbuser1").expect("Our user should be in leaderboard");
+    // Find our user in the entries — username has a random suffix now
+    let our_entry = response.entries.iter().find(|e| e.username.starts_with("lbuser1")).expect("Our user should be in leaderboard");
     assert!(our_entry.action_count > 0);
 }
 
@@ -630,9 +626,9 @@ async fn test_leaderboard_posting() {
         .expect("Leaderboard should succeed");
 
     assert_eq!(response.category, "posting");
-    let poster1_entry = response.entries.iter().find(|e| e.username == "poster1").expect("poster1 should be in leaderboard");
+    let poster1_entry = response.entries.iter().find(|e| e.username.starts_with("poster1")).expect("poster1 should be in leaderboard");
     assert_eq!(poster1_entry.action_count, 3);
-    let poster2_entry = response.entries.iter().find(|e| e.username == "poster2").expect("poster2 should be in leaderboard");
+    let poster2_entry = response.entries.iter().find(|e| e.username.starts_with("poster2")).expect("poster2 should be in leaderboard");
     assert_eq!(poster2_entry.action_count, 1);
     assert!(poster1_entry.rank < poster2_entry.rank, "poster1 should rank higher than poster2");
 }
@@ -658,7 +654,7 @@ async fn test_leaderboard_credits() {
         .expect("Leaderboard should succeed");
 
     assert_eq!(response.category, "credits_earned");
-    let entry = response.entries.iter().find(|e| e.username == "credits2").expect("credits2 should be in leaderboard");
+    let entry = response.entries.iter().find(|e| e.username.starts_with("credits2")).expect("credits2 should be in leaderboard");
     assert_eq!(entry.action_count, 150);
 }
 
@@ -684,8 +680,8 @@ async fn test_leaderboard_commenting() {
         .await
         .expect("Leaderboard should succeed");
 
-    assert_eq!(response.entries[0].username, "commenter1");
-    let entry = response.entries.iter().find(|e| e.username == "commenter1").expect("commenter1 should be in leaderboard");
+    assert!(response.entries[0].username.starts_with("commenter1"), "expected commenter1, got {}", response.entries[0].username);
+    let entry = response.entries.iter().find(|e| e.username.starts_with("commenter1")).expect("commenter1 should be in leaderboard");
     assert_eq!(entry.action_count, 2);
 }
 
@@ -711,8 +707,8 @@ async fn test_leaderboard_voting() {
         .await
         .expect("Leaderboard should succeed");
 
-    assert_eq!(response.entries[0].username, "voter2");
-    let entry = response.entries.iter().find(|e| e.username == "voter2").expect("voter2 should be in leaderboard");
+    assert!(response.entries[0].username.starts_with("voter2"), "expected voter2, got {}", response.entries[0].username);
+    let entry = response.entries.iter().find(|e| e.username.starts_with("voter2")).expect("voter2 should be in leaderboard");
     assert_eq!(entry.action_count, 2);
 }
 
@@ -736,8 +732,8 @@ async fn test_leaderboard_moderation() {
         .await
         .expect("Leaderboard should succeed");
 
-    assert_eq!(response.entries[0].username, "modadmin");
-    let entry = response.entries.iter().find(|e| e.username == "modadmin").expect("modadmin should be in leaderboard");
+    assert!(response.entries[0].username.starts_with("modadmin"), "expected modadmin, got {}", response.entries[0].username);
+    let entry = response.entries.iter().find(|e| e.username.starts_with("modadmin")).expect("modadmin should be in leaderboard");
     assert_eq!(entry.action_count, 2);
 }
 
@@ -763,8 +759,8 @@ async fn test_leaderboard_tagging() {
         .await
         .expect("Leaderboard should succeed");
 
-    assert_eq!(response.entries[0].username, "tagger2");
-    let entry = response.entries.iter().find(|e| e.username == "tagger2").expect("tagger2 should be in leaderboard");
+    assert!(response.entries[0].username.starts_with("tagger2"), "expected tagger2, got {}", response.entries[0].username);
+    let entry = response.entries.iter().find(|e| e.username.starts_with("tagger2")).expect("tagger2 should be in leaderboard");
     assert_eq!(entry.action_count, 1);
 }
 

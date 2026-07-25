@@ -1,18 +1,28 @@
 //! Test helpers for integration tests.
 //! Provides functions to create test data (users, posts, comments, etc.)
 //! so that individual tests don't duplicate setup logic.
+//! Uses random suffixes to avoid collisions in parallel test runs.
 
+use rand::Rng;
 use sqlx::PgPool;
+
+/// Generate a random 4-digit suffix for use in test usernames/emails
+/// to avoid collisions when tests run in parallel against a shared DB.
+pub fn unique_suffix() -> String {
+    let mut rng = rand::thread_rng();
+    format!("{:04x}", rng.gen::<u16>())
+}
 
 /// Create a test user with the given username and email.
 /// Returns the user ID.
 pub async fn create_test_user(pool: &PgPool, username: &str, email: &str) -> i64 {
     let hash = bcrypt::hash("password123", bcrypt::DEFAULT_COST).unwrap();
+    let suffix = unique_suffix();
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO users (username, email, password_hash, is_admin) VALUES ($1, $2, $3, false) RETURNING id"
     )
-    .bind(username)
-    .bind(email)
+    .bind(format!("{}_{}", username, suffix))
+    .bind(format!("{}_{}", email, suffix))
     .bind(&hash)
     .fetch_one(pool)
     .await
@@ -23,11 +33,12 @@ pub async fn create_test_user(pool: &PgPool, username: &str, email: &str) -> i64
 /// Create an admin user.
 pub async fn create_admin_user(pool: &PgPool, username: &str, email: &str) -> i64 {
     let hash = bcrypt::hash("admin123", bcrypt::DEFAULT_COST).unwrap();
+    let suffix = unique_suffix();
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO users (username, email, password_hash, is_admin) VALUES ($1, $2, $3, true) RETURNING id"
     )
-    .bind(username)
-    .bind(email)
+    .bind(format!("{}_{}", username, suffix))
+    .bind(format!("{}_{}", email, suffix))
     .bind(&hash)
     .fetch_one(pool)
     .await
@@ -105,12 +116,13 @@ pub async fn send_private_message(pool: &PgPool, sender_id: i64, recipient_id: i
 
 /// Create a user filter.
 pub async fn create_user_filter(pool: &PgPool, user_id: i64, filter_type: &str, filter_value: &str) -> i64 {
+    let suffix = unique_suffix();
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO user_filters (user_id, filter_type, filter_value) VALUES ($1, $2, $3) RETURNING id"
     )
     .bind(user_id)
     .bind(filter_type)
-    .bind(filter_value)
+    .bind(format!("{}_{}", filter_value, suffix))
     .fetch_one(pool)
     .await
     .expect("Failed to create filter");
@@ -130,11 +142,12 @@ pub async fn create_user_settings(pool: &PgPool, user_id: i64) {
 
 /// Create a community.
 pub async fn create_test_community(pool: &PgPool, name: &str, slug: &str, created_by: i64) -> i64 {
+    let suffix = unique_suffix();
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO communities (name, slug, created_by) VALUES ($1, $2, $3) RETURNING id"
     )
-    .bind(name)
-    .bind(slug)
+    .bind(format!("{}_{}", name, suffix))
+    .bind(format!("{}_{}", slug, suffix))
     .bind(created_by)
     .fetch_one(pool)
     .await
@@ -184,11 +197,12 @@ pub async fn submit_registration_application(
     application_text: &str,
 ) -> i64 {
     let hash = bcrypt::hash("testpass", bcrypt::DEFAULT_COST).unwrap();
+    let suffix = unique_suffix();
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO registration_applications (username, email, password_hash, application_text) VALUES ($1, $2, $3, $4) RETURNING id"
     )
-    .bind(username)
-    .bind(email)
+    .bind(format!("{}_{}", username, suffix))
+    .bind(format!("{}_{}", email, suffix))
     .bind(&hash)
     .bind(application_text)
     .fetch_one(pool)
@@ -199,10 +213,11 @@ pub async fn submit_registration_application(
 
 /// Create a tag.
 pub async fn create_test_tag(pool: &PgPool, name: &str, created_by: i64) -> i32 {
+    let suffix = unique_suffix();
     let row: (i32,) = sqlx::query_as(
         "INSERT INTO tags (name, created_by) VALUES ($1, $2) RETURNING id"
     )
-    .bind(name)
+    .bind(format!("{}_{}", name, suffix))
     .bind(created_by)
     .fetch_one(pool)
     .await
