@@ -31,6 +31,8 @@ pub struct Post {
     pub cross_post_root_id: Option<i64>,
     pub moved_from_community_id: Option<i64>,
     pub is_deleted: bool,
+    pub repeat_interval: Option<String>,
+    pub stop_repeating: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Deserialize)]
