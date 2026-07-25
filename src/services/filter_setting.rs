@@ -202,6 +202,13 @@ pub async fn update_user_settings(
             show_upvotes_only = COALESCE($4, show_upvotes_only),
             show_score = COALESCE($5, show_score),
             auto_mark_read = COALESCE($6, auto_mark_read),
+            reply_collapse_threshold = COALESCE($7, reply_collapse_threshold),
+            reply_hide_threshold = COALESCE($8, reply_hide_threshold),
+            language_filter = $9,
+            vote_privately = COALESCE($10, vote_privately),
+            nsfw_visibility = COALESCE($11, nsfw_visibility),
+            ai_visibility = COALESCE($12, ai_visibility),
+            ignore_bots = COALESCE($13, ignore_bots),
             updated_at = NOW()
         WHERE user_id = $1
         RETURNING *
@@ -213,6 +220,13 @@ pub async fn update_user_settings(
     .bind(req.show_upvotes_only)
     .bind(req.show_score)
     .bind(req.auto_mark_read)
+    .bind(req.reply_collapse_threshold)
+    .bind(req.reply_hide_threshold)
+    .bind(&req.language_filter)
+    .bind(req.vote_privately)
+    .bind(&req.nsfw_visibility)
+    .bind(&req.ai_visibility)
+    .bind(req.ignore_bots)
     .fetch_one(pool)
     .await?;
     Ok(settings)
@@ -262,9 +276,11 @@ pub async fn update_community_settings(
         r#"
         UPDATE community_settings SET
             disable_downvotes = COALESCE($2, disable_downvotes),
-            require_curator_approval = COALESCE($3, require_curator_approval),
-            slow_mode = COALESCE($4, slow_mode),
-            slow_mode_hours = COALESCE($5, slow_mode_hours),
+            downvote_accept_mode = COALESCE($3, downvote_accept_mode),
+            question_answer_mode = COALESCE($4, question_answer_mode),
+            require_curator_approval = COALESCE($5, require_curator_approval),
+            slow_mode = COALESCE($6, slow_mode),
+            slow_mode_hours = COALESCE($7, slow_mode_hours),
             updated_at = NOW()
         WHERE community_id = $1
         RETURNING *
@@ -272,6 +288,8 @@ pub async fn update_community_settings(
     )
     .bind(community_id)
     .bind(req.disable_downvotes)
+    .bind(req.downvote_accept_mode)
+    .bind(req.question_answer_mode)
     .bind(req.require_curator_approval)
     .bind(req.slow_mode)
     .bind(req.slow_mode_hours)
