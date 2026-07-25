@@ -59,13 +59,12 @@ pub struct AuthResponse {
     pub user: UserProfile,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct UserProfile {
     pub id: i64,
     pub username: String,
     pub display_name: Option<String>,
     pub bio: Option<String>,
-    pub bio_html: Option<String>,
     pub avatar_url: Option<String>,
     pub banner_url: Option<String>,
     pub trust_level: i16,
@@ -87,7 +86,6 @@ impl From<User> for UserProfile {
             username: u.username,
             display_name: u.display_name,
             bio: u.bio,
-            bio_html: u.bio_html,
             avatar_url: u.avatar_url,
             banner_url: u.banner_url,
             trust_level: u.trust_level,

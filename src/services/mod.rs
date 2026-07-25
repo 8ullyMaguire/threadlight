@@ -5,6 +5,7 @@ pub mod block;
 pub mod blocklist;
 pub mod circle;
 pub mod collection;
+pub mod comment;
 pub mod community;
 pub mod config;
 pub mod credit;

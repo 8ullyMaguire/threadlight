@@ -23,3 +23,7 @@ pub mod feed_plugin;
 pub mod media;
 pub mod site_config;
 pub mod response;
+pub mod comment;
+pub mod private_message;
+pub mod mod_log;
+pub mod registration_application;
