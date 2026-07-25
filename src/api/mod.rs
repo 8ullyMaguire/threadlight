@@ -58,5 +58,15 @@ pub fn create_router(state: AppState) -> Router {
         .route("/api/v1/registration-applications", get(handlers::registration_application::list).post(handlers::registration_application::submit))
         .route("/api/v1/registration-applications/{id}/review", put(handlers::registration_application::review))
 
+        // User Filters
+        .route("/api/v1/filters", get(handlers::filter_setting::list_filters).post(handlers::filter_setting::create_filter))
+        .route("/api/v1/filters/{id}", put(handlers::filter_setting::update_filter).delete(handlers::filter_setting::delete_filter))
+
+        // User Settings
+        .route("/api/v1/settings", get(handlers::filter_setting::get_settings).put(handlers::filter_setting::update_settings))
+
+        // Community Settings
+        .route("/api/v1/communities/{slug}/settings", get(handlers::filter_setting::get_community_settings).put(handlers::filter_setting::update_community_settings))
+
         .with_state(state)
 }
