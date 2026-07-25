@@ -328,6 +328,63 @@ pub async fn are_downvotes_disabled(pool: &PgPool, community_id: Option<i64>) ->
     Ok(false)
 }
 
+// ── User Notes ────────────────────────────────────────────────────────────────
+
+pub async fn create_user_note(
+    pool: &PgPool,
+    user_id: i64,
+    target_id: i64,
+    note: &str,
+) -> Result<crate::model::filter_setting::UserNote, AppError> {
+    let user_note = sqlx::query_as::<_, crate::model::filter_setting::UserNote>(
+        r#"
+        INSERT INTO user_notes (user_id, target_id, note)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (user_id, target_id)
+        DO UPDATE SET note = $3, updated_at = NOW()
+        RETURNING *
+        "#,
+    )
+    .bind(user_id)
+    .bind(target_id)
+    .bind(note)
+    .fetch_one(pool)
+    .await?;
+    Ok(user_note)
+}
+
+pub async fn get_user_notes(
+    pool: &PgPool,
+    user_id: i64,
+    target_id: Option<i64>,
+) -> Result<Vec<crate::model::filter_setting::UserNote>, AppError> {
+    let notes = sqlx::query_as::<_, crate::model::filter_setting::UserNote>(
+        r#"
+        SELECT * FROM user_notes
+        WHERE user_id = $1
+          AND ($2::bigint IS NULL OR target_id = $2)
+        ORDER BY created_at DESC
+        "#,
+    )
+    .bind(user_id)
+    .bind(target_id)
+    .fetch_all(pool)
+    .await?;
+    Ok(notes)
+}
+
+pub async fn delete_user_note(pool: &PgPool, user_id: i64, note_id: i64) -> Result<(), AppError> {
+    let result = sqlx::query("DELETE FROM user_notes WHERE id = $1 AND user_id = $2")
+        .bind(note_id)
+        .bind(user_id)
+        .execute(pool)
+        .await?;
+    if result.rows_affected() == 0 {
+        return Err(AppError::NotFound);
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
