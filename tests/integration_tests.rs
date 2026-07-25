@@ -27,6 +27,22 @@ async fn get_test_pool() -> PgPool {
     let _ = sqlx::raw_sql(include_str!("../migrations/20240726_filters_settings.up.sql")).execute(&pool).await;
     let _ = sqlx::raw_sql(include_str!("../migrations/20240727_pyfed_features.up.sql")).execute(&pool).await;
     let _ = sqlx::raw_sql(include_str!("../migrations/20250201_leaderboard.up.sql")).execute(&pool).await;
+
+    // Truncate all tables to ensure a clean state between test runs.
+    // This avoids duplicate-key violations from data left by previous runs.
+    let _ = sqlx::raw_sql(
+        "TRUNCATE TABLE
+            users, posts, tags, post_tags, interactions, trust_connections,
+            communities, community_members, site_config, user_invites,
+            user_notifications, blocked_users, post_reports, custom_feeds,
+            feed_sources, collections, collection_posts, circles, circle_members,
+            trending_topics, content_filters, feed_items, moderation_actions,
+            jury_panels, mod_decision_reviews, comments, comment_likes,
+            post_likes, private_messages, mod_log, registration_applications,
+            user_filters, user_settings, community_settings, user_notes,
+            credit_transactions
+        RESTART IDENTITY CASCADE"
+    ).execute(&pool).await;
     
     let _ = POOL_INIT.set(pool.clone());
     pool

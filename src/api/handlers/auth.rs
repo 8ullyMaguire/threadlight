@@ -9,7 +9,7 @@ pub async fn register(
     State(state): State<AppState>,
     Json(req): Json<RegisterRequest>,
 ) -> Result<Json<Value>, AppError> {
-    let resp = crate::services::user::UserService::register(&state.pool, &req).await?;
+    let resp = crate::services::user::UserService::register(&state.pool, &req, &state.jwt_secret).await?;
     Ok(Json(json!(resp)))
 }
 

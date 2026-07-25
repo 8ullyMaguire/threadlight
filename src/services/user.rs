@@ -7,7 +7,7 @@ use crate::services::auth as auth_utils;
 pub struct UserService;
 
 impl UserService {
-    pub async fn register(pool: &PgPool, req: &RegisterRequest) -> Result<AuthResponse, AppError> {
+    pub async fn register(pool: &PgPool, req: &RegisterRequest, jwt_secret: &str) -> Result<AuthResponse, AppError> {
         let existing: Option<i64> = sqlx::query_scalar("SELECT id FROM users WHERE email = $1 OR username = $2")
             .bind(&req.email)
             .bind(&req.username)
@@ -39,7 +39,7 @@ impl UserService {
             .await?;
 
         let profile: UserProfile = user.into();
-        let token = auth_utils::create_token(profile.id, &profile.username, profile.is_admin, "dev-secret")
+        let token = auth_utils::create_token(profile.id, &profile.username, profile.is_admin, jwt_secret)
             .map_err(|e| AppError::Internal(e.to_string()))?;
 
         Ok(AuthResponse { token, user: profile })
