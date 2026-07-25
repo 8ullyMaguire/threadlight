@@ -28,3 +28,4 @@ pub mod trending;
 pub mod trust;
 pub mod user;
 pub mod userlist;
+pub mod vote_quota;
