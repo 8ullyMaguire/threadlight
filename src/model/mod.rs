@@ -24,6 +24,7 @@ pub mod media;
 pub mod site_config;
 pub mod response;
 pub mod comment;
+pub mod filter_setting;
 pub mod private_message;
 pub mod mod_log;
 pub mod registration_application;
