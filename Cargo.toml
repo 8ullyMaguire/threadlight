@@ -40,6 +40,9 @@ futures = "0.3"
 # Random
 rand = "0.8"
 
+# Regex
+regex = "1"
+
 # Logging
 tracing-appender = "0.2"
 tracing-log = "0.2"

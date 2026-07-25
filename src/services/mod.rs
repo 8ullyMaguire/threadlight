@@ -12,6 +12,7 @@ pub mod credit;
 pub mod feed;
 pub mod feed_plugin;
 pub mod filter;
+pub mod filter_setting;
 pub mod interaction;
 pub mod media;
 pub mod mod_decision;
