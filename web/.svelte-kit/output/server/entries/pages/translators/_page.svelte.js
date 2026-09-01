@@ -1,0 +1,17 @@
+import "../../../chunks/server.js";
+import { R as Header } from "../../../chunks/client.svelte.js";
+//#region src/routes/translators/+page.svelte
+function _page($$renderer) {
+	Header($$renderer, {
+		pageHeader: true,
+		children: ($$renderer) => {
+			$$renderer.push(`<!---->Translators`);
+		},
+		$$slots: { default: true }
+	});
+	$$renderer.push(`<!----> <ul class="top-list svelte-mh6ae0"><li class="svelte-mh6ae0">Arabic</li> <ul class="svelte-mh6ae0"><li>fxomt (246)</li></ul> <li class="svelte-mh6ae0">Bulgarian</li> <ul class="svelte-mh6ae0"><li>salif (539)</li></ul> <li class="svelte-mh6ae0">Chinese (Simplified Han script)</li> <ul class="svelte-mh6ae0"><li>qiancsf (600)</li> <li>CDN (519)</li> <li>binary3141 (150)</li></ul> <li class="svelte-mh6ae0">Chinese (Traditional Han script)</li> <ul class="svelte-mh6ae0"><li>binary3141 (161)</li></ul> <li class="svelte-mh6ae0">Dutch</li> <ul class="svelte-mh6ae0"><li>qaz (546)</li></ul> <li class="svelte-mh6ae0">Estonian</li> <ul class="svelte-mh6ae0"><li>pewgar (43)</li></ul> <li class="svelte-mh6ae0">Finnish</li> <ul class="svelte-mh6ae0"><li>sevon (797)</li></ul> <li class="svelte-mh6ae0">French</li> <ul class="svelte-mh6ae0"><li>Blisterexe (633)</li> <li>loutr (9)</li></ul> <li class="svelte-mh6ae0">German</li> <ul class="svelte-mh6ae0"><li>poVoq (341)</li> <li>Tywele (150)</li></ul> <li class="svelte-mh6ae0">Hebrew</li> <ul class="svelte-mh6ae0"><li>TheAnnoying (24)</li></ul> <li class="svelte-mh6ae0">Hungarian</li> <ul class="svelte-mh6ae0"><li>myedition8 (384)</li></ul> <li class="svelte-mh6ae0">Japanese</li> <ul class="svelte-mh6ae0"><li>Rentlar (626)</li></ul> <li class="svelte-mh6ae0">Polish</li> <ul class="svelte-mh6ae0"><li>gapetto (571)</li></ul> <li class="svelte-mh6ae0">Portuguese</li> <ul class="svelte-mh6ae0"><li>tmpod (641)</li></ul> <li class="svelte-mh6ae0">Portuguese (Brazil)</li> <ul class="svelte-mh6ae0"><li>imnotpolar (223)</li></ul> <li class="svelte-mh6ae0">Russian</li> <ul class="svelte-mh6ae0"><li>WerySkok (644)</li> <li>mudkipdev (23)</li></ul> <li class="svelte-mh6ae0">Spanish</li> <ul class="svelte-mh6ae0"><li>acidrums4 (584)</li></ul> <li class="svelte-mh6ae0">Turkish</li> <ul class="svelte-mh6ae0"><li>ikanat (39)</li></ul></ul>`);
+}
+//#endregion
+export { _page as default };
+
+//# sourceMappingURL=_page.svelte.js.map

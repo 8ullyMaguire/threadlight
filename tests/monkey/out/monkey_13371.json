@@ -1,0 +1,16 @@
+{
+  "seed": 13371,
+  "target": "http://localhost:5173",
+  "counts": {
+    "errors": 3,
+    "console": 1
+  },
+  "errors": [
+    "[AUTH] could not authenticate monkey user (email monkey@polaris.test)",
+    "[5XX] 500 GET http://localhost:5173/src/lib/components/Footer.svelte",
+    "[REQFAIL] http://localhost:5173/src/lib/components/Footer.svelte :: net::ERR_ABORTED"
+  ],
+  "consoleErrs": [
+    "[CONSOLE error] Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ]
+}

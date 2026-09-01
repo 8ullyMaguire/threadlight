@@ -1,0 +1,2 @@
+import{D as e,E as t,G as n,L as r,Qt as i,Xt as a,gt as o,q as s,xt as c}from"./DhdsNEKP.js";import"./xihTtKlq.js";var l=s(`<div><!></div>`);function u(s,u){let d={top:`placement-top`,bottom:`placement-bottom`};var f=l();r(c(f),()=>u.children??i),a(f),o(()=>t(f,1,e([`sticky z-30 mb-0 pointer-events-none *:pointer-events-auto`,d[u.placement]]),`svelte-mnmyjv`)),n(s,f)}export{u as t};
+//# sourceMappingURL=wqiQ7kvD2.js.map

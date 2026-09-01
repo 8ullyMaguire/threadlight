@@ -1,0 +1,1 @@
+import"./fetPS0jx.js";var e=`threadlight_pending_posts`;function t(){if(typeof sessionStorage>`u`)return[];try{let t=sessionStorage.getItem(e);return t?JSON.parse(t):[]}catch{return[]}}function n(n){let r=t();r.unshift(n),sessionStorage.setItem(e,JSON.stringify(r))}export{t as n,n as t};

@@ -1,0 +1,1 @@
+{"version":3,"file":"_layout.ts.js","names":[],"sources":["../../../../../src/routes/+layout.ts"],"sourcesContent":["import { env } from '$env/dynamic/public'\n\nexport const ssr = env.PUBLIC_SSR_ENABLED?.toLowerCase() == 'true'\n\nexport async function load() {\n  return\n}\n"],"mappings":";;AAEA,IAAa,MAAM,WAAI,oBAAoB,YAAY,KAAK;AAE5D,eAAsB,OAAO,CAE7B"}

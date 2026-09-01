@@ -1,0 +1,1 @@
+{"version":3,"file":"_page.ts.js","names":[],"sources":["../../../../../../src/routes/create/+page.ts"],"sourcesContent":["import { redirect } from '@sveltejs/kit'\n\nexport function load() {\n  redirect(302, '/create/post')\n}\n"],"mappings":";;AAEA,SAAgB,OAAO;CACrB,SAAS,KAAK,cAAc;AAC9B"}

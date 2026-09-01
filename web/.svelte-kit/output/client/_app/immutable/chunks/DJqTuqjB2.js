@@ -1,0 +1,2 @@
+import{D as e,E as t,G as n,gt as r,q as i,s as a}from"./DhdsNEKP.js";import"./xihTtKlq.js";var o=i(`<div><div class="w-2/3 h-1/6 rounded-lg svelte-500wmx"></div> <div class="w-full h-4/6 rounded-lg svelte-500wmx"></div> <div class="w-32 h-1/6 rounded-lg svelte-500wmx"></div></div>`);function s(i,s){let c={sm:`h-20`,md:`h-30`,lg:`h-36`},l=a(s,`size`,3,`lg`);var u=o();r(()=>t(u,1,e([`skeleton flex flex-col gap-2 w-full`,c[l()]]),`svelte-500wmx`)),n(i,u)}export{s as t};
+//# sourceMappingURL=DJqTuqjB2.js.map

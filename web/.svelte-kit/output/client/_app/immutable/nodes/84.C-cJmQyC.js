@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import"../chunks/DhdsNEKP.js";import"../chunks/xihTtKlq.js";import"../chunks/C8_XEMsh.js";import{n as t}from"../chunks/B0YNOzD5.js";import{n}from"../chunks/Bin8K3vy.js";var r=e({load:()=>i});function i(){(t.current??0)>768&&n(302,`/settings/app`)}function a(e){}export{a as component,r as universal};
+//# sourceMappingURL=84.C-cJmQyC.js.map

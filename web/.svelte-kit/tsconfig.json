@@ -1,0 +1,74 @@
+{
+	"compilerOptions": {
+		"paths": {
+			"mono-svelte": [
+				"../src/lib/ui/shared"
+			],
+			"mono-svelte/*": [
+				"../src/lib/ui/shared/*"
+			],
+			"svelte-hero-icons": [
+				"../node_modules/@xylightdev/svelte-hero-icons"
+			],
+			"svelte-hero-icons/*": [
+				"../node_modules/@xylightdev/svelte-hero-icons/*"
+			],
+			"$comp": [
+				"../src/lib/components"
+			],
+			"$comp/*": [
+				"../src/lib/components/*"
+			],
+			"$lib": [
+				"../src/lib"
+			],
+			"$lib/*": [
+				"../src/lib/*"
+			],
+			"$app/types": [
+				"./types/index.d.ts"
+			]
+		},
+		"rootDirs": [
+			"..",
+			"./types"
+		],
+		"verbatimModuleSyntax": true,
+		"isolatedModules": true,
+		"lib": [
+			"esnext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"moduleResolution": "bundler",
+		"module": "esnext",
+		"noEmit": true,
+		"target": "esnext"
+	},
+	"include": [
+		"ambient.d.ts",
+		"env.d.ts",
+		"non-ambient.d.ts",
+		"./types/**/$types.d.ts",
+		"../vite.config.js",
+		"../vite.config.ts",
+		"../src/**/*.js",
+		"../src/**/*.ts",
+		"../src/**/*.svelte",
+		"../test/**/*.js",
+		"../test/**/*.ts",
+		"../test/**/*.svelte",
+		"../tests/**/*.js",
+		"../tests/**/*.ts",
+		"../tests/**/*.svelte"
+	],
+	"exclude": [
+		"../node_modules/**",
+		"../src/service-worker.js",
+		"../src/service-worker/**/*.js",
+		"../src/service-worker.ts",
+		"../src/service-worker/**/*.ts",
+		"../src/service-worker.d.ts",
+		"../src/service-worker/**/*.d.ts"
+	]
+}

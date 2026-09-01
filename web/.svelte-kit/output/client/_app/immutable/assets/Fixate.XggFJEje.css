@@ -1,0 +1,2 @@
+/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+.placement-bottom.svelte-mnmyjv{bottom:calc(calc(var(--spacing) * 22) + env(safe-area-inset-bottom,0px));padding-top:calc(var(--spacing) * 6);margin-top:auto}@media (width>=64rem){.placement-bottom.svelte-mnmyjv{bottom:calc(var(--spacing) * 6)}}.placement-top.svelte-mnmyjv{top:calc(calc(var(--spacing) * 6) + env(safe-area-inset-top,0px))}@media (width>=64rem){.placement-top.svelte-mnmyjv{top:calc(var(--spacing) * 22)}}

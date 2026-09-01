@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+target/
+build/
+dist/
+*.egg-info/
+Cargo.lock
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+credentials
+secrets.*
+*.key
+*.pem
+*.cert
+*.p12
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup dirs
+*.bak/
+*.old/
+*.bak.*/

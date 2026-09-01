@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polaris &mdash; Welcome</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --primary: #4f46e5;
+    --primary-light: #eef2ff;
+    --border: #e5e7eb;
+    --radius: 12px;
+    --accent: #f59e0b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 6rem; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 1.05rem;
+  }
+
+  /* Navigation */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    padding: 0 1.5rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  nav .logo {
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: var(--primary);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  nav a:hover { color: var(--primary); }
+
+  /* Layout */
+  .container { max-width: 780px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* Hero */
+  .hero {
+    margin-top: 60px;
+    padding: 5rem 1.5rem 4rem;
+    text-align: center;
+    background: linear-gradient(135deg, var(--primary-light) 0%, #fff 80%);
+  }
+  .hero h1 { font-size: 2.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; }
+  .hero h1 span { color: var(--primary); }
+  .hero p { font-size: 1.2rem; color: var(--muted); max-width: 600px; margin: 0 auto 1.5rem; }
+  .hero .tagline { font-size: 0.95rem; color: var(--muted); background: var(--surface); display: inline-block; padding: 0.4rem 1rem; border-radius: 100px; border: 1px solid var(--border); }
+
+  /* Sections */
+  section { padding: 3rem 0; }
+  section + section { border-top: 1px solid var(--border); }
+  h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 1.5rem; }
+  h3 { font-size: 1.2rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+  p, li { margin-bottom: 0.8rem; }
+  ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+  li { margin-bottom: 0.4rem; }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); transform: translateY(-2px); }
+  .card .icon { font-size: 1.8rem; margin-bottom: 0.5rem; display: block; }
+  .card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+  .card p { font-size: 0.9rem; color: var(--muted); margin: 0; }
+
+  /* Callout */
+  .callout {
+    background: var(--primary-light);
+    border-left: 4px solid var(--primary);
+    padding: 1.2rem 1.5rem;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    margin: 1.5rem 0;
+  }
+  .callout p { margin: 0; font-size: 0.95rem; }
+
+  /* FAQ */
+  .faq-q {
+    font-weight: 600;
+    cursor: pointer;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .faq-q:hover { color: var(--primary); }
+  .faq-a {
+    padding: 0 0 1rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+    border-bottom: 1px solid var(--border);
+  }
+  details { margin-bottom: 0; }
+  details summary { list-style: none; cursor: pointer; font-weight: 600; padding: 1rem 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: '+'; font-size: 1.2rem; color: var(--muted); transition: transform 0.2s; }
+  details[open] summary::after { content: '−'; }
+  details[open] + details { border-top: 1px solid var(--border); }
+  details .faq-a { padding: 0.5rem 0 1rem; color: var(--muted); font-size: 0.95rem; }
+
+  /* Footer */
+  .doc-footer {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+  .doc-footer a { color: var(--primary); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 1.8rem; }
+    .hero { padding: 4rem 1rem 3rem; }
+    section { padding: 2rem 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="logo">✦ Polaris</a>
+  <a href="#what">What is Polaris?</a>
+  <a href="#how">How It Works</a>
+  <a href="#rules">The Rules</a>
+  <a href="#faq">FAQ</a>
+</nav>
+
+<div class="hero">
+  <h1>Welcome to <span>Polaris</span></h1>
+  <p>A social network built for people who think for themselves.</p>
+  <div class="tagline">No algorithms. No feed manipulation. Just real people having real conversations.</div>
+</div>
+
+<div class="container">
+
+<section id="what">
+  <h2>What is Polaris?</h2>
+  <p>Imagine a social network where <strong>you</strong> are in control. Not an algorithm. Not a corporation. Not a billionaire who thinks they know what's best for you. <strong>You.</strong></p>
+  <p>Polaris is a place to share your thoughts, have real conversations, and be part of communities that actually matter to you. There are no ads, no creepy tracking, and no hidden algorithms deciding what you should see.</p>
+  <p>On Polaris, <strong>you decide</strong> whose opinion you trust. You decide what communities to join. You decide what shows up in your feed. And if something feels wrong, you have real tools to do something about it.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <span class="icon">🧭</span>
+      <h4>Your Feed, Your Rules</h4>
+      <p>No algorithm decides what you see. Follow people, tags, and communities you care about.</p>
+    </div>
+    <div class="card">
+      <span class="icon">🤝</span>
+      <h4>Trust, Not Likes</h4>
+      <p>Instead of counting likes, we help you figure out who actually knows what they&rsquo;re talking about.</p>
+    </div>
+    <div class="card">
+      <span class="icon">🏘️</span>
+      <h4>Real Communities</h4>
+      <p>Create or join communities with their own rules, membership, and moderation.</p>
+    </div>
+    <div class="card">
+      <span class="icon">🔍</span>
+      <h4>Community Notes</h4>
+      <p>See fact-checks and added context on posts, voted on by the community.</p>
+    </div>
+    <div class="card">
+      <span class="icon">⚖️</span>
+      <h4>Fair Moderation</h4>
+      <p>Decisions about rule-breaking are made by juries of regular users, not by a single moderator.</p>
+    </div>
+    <div class="card">
+      <span class="icon">🌱</span>
+      <h4>Slow by Design</h4>
+      <p>New communities start with a &ldquo;slow boot&rdquo; period so they grow at a healthy pace.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p><strong>Think of it like this:</strong> Most social networks are like a giant mall where loud advertisers decide what you look at. Polaris is more like a cozy neighborhood coffee shop where you know the people, trust their opinions, and can speak freely without being screamed at by strangers.</p>
+  </div>
+</section>
+
+<section id="why">
+  <h2>Why Does Polaris Exist?</h2>
+  <p>Because the internet got a little broken, and we wanted to help fix it.</p>
+  <p>A lot of social networks today are designed to make you angry. Anger keeps you scrolling. Scrolling makes them money. So they show you things that upset you, things that divide you, things that turn you into a soldier for their side.</p>
+  <p>We think that's a terrible way to run a social network.</p>
+  <p>Polaris was built on a simple idea: <strong>you are not a soldier.</strong> You are a person. You have your own brain, your own values, and your own way of seeing the world. Nobody should get to hijack that for profit.</p>
+
+  <h3>What We Believe</h3>
+  <ul>
+    <li><strong>Think for yourself.</strong> Question everything, including us. Don't believe something just because it makes you feel like you belong to the right team.</li>
+    <li><strong>Being kind isn't weak.</strong> You can disagree with someone without hating them. In fact, that's how real conversation works.</li>
+    <li><strong>Both sides can be wrong.</strong> Virtue signaling &mdash; showing off how good you are to fit in &mdash; is just as bad as openly hating people. They're two sides of the same coin: both stop you from thinking clearly.</li>
+    <li><strong>There are bad people in every group.</strong> Racists, authoritarians, and bullies exist everywhere. The goal isn't to pick a side &mdash; it's to recognize bad behavior when you see it, no matter who does it.</li>
+    <li><strong>Freedom means responsibility.</strong> You can say what you want, but that doesn't mean you should say everything. Real freedom means owning the consequences of your words.</li>
+  </ul>
+
+  <div class="callout">
+    <p><strong>A note from the creators:</strong> We are anti-fascist. That means we oppose authoritarianism, bigotry, and bullying no matter where it comes from. We believe in inclusion, but we also believe you shouldn't have to check a box just to be treated with basic respect. If that sounds like common sense to you, you'll fit in here.</p>
+  </div>
+</section>
+
+<section id="how">
+  <h2>How Polaris Works</h2>
+  <p>Here's how the different pieces fit together. Don't worry &mdash; it's simpler than it sounds.</p>
+
+  <h3>Accounts</h3>
+  <p>You sign up with an email and a password. No phone number required. No real name required (though you can use one if you want). Once you're in, you go through a quick onboarding that helps you find interesting people and topics.</p>
+
+  <h3>Posts</h3>
+  <p>Posts are just what you share &mdash; text, links, images. You can also assign a <strong>mood</strong> to your post (like &ldquo;curious,&rdquo; &ldquo;excited,&rdquo; or &ldquo;thoughtful&rdquo;) so people know where you're coming from. Posts can be saved, hidden, or reported.</p>
+
+  <h3>Trust Scores</h3>
+  <p>Instead of likes or follower counts, Polaris uses <strong>trust connections.</strong> You can say &ldquo;I trust this person&rdquo; or &ldquo;I don't trust this person.&rdquo; Over time, everyone builds a trust score based on who trusts them.</p>
+  <p>This means the quality of a person's voice matters more than how loud they are. A quiet expert can have a higher trust score than a loud fool with a million followers.</p>
+
+  <h3>Communities</h3>
+  <p>Communities are groups you can join or create. Each community has its own moderators, its own rules, and its own culture. Some communities are open to anyone; others require an invite.</p>
+  <p>New communities start in <strong>slow boot</strong> mode &mdash; they grow slowly so the community has time to figure out what kind of place it wants to be. You can also <strong>fork</strong> a community, which means you copy its members and rules to start a new one with a different direction.</p>
+
+  <h3>Community Notes</h3>
+  <p>Seen a post that seems misleading? Anyone can add a <strong>community note</strong> to provide context or fact-check. Other people vote on whether the note is helpful. The most helpful notes rise to the top.</p>
+  <p>It's like having a crowd of fact-checkers who work together, instead of one company deciding what's true.</p>
+
+  <h3>Moderation</h3>
+  <p>When someone breaks the rules, a <strong>jury</strong> is formed. Random regular users are picked to review what happened and decide what to do. The accused person gets to explain their side. The jury votes. This prevents any single moderator from having too much power.</p>
+
+  <h3>Custom Feeds</h3>
+  <p>You can create your own feeds by mixing together different sources: tags you like, communities you follow, specific people, or circles (which are groups based on interests or location). Your feed shows exactly what you want to see &mdash; nothing more, nothing less.</p>
+
+  <h3>Circles</h3>
+  <p>Circles are groups organized by topics or areas. Think of them like neighborhood groups for the internet. You can discover people nearby who share your interests without the whole world watching.</p>
+
+  <h3>Trending Topics</h3>
+  <p>Polaris shows what's trending, but it's based on what people in <em>your</em> communities and circles are talking about &mdash; not what some algorithm decided should be popular.</p>
+</section>
+
+<section id="rules">
+  <h2>The Rules</h2>
+  <p>These rules are short on purpose. If you're a decent human being, you won't have any trouble following them.</p>
+
+  <ol>
+    <li><strong>Don't be a bully.</strong> Harassment, targeted hate, and organized bullying are not allowed. If you wouldn't say it to someone's face, don't say it here.</li>
+    <li><strong>Don't spread dangerous lies.</strong> Joking around is fine. But coordinated disinformation, conspiracy theories that cause real harm, and deliberate lies are not okay.</li>
+    <li><strong>Don't use bots or manipulation.</strong> Every account should be a real person. Automation that simulates human behavior is not allowed.</li>
+    <li><strong>Don't post illegal content.</strong> Whatever's illegal where your server is located is also not allowed here.</li>
+    <li><strong>Respect community rules.</strong> Each community can have its own rules on top of these global ones. Follow them when you're in that community.</li>
+    <li><strong>Accept the outcome of juries.</strong> If you're picked for a jury, take it seriously. If you're judged by a jury, accept their decision.</li>
+  </ol>
+
+  <div class="callout">
+    <p><strong>The Golden Rule:</strong> Treat other people the way you want to be treated. It really is that simple.</p>
+  </div>
+</section>
+
+<section id="faq">
+  <h2>Frequently Asked Questions</h2>
+
+  <details>
+    <summary>Is Polaris free?</summary>
+    <div class="faq-a">
+      <p>Yes. Polaris is free to use and there are no ads. The server costs money to run, so if you find it useful and can afford it, you can donate. But donating doesn't get you any special treatment &mdash; everyone is equal here.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>How is this different from Twitter, Reddit, or Mastodon?</summary>
+    <div class="faq-a">
+      <p><strong>Twitter/X</strong> is run by an algorithm designed to make you angry so you stay on the site longer. Polaris doesn't do that.</p>
+      <p><strong>Reddit</strong> has communities (subreddits) that are controlled by a single moderator who can do whatever they want. Polaris uses juries so no single person has that power.</p>
+      <p><strong>Mastodon</strong> is decentralized, which sounds cool but can be confusing. Polaris is one server (for now) with one set of rules and all the features in one place.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Can I lose my trust score?</summary>
+    <div class="faq-a">
+      <p>Yes, but only if people stop trusting you. Trust is earned by being a decent, thoughtful person. If you're consistently rude, dishonest, or toxic, people will untrust you and your score will go down. This isn't a punishment from an admin &mdash; it's just the community's honest opinion of you.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What happens if I break the rules?</summary>
+    <div class="faq-a">
+      <p>Someone can report your post or behavior. A jury of random users will review the case. You get to explain your side. The jury votes on what should happen: a warning, a temporary suspension, or a permanent ban. Nobody gets banned without a fair trial by their peers.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Who runs this place?</summary>
+    <div class="faq-a">
+      <p>The server is run by whoever hosts it. But the rules and moderation are handled collectively by the community through juries. The person running the server can't just ban you because they disagree with you &mdash; everything goes through the jury system.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Can I create my own community?</summary>
+    <div class="faq-a">
+      <p>Absolutely! Anyone can create a community. New communities start in "slow boot" mode, which means they grow slowly at first. Once your community has proven it can be healthy and constructive, it can be promoted out of slow boot.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What does &ldquo;anti-fascist&rdquo; mean?</summary>
+    <div class="faq-a">
+      <p>It means we oppose authoritarianism, bigotry, and bullying regardless of who does it. We don't believe in &ldquo;good&rdquo; authoritarians vs &ldquo;bad&rdquo; authoritarians &mdash; we think authoritarian behavior is always wrong. This isn't about left vs right; it's about recognizing that treating people badly because of who they are, or trying to silence people you disagree with, is wrong no matter which team does it.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Can I donate to support the server?</summary>
+    <div class="faq-a">
+      <p>Yes! If this server has a donation link, you can contribute. But please don't feel obligated. Your participation in the community is already valuable enough. Donations just help keep the lights on.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Is my data private?</summary>
+    <div class="faq-a">
+      <p>We collect the minimum amount of information needed to run the service (email, username, your posts). We don't sell your data, we don't track you across the web, and we don't show you targeted ads. Your email is never shared publicly unless you choose to make it visible. For full details, check the privacy policy of the specific server you're on.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>What if I see something I don't like?</summary>
+    <div class="faq-a">
+      <p>You have several options: hide the post, block the person, report it for rule-breaking, or add a community note to provide context. You can also create content filters to hide posts with certain words or topics. You are in control of your experience.</p>
+    </div>
+  </details>
+</section>
+
+<section id="start">
+  <h2>Ready to Join?</h2>
+  <p>Polaris is what happens when people decide to build something better. No algorithms, no outrage farming, no billionaires pulling the strings. Just people, having real conversations, in communities they care about.</p>
+  <p>If that sounds good to you, you already know what to do.</p>
+</section>
+
+</div>
+
+<footer class="doc-footer">
+  <p>Polaris &mdash; built for people who think for themselves.</p>
+  <p><a href="https://github.com/anomalyco/polaris">Source code</a></p>
+</footer>
+
+</body>
+</html>

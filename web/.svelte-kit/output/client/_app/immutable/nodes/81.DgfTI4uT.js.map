@@ -1,0 +1,1 @@
+{"version":3,"file":"81.DgfTI4uT.js","names":[],"sources":["../../../../../../src/routes/reports/+page.ts","../../../../../../src/routes/reports/+page.svelte"],"sourcesContent":["import { redirect } from '@sveltejs/kit'\n\nexport async function load() {\n  redirect(302, '/moderation')\n}\n","You are being redirected.\n"],"mappings":"+NAEA,eAAsB,GAAO,CAC3B,EAAS,IAAK,aAAa,CAC7B"}

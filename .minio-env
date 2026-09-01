@@ -1,0 +1,5 @@
+MINIO_ACCESS_KEY=tl-images
+MINIO_SECRET_KEY=27kCGLzoYXoqr74TyuWvUywlbgzqyw
+MINIO_ENDPOINT=http://127.0.0.1:9000
+MINIO_BUCKET=threadlight-images
+MINIO_REGION=us-east-1

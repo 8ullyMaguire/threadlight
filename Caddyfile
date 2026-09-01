@@ -1,0 +1,15 @@
+http://localhost:8000 {
+    root * /home/user/documents/code/go/threadlight/web/build
+
+    # Proxy API calls to the Go backend
+    reverse_proxy /api/* http://localhost:8080
+
+    # Proxy health endpoint
+    reverse_proxy /health http://localhost:8080
+
+    # Proxy nodeinfo for client type detection
+    reverse_proxy /nodeinfo/2.1 http://localhost:8080
+
+    # Serve the SPA - all other routes
+    try_files {path} /index.html
+}

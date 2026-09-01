@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import"../chunks/DhdsNEKP.js";import{t}from"../chunks/CrIi_4GS.js";import"../chunks/xihTtKlq.js";import{s as n}from"../chunks/CHv3bDr7.js";import"../chunks/C8_XEMsh.js";import{t as r}from"../chunks/BBRnSvW_.js";var i=e({load:()=>a});async function a({params:e}){n.current.instance==e.instance&&t(`/comment/${e.instance}/${e.id}`,{replaceState:!0})}function o(e){r(e,{type:`comment`})}export{o as component,i as universal};
+//# sourceMappingURL=33.C5RB4_Da.js.map

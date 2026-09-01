@@ -1,0 +1,2 @@
+import{G as e,Xt as t,q as n,xt as r}from"../chunks/DhdsNEKP.js";import"../chunks/xihTtKlq.js";import{t as i}from"../chunks/DwTTKvLd.js";import{t as a}from"../chunks/CjdhQh2X.js";import"../chunks/C8_XEMsh.js";var o=n(`<div class="h-full grid place-items-center"><!></div>`);function s(n){var s=o();i(r(s),{get icon(){return a},title:`Manage`,how:!0,you:!0,log:!0,in:!0,description:`You can enable 2FA for greater security, change your password, view logged in devices, or delete your account here.`}),t(s),e(n,s)}export{s as component};
+//# sourceMappingURL=71.D7m8KQSn.js.map

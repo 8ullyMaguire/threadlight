@@ -1,0 +1,2 @@
+import{G as e,X as t,Yt as n}from"../chunks/DhdsNEKP.js";import"../chunks/xihTtKlq.js";import{sn as r}from"../chunks/CHv3bDr7.js";import"../chunks/C8_XEMsh.js";function i(i){r(i,{children:(r,i)=>{n(),e(r,t(`Hello textloader`))},$$slots:{default:!0}})}export{i as component};
+//# sourceMappingURL=102.CIiEAgiU.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"66.DdqqXOwc.js","names":[],"sources":["../../../../../../src/routes/profile/+page.ts"],"sourcesContent":["import { redirect } from '@sveltejs/kit'\n\nexport function load() {\n  redirect(302, '/profile/user')\n}\n"],"mappings":"0GAEA,SAAgB,GAAO,CACrB,EAAS,IAAK,eAAe,CAC/B"}

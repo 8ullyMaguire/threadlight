@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import{n as t}from"../chunks/Bin8K3vy.js";var n=e({load:()=>r});function r(){t(302,`/profile/user`)}export{n as universal};
+//# sourceMappingURL=66.DdqqXOwc.js.map

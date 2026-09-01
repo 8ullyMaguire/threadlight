@@ -1,0 +1,1 @@
+{"version":3,"file":"_layout.svelte.js","names":[],"sources":["../../../../../../../src/routes/profile/(local_user)/+layout.svelte"],"sourcesContent":["<script>\n  let { children } = $props()\n</script>\n\n{@render children?.()}\n"],"mappings":";;sCAAA;CACE,IAAI,EAAE,aAAQ;CAGP,WAAQ,UAAA;;AAFT"}

@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import{d as t}from"../chunks/CrIi_4GS.js";import{s as n}from"../chunks/CHv3bDr7.js";import{n as r,t as i}from"../chunks/Bin8K3vy.js";var a=e({load:()=>o});function o({params:e}){Number(e.instance)&&r(302,t(`/post/[instance]/[id=integer]`,{instance:encodeURIComponent(n.current.instance.toLowerCase()),id:e.instance})),i(404)}export{a as universal};
+//# sourceMappingURL=63.2ZQHmA2H.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"21.UBpGH6Es.js","names":[],"sources":["../../../../../../src/routes/admin/+page.ts","../../../../../../src/routes/admin/+page.svelte"],"sourcesContent":["import { redirect } from '@sveltejs/kit'\n\nexport const load = () => {\n  redirect(302, '/admin/config')\n}\n","Where are you?\n"],"mappings":"+NAEa,MAAa,CACxB,EAAS,IAAK,eAAe,CAC/B"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"_page.ts.js","names":[],"sources":["../../../../../../src/routes/admin/+page.ts"],"sourcesContent":["import { redirect } from '@sveltejs/kit'\n\nexport const load = () => {\n  redirect(302, '/admin/config')\n}\n"],"mappings":";;AAEA,IAAa,aAAa;CACxB,SAAS,KAAK,eAAe;AAC/B"}

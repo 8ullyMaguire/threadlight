@@ -1,0 +1,2 @@
+import{Ct as e,G as t,L as n,Qt as r,St as i,q as a}from"../chunks/DhdsNEKP.js";import"../chunks/xihTtKlq.js";import{R as o}from"../chunks/CHv3bDr7.js";var s=a(`<!> <!>`,1);function c(a,c){var l=s(),u=i(l);o(u,{routes:[{href:`/inbox`,name:`All`},{href:`/inbox?type=replies`,name:`Replies`},{href:`/inbox?type=mentions`,name:`Mentions`},{href:`/inbox/messages`,name:`Messages`}],class:`overflow-auto`}),n(e(u,2),()=>c.children??r),t(a,l)}export{c as component};
+//# sourceMappingURL=6.DHK4bqdL.js.map

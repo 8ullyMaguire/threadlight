@@ -1,0 +1,1 @@
+{"version":3,"file":"integer.js","names":[],"sources":["../../../../../src/params/integer.ts"],"sourcesContent":["export function match(param) {\n  return /^\\d+$/.test(param)\n}\n"],"mappings":";AAAA,SAAgB,MAAM,OAAO;CAC3B,OAAO,QAAQ,KAAK,KAAK;AAC3B"}

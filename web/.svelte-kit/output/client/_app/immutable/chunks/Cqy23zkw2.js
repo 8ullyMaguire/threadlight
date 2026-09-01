@@ -1,0 +1,2 @@
+import{s as e,t}from"./CHv3bDr7.js";async function n(e,n){return await t().blockPerson({block:e,person_id:n})}function r(e,t){return e.person_blocks.find(e=>e.target.id==t)}function i(t,n=!0){let r=e.current.user?.follows.map(e=>e.community.id).indexOf(t.id);n&&r==-1?e.current.user?.follows.push({follower:e.current.user.follows[0]?.follower,community:t}):e.current.user?.follows.splice(r??0,1)}export{n,r,i as t};
+//# sourceMappingURL=Cqy23zkw2.js.map

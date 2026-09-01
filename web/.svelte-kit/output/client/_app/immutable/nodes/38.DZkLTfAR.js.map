@@ -1,0 +1,1 @@
+{"version":3,"file":"38.DZkLTfAR.js","names":[],"sources":["../../../../../../src/routes/error/+page.ts"],"sourcesContent":["import { error } from '@sveltejs/kit'\n\nexport function load() {\n  error(500, 'You asked for it.')\n}\n"],"mappings":"qGAEA,SAAgB,GAAO,CACrB,EAAM,IAAK,mBAAmB,CAChC"}

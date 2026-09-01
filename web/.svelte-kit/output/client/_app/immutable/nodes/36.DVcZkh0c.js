@@ -1,0 +1,2 @@
+import"../chunks/DhdsNEKP.js";import"../chunks/xihTtKlq.js";import"../chunks/C8_XEMsh.js";import{t as e}from"../chunks/RzdbBmF1.js";function t(t){e(t,{formtitle:e=>{},$$slots:{formtitle:!0}})}export{t as component};
+//# sourceMappingURL=36.DVcZkh0c.js.map

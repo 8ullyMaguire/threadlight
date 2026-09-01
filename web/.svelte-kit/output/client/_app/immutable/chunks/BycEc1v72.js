@@ -1,0 +1,2 @@
+import{At as e,Ot as t,_t as n,ft as r,it as i}from"./DhdsNEKP.js";import{Et as a,jt as o,s}from"./CHv3bDr7.js";var c=class{#e=e();#t;#n;constructor(e){this.#t=e}async load(e){return a(e,this.#n)||t(this.#e,void 0),this.#n=e,i(this.#e)??t(this.#e,await this.#t(e),!0),i(this.#e)}peek(){return i(this.#e)}update(e){t(this.#e,e,!0)}},l=new o;function u(e,t){let n=l.get(e);if(n)return n;let r=new c(t);return l.set(e,r),r}r(()=>{n(()=>{s.meta.profile&&l.clear()})});export{l as n,u as t};
+//# sourceMappingURL=BycEc1v72.js.map

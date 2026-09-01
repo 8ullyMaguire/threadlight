@@ -1,0 +1,1 @@
+{"version":3,"file":"_page.ts.js","names":[],"sources":["../../../../../../../src/routes/go/[...link]/+page.ts"],"sourcesContent":["import { redirect } from '@sveltejs/kit'\n\nexport async function load({ params }) {\n  redirect(302, `/go?localize=${params.link}`)\n}\n"],"mappings":";;AAEA,eAAsB,KAAK,EAAE,UAAU;CACrC,SAAS,KAAK,gBAAgB,OAAO,MAAM;AAC7C"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"67.Dzp5_ixp.js","names":[],"sources":["../../../../../../src/routes/profile/(local_user)/blocks/+page.ts"],"sourcesContent":["import { redirect } from '@sveltejs/kit'\n\nexport function load() {\n  redirect(302, '/profile/blocks/users')\n}\n"],"mappings":"0GAEA,SAAgB,GAAO,CACrB,EAAS,IAAK,uBAAuB,CACvC"}

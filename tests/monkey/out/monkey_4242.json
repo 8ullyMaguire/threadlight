@@ -1,0 +1,13 @@
+{
+  "seed": 4242,
+  "target": "http://localhost:5173",
+  "counts": {
+    "errors": 2,
+    "console": 0
+  },
+  "errors": [
+    "[AUTH] login 200 but no token in body={\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3ODQ5MjA3NjcsImlhdCI6MTc4NDMxNTk2NywidXNlcl9pZCI6MTM2Mn0._tQ34",
+    "[AUTH] could not authenticate monkey user (email monkey@polaris.test)"
+  ],
+  "consoleErrs": []
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"53.D-9iAIW5.js","names":[],"sources":["../../../../../../src/routes/login/guest/+page.ts"],"sourcesContent":["import { LINKED_INSTANCE_URL } from '$lib/app/instance.svelte'\nimport { error } from '@sveltejs/kit'\n\nexport function load() {\n  if (LINKED_INSTANCE_URL) error(404)\n}\n"],"mappings":"+LAGA,SAAgB,GAAO,CACjB,GAAqB,EAAM,GAAG,CACpC"}

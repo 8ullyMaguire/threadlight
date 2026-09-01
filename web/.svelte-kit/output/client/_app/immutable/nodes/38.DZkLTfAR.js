@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import{t}from"../chunks/Bin8K3vy.js";var n=e({load:()=>r});function r(){t(500,`You asked for it.`)}export{n as universal};
+//# sourceMappingURL=38.DZkLTfAR.js.map

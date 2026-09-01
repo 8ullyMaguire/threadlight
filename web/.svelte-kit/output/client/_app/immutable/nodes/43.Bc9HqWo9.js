@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import{n as t}from"../chunks/uDypdPe3.js";import{n}from"../chunks/Bin8K3vy.js";var r=e({load:()=>i});async function i({url:e}){let r=e.searchParams.get(`localize`);if(r){let e=t(r);e?n(302,e):n(302,r)}}export{r as universal};
+//# sourceMappingURL=43.Bc9HqWo9.js.map

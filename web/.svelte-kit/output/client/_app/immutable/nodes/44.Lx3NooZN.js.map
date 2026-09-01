@@ -1,0 +1,1 @@
+{"version":3,"file":"44.Lx3NooZN.js","names":[],"sources":["../../../../../../src/routes/go/[...link]/+page.ts"],"sourcesContent":["import { redirect } from '@sveltejs/kit'\n\nexport async function load({ params }) {\n  redirect(302, `/go?localize=${params.link}`)\n}\n"],"mappings":"0GAEA,eAAsB,EAAK,CAAE,UAAU,CACrC,EAAS,IAAK,gBAAgB,EAAO,MAAM,CAC7C"}

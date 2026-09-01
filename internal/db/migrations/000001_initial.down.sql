@@ -1,0 +1,2 @@
+-- Empty down migration for 000001_initial
+-- This is a schema initialization migration; no rollback is defined.

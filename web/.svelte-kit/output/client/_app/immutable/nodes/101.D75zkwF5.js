@@ -1,0 +1,3 @@
+import{G as e,Yt as t,q as n}from"../chunks/DhdsNEKP.js";import"../chunks/xihTtKlq.js";import"../chunks/C8_XEMsh.js";var r=n(`<h1 class="font-bold text-2xl">Utilities</h1> <p>These are mostly for debugging purposes but you can use them to see how Photon
+  works on the inside. (if you don't feel like reading the source code)</p>`,1);function i(n){var i=r();t(2),e(n,i)}export{i as component};
+//# sourceMappingURL=101.D75zkwF5.js.map

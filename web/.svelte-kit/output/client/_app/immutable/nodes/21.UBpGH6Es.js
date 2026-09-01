@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import{G as t,X as n,Yt as r}from"../chunks/DhdsNEKP.js";import"../chunks/xihTtKlq.js";import"../chunks/C8_XEMsh.js";import{n as i}from"../chunks/Bin8K3vy.js";var a=e({load:()=>o}),o=()=>{i(302,`/admin/config`)};function s(e){r(),t(e,n(`Where are you?`))}export{s as component,a as universal};
+//# sourceMappingURL=21.UBpGH6Es.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"_page.ts.js","names":[],"sources":["../../../../../../../src/routes/login/guest/+page.ts"],"sourcesContent":["import { LINKED_INSTANCE_URL } from '$lib/app/instance.svelte'\nimport { error } from '@sveltejs/kit'\n\nexport function load() {\n  if (LINKED_INSTANCE_URL) error(404)\n}\n"],"mappings":";;;AAGA,SAAgB,OAAO;CACrB,IAAI,qBAAqB,MAAM,GAAG;AACpC"}

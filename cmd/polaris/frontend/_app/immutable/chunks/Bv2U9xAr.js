@@ -1,0 +1,1 @@
+import{Y as e}from"./fetPS0jx.js";import"./BFPbFiDb.js";var t=e([]),n=1;function r(e,r=`success`){let a=n++;t.update(t=>[...t,{id:a,message:e,type:r}]),setTimeout(()=>i(a),4e3)}function i(e){t.update(t=>t.filter(t=>t.id!==e))}export{r as n,t as r,i as t};

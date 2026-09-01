@@ -1,0 +1,11 @@
+[book]
+authors = ["Threadlight Team"]
+language = "en"
+src = "src"
+title = "Threadlight Documentation"
+
+[output.html]
+default-theme = "ayu"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/anomalyco/polaris"
+edit-url-template = "https://github.com/anomalyco/polaris/edit/main/docs/{path}"

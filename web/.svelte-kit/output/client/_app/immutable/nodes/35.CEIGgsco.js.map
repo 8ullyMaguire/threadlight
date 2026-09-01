@@ -1,0 +1,1 @@
+{"version":3,"file":"35.CEIGgsco.js","names":[],"sources":["../../../../../../src/routes/create/+page.ts"],"sourcesContent":["import { redirect } from '@sveltejs/kit'\n\nexport function load() {\n  redirect(302, '/create/post')\n}\n"],"mappings":"0GAEA,SAAgB,GAAO,CACrB,EAAS,IAAK,cAAc,CAC9B"}

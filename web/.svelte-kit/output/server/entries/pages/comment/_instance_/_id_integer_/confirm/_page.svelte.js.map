@@ -1,0 +1,1 @@
+{"version":3,"file":"_page.svelte.js","names":[],"sources":["../../../../../../../../../src/routes/comment/[instance]/[id=integer]/confirm/+page.svelte"],"sourcesContent":["<script lang=\"ts\">\n  import PostConfirmPage from '../../../../post/[instance]/[id=integer]/confirm/+page.svelte'\n</script>\n\n<PostConfirmPage type=\"comment\" />\n"],"mappings":";;;2BAAA;;AAEQ"}

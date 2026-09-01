@@ -1,0 +1,1 @@
+{"version":3,"file":"_page.ts.js","names":[],"sources":["../../../../../../../src/routes/password_change/[token]/+page.ts"],"sourcesContent":["export const load = ({ params }) => ({\n  token: params.token,\n})\n"],"mappings":";AAAA,IAAa,QAAQ,EAAE,cAAc,EACnC,OAAO,OAAO,MAChB"}

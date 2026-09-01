@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import{d as t}from"../chunks/CrIi_4GS.js";import{b as n}from"../chunks/CHv3bDr7.js";import{n as r}from"../chunks/Bin8K3vy.js";var i=e({load:()=>a});function a({params:e}){r(302,t(`/comment/[instance]/[id]`,{instance:encodeURIComponent(n.data.toLowerCase()),id:e.instance}))}export{i as universal};
+//# sourceMappingURL=31.BG-adPqF.js.map

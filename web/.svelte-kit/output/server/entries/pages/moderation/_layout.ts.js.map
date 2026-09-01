@@ -1,0 +1,1 @@
+{"version":3,"file":"_layout.ts.js","names":[],"sources":["../../../../../../src/routes/moderation/+layout.ts"],"sourcesContent":["import { profile } from '$lib/app/auth'\nimport { error } from '@sveltejs/kit'\n\nexport function load() {\n  if (!profile.current.jwt) error(401)\n}\n"],"mappings":";;;AAGA,SAAgB,OAAO;CACrB,IAAI,CAAC,QAAQ,QAAQ,KAAK,MAAM,GAAG;AACrC"}

@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import{s as t}from"../chunks/CHv3bDr7.js";import{n}from"../chunks/Bin8K3vy.js";import{t as r}from"../chunks/BBRnSvW_.js";var i=e({load:()=>a});async function a({params:e}){t.current.instance==e.instance&&n(302,`/post/${e.instance}/${e.id}`)}export{r as component,i as universal};
+//# sourceMappingURL=65.D2ngT0pl.js.map

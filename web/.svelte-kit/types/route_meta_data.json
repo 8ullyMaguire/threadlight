@@ -1,0 +1,391 @@
+{
+	"/": [
+		"src/routes/+page.ts",
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/accounts": [
+		"src/routes/+layout.ts"
+	],
+	"/accounts/login": [
+		"src/routes/+layout.ts"
+	],
+	"/accounts/login/guest": [
+		"src/routes/+layout.ts"
+	],
+	"/activitypub/externalInteraction": [
+		"src/routes/activitypub/externalInteraction/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/admin": [
+		"src/routes/admin/+page.ts",
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.ts",
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/admin/applications": [
+		"src/routes/admin/applications/+page.ts",
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/admin/config": [
+		"src/routes/admin/config/+page.ts",
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/admin/federation": [
+		"src/routes/admin/federation/+page.ts",
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/admin/media": [
+		"src/routes/admin/media/+page.ts",
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/admin/taglines": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/admin/team": [
+		"src/routes/admin/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/comment/[instance]": [
+		"src/routes/comment/[instance]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/comment/[instance]/[id=integer]": [
+		"src/routes/comment/[instance]/[id=integer]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/comment/[instance]/[id=integer]/confirm": [
+		"src/routes/comment/[instance]/[id=integer]/confirm/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/communities": [
+		"src/routes/communities/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/create": [
+		"src/routes/create/+page.ts",
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/create/community": [
+		"src/routes/+layout.ts"
+	],
+	"/create/post": [
+		"src/routes/create/post/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/c/[name]": [
+		"src/routes/c/[name]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/c/[name]/settings": [
+		"src/routes/c/[name]/settings/+layout.ts",
+		"src/routes/+layout.ts",
+		"src/routes/c/[name]/settings/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/c/[name]/settings/team": [
+		"src/routes/c/[name]/settings/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/error": [
+		"src/routes/error/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/explore": [
+		"src/routes/explore/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/explore/communities": [
+		"src/routes/explore/communities/+page.ts",
+		"src/routes/explore/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/explore/feeds": [
+		"src/routes/explore/feeds/+page.ts",
+		"src/routes/explore/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/explore/topics": [
+		"src/routes/explore/topics/+page.ts",
+		"src/routes/explore/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/f/[id]": [
+		"src/routes/f/[id]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/go": [
+		"src/routes/go/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/go/[...link]": [
+		"src/routes/go/[...link]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/inbox": [
+		"src/routes/inbox/+page.ts",
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/inbox/messages": [
+		"src/routes/inbox/messages/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/inbox/messages/[user_id=integer]": [
+		"src/routes/inbox/messages/[user_id=integer]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/instances": [
+		"src/routes/instances/+page.ts",
+		"src/routes/instances/+layout.ts",
+		"src/routes/+layout.ts",
+		"src/routes/instances/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/instances/blocked": [
+		"src/routes/instances/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/instances/linked": [
+		"src/routes/instances/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/legal": [
+		"src/routes/+layout.ts"
+	],
+	"/login_reset": [
+		"src/routes/+layout.ts"
+	],
+	"/login": [
+		"src/routes/+layout.ts"
+	],
+	"/login/guest": [
+		"src/routes/login/guest/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/moderation": [
+		"src/routes/moderation/+page.ts",
+		"src/routes/moderation/+layout.ts",
+		"src/routes/+layout.ts",
+		"src/routes/moderation/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/moderation/communities": [
+		"src/routes/moderation/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/moderation/c/[id=integer]": [
+		"src/routes/moderation/c/[id=integer]/+page.ts",
+		"src/routes/moderation/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/modlog": [
+		"src/routes/modlog/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/password_change/[token]": [
+		"src/routes/password_change/[token]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/plugins": [
+		"src/routes/+layout.ts"
+	],
+	"/plugins/upload": [
+		"src/routes/+layout.ts"
+	],
+	"/plugins/[id]": [
+		"src/routes/+layout.ts"
+	],
+	"/post/[instance]": [
+		"src/routes/post/[instance]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/post/[instance]/[id=integer]": [
+		"src/routes/post/[instance]/[id=integer]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/post/[instance]/[id=integer]/confirm": [
+		"src/routes/post/[instance]/[id=integer]/confirm/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)": [
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile": [
+		"src/routes/profile/+page.ts",
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts",
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)/blocks": [
+		"src/routes/profile/(local_user)/blocks/+page.ts",
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts",
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)/blocks/communities": [
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)/blocks/instances": [
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)/blocks/users": [
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/media": [
+		"src/routes/profile/media/+page.ts",
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)/password": [
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts",
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)/password/2fa": [
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)/password/change": [
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)/password/delete": [
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)/password/logins": [
+		"src/routes/profile/(local_user)/password/logins/+page.ts",
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/(local_user)/settings": [
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/user": [
+		"src/routes/profile/user/+page.ts",
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/profile/voted/[type]": [
+		"src/routes/profile/voted/[type]/+page.ts",
+		"src/routes/profile/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/registration_applications": [
+		"src/routes/registration_applications/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/reports": [
+		"src/routes/reports/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/saved": [
+		"src/routes/saved/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/search": [
+		"src/routes/search/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/settings": [
+		"src/routes/settings/+page.ts",
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/settings/affinity": [
+		"src/routes/settings/affinity/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/settings/app": [
+		"src/routes/+layout.ts"
+	],
+	"/settings/credits": [
+		"src/routes/+layout.ts"
+	],
+	"/settings/embeds": [
+		"src/routes/+layout.ts"
+	],
+	"/settings/lemmy": [
+		"src/routes/+layout.ts"
+	],
+	"/settings/lists": [
+		"src/routes/+layout.ts"
+	],
+	"/settings/lists/create": [
+		"src/routes/+layout.ts"
+	],
+	"/settings/lists/[id]": [
+		"src/routes/+layout.ts"
+	],
+	"/settings/moderation": [
+		"src/routes/+layout.ts"
+	],
+	"/settings/other": [
+		"src/routes/+layout.ts"
+	],
+	"/signup": [
+		"src/routes/signup/+page.ts",
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/signup/[instance]": [
+		"src/routes/signup/[instance]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/theme": [
+		"src/routes/+layout.ts"
+	],
+	"/topic/[id]": [
+		"src/routes/topic/[id]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/translators": [
+		"src/routes/+layout.ts"
+	],
+	"/util": [
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/util/components": [
+		"src/routes/+layout.ts"
+	],
+	"/util/constants": [
+		"src/routes/+layout.ts"
+	],
+	"/util/functions": [
+		"src/routes/+layout.ts"
+	],
+	"/util/instance": [
+		"src/routes/+layout.ts"
+	],
+	"/util/photonify": [
+		"src/routes/+layout.ts"
+	],
+	"/util/placeholder": [
+		"src/routes/+layout.ts"
+	],
+	"/u/[name]": [
+		"src/routes/u/[name]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/verify_email/[token]": [
+		"src/routes/verify_email/[token]/+page.ts",
+		"src/routes/+layout.ts"
+	]
+}

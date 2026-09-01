@@ -1,0 +1,1 @@
+{"version":3,"file":"_page.ts.js","names":[],"sources":["../../../../../../src/routes/reports/+page.ts"],"sourcesContent":["import { redirect } from '@sveltejs/kit'\n\nexport async function load() {\n  redirect(302, '/moderation')\n}\n"],"mappings":";;AAEA,eAAsB,OAAO;CAC3B,SAAS,KAAK,aAAa;AAC7B"}

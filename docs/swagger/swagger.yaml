@@ -1,0 +1,6535 @@
+basePath: /api/v1
+definitions:
+  handlers.addTopicRequest:
+    properties:
+      tag_id:
+        type: integer
+      topic:
+        type: string
+    required:
+    - topic
+    type: object
+  handlers.blockRequest:
+    properties:
+      blocked_id:
+        type: integer
+    required:
+    - blocked_id
+    type: object
+  handlers.createConnectionRequest:
+    properties:
+      trustee_id:
+        type: integer
+      weight:
+        type: number
+    required:
+    - trustee_id
+    - weight
+    type: object
+  handlers.createReportRequest:
+    properties:
+      category:
+        type: integer
+      post_id:
+        type: integer
+      reason:
+        type: string
+    required:
+    - category
+    - post_id
+    - reason
+    type: object
+  handlers.forgotRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  handlers.incrementTopicRequest:
+    properties:
+      topic:
+        type: string
+    required:
+    - topic
+    type: object
+  handlers.joinCircleRequest:
+    properties:
+      status:
+        type: integer
+    type: object
+  handlers.resetRequest:
+    properties:
+      new_password:
+        minLength: 8
+        type: string
+      token:
+        type: string
+    required:
+    - new_password
+    - token
+    type: object
+  handlers.resolveReportRequest:
+    properties:
+      status:
+        type: integer
+    required:
+    - status
+    type: object
+  handlers.updateConnectionRequest:
+    properties:
+      weight:
+        type: number
+    required:
+    - weight
+    type: object
+  model.AboutResponse:
+    properties:
+      admin_contact_email:
+        type: string
+      admin_users:
+        items:
+          type: string
+        type: array
+      code_of_conduct_url:
+        type: string
+      defederation_policy_url:
+        type: string
+      description:
+        type: string
+      donate_text:
+        type: string
+      donation_url:
+        type: string
+      instance_name:
+        type: string
+      privacy_policy_url:
+        type: string
+      short_description:
+        type: string
+      terms_url:
+        type: string
+      version:
+        type: string
+    type: object
+  model.Achievement:
+    properties:
+      category:
+        type: integer
+      code:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      sort_order:
+        type: integer
+    type: object
+  model.AdminStats:
+    properties:
+      credit_supply:
+        type: integer
+      daily_active_users:
+        type: integer
+      disk_usage_bytes:
+        type: integer
+      monthly_active_users:
+        type: integer
+      total_communities:
+        type: integer
+      total_mod_actions:
+        type: integer
+      total_posts:
+        type: integer
+      total_reports_pending:
+        type: integer
+      total_users:
+        type: integer
+      weekly_active_users:
+        type: integer
+    type: object
+  model.AlgorithmicListCriteria:
+    properties:
+      max_freshness_days:
+        type: integer
+      max_negative_ratio:
+        type: number
+      min_positive_ratio:
+        type: number
+      min_posts_30d:
+        type: integer
+      min_reaction_score:
+        type: integer
+      min_trust_level:
+        type: integer
+      tag_score_threshold:
+        type: number
+    type: object
+  model.AuthResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  model.BlocklistEntry:
+    properties:
+      added_by:
+        type: integer
+      created_at:
+        type: string
+      entry_type:
+        type: integer
+      entry_value:
+        type: string
+      id:
+        type: integer
+      jury_approved:
+        type: boolean
+      reason:
+        type: string
+      severity:
+        type: integer
+      shared:
+        type: boolean
+    type: object
+  model.Bounty:
+    properties:
+      best_answer_id:
+        type: integer
+      created_at:
+        type: string
+      creator_id:
+        type: integer
+      expires_at:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      status:
+        type: integer
+      total_amount:
+        type: integer
+    type: object
+  model.Circle:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      grid_cell:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      last_activity:
+        type: string
+      member_count:
+        type: integer
+      name:
+        type: string
+      tag_id:
+        type: integer
+    type: object
+  model.CircleMember:
+    properties:
+      circle_id:
+        type: integer
+      joined_at:
+        type: string
+      status:
+        type: integer
+      suggested_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.Collection:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_default:
+        type: boolean
+      name:
+        type: string
+      owner_id:
+        type: integer
+      updated_at:
+        type: string
+      visibility:
+        type: integer
+    type: object
+  model.Community:
+    properties:
+      archived_at:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      curator_lock:
+        type: boolean
+      description:
+        type: string
+      forked_from:
+        type: integer
+      id:
+        type: integer
+      invite_only:
+        type: boolean
+      member_count:
+        type: integer
+      min_trust_score:
+        type: number
+      name:
+        type: string
+      slow_boot_days:
+        type: integer
+      slug:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
+  model.CommunityMember:
+    properties:
+      community_id:
+        type: integer
+      joined_at:
+        type: string
+      role:
+        type: integer
+      status:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  model.CommunityNote:
+    properties:
+      author_id:
+        type: integer
+      body:
+        type: string
+      consensus_score:
+        type: number
+      created_at:
+        type: string
+      helpful_no:
+        type: integer
+      helpful_yes:
+        type: integer
+      id:
+        type: integer
+      post_id:
+        type: integer
+      status:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  model.ContentFilter:
+    properties:
+      created_at:
+        type: string
+      filter_action:
+        type: integer
+      filter_type:
+        type: integer
+      filter_value:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      user_id:
+        type: integer
+    type: object
+  model.CreateAlgorithmicListRequest:
+    properties:
+      criteria:
+        $ref: '#/definitions/model.AlgorithmicListCriteria'
+      description:
+        type: string
+      list_type:
+        description: follow/block
+        enum:
+        - 0
+        - 1
+        type: integer
+      name:
+        maxLength: 100
+        type: string
+      refresh:
+        description: interval string like "24h"
+        type: string
+      scope:
+        description: global/per-tag
+        enum:
+        - 0
+        - 1
+        type: integer
+      tag_id:
+        type: integer
+      visibility:
+        enum:
+        - 0
+        - 1
+        - 2
+        type: integer
+    required:
+    - name
+    type: object
+  model.CreatePostRequest:
+    properties:
+      body:
+        type: string
+      content_type:
+        type: integer
+      content_warning:
+        type: string
+      is_educational:
+        type: boolean
+      is_entertaining:
+        type: boolean
+      is_nsfw:
+        type: boolean
+      mood:
+        type: integer
+      title:
+        type: string
+    required:
+    - body
+    - title
+    type: object
+  model.CreateUserListRequest:
+    properties:
+      description:
+        type: string
+      list_type:
+        enum:
+        - 0
+        - 1
+        type: integer
+      name:
+        maxLength: 100
+        type: string
+      visibility:
+        enum:
+        - 0
+        - 1
+        - 2
+        type: integer
+    required:
+    - name
+    type: object
+  model.CreditTransaction:
+    properties:
+      action_type:
+        type: string
+      amount:
+        type: integer
+      created_at:
+        type: string
+      from_user:
+        type: integer
+      hash:
+        type: string
+      id:
+        type: integer
+      metadata:
+        additionalProperties: true
+        type: object
+      reference_id:
+        type: integer
+      to_user:
+        type: integer
+      transaction_type:
+        type: integer
+    type: object
+  model.CustomFeed:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_public:
+        type: boolean
+      name:
+        type: string
+      owner_id:
+        type: integer
+      slug:
+        type: string
+      sort_order:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  model.FeedPlugin:
+    properties:
+      author_id:
+        type: integer
+      created_at:
+        type: string
+      description:
+        type: string
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      install_count:
+        type: integer
+      name:
+        type: string
+      plugin_type:
+        description: 0=rank, 1=filter, 2=hybrid
+        type: integer
+      price_credits:
+        type: integer
+      rating:
+        type: number
+      reviewed:
+        type: boolean
+      updated_at:
+        type: string
+      version:
+        type: string
+      wasm_sha256:
+        type: string
+    type: object
+  model.FeedPluginInstall:
+    properties:
+      config_json:
+        type: string
+      created_at:
+        type: string
+      enabled:
+        type: boolean
+      id:
+        type: integer
+      plugin_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  model.FeedPluginReview:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      plugin_id:
+        type: integer
+      rating:
+        type: integer
+      review:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.FeedSource:
+    properties:
+      feed_id:
+        type: integer
+      id:
+        type: integer
+      include_mode:
+        type: boolean
+      sort_priority:
+        type: integer
+      source_id:
+        type: integer
+      source_type:
+        type: integer
+      source_value:
+        type: string
+    type: object
+  model.Interaction:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      interaction_type:
+        type: integer
+      metadata:
+        additionalProperties: true
+        type: object
+      post_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  model.ListCollaborator:
+    properties:
+      accepted_at:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      invited_by:
+        type: integer
+      list_id:
+        type: integer
+      role:
+        description: 0=viewer, 1=editor
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  model.ListMember:
+    properties:
+      added_at:
+        type: string
+      added_by:
+        type: integer
+      id:
+        type: integer
+      list_id:
+        type: integer
+      target_user_id:
+        type: integer
+    type: object
+  model.ListSubscription:
+    properties:
+      action:
+        description: 0=follow, 1=block
+        type: integer
+      active:
+        type: boolean
+      created_at:
+        type: string
+      id:
+        type: integer
+      list_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  model.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  model.Media:
+    properties:
+      created_at:
+        type: string
+      file_path:
+        type: string
+      file_size:
+        type: integer
+      height:
+        type: integer
+      id:
+        type: integer
+      mime_type:
+        type: string
+      original_name:
+        type: string
+      post_id:
+        type: integer
+      thumbnail_path:
+        type: string
+      uploader_id:
+        type: integer
+      width:
+        type: integer
+    type: object
+  model.ModerationAction:
+    type: object
+  model.Notification:
+    properties:
+      actor_id:
+        type: integer
+      body:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_read:
+        type: boolean
+      notification_type:
+        type: integer
+      post_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  model.PaginatedResponse:
+    properties:
+      data: {}
+      has_more:
+        type: boolean
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  model.Post:
+    properties:
+      archived_at:
+        type: string
+      author_id:
+        type: integer
+      body:
+        type: string
+      content_type:
+        type: integer
+      content_warning:
+        type: string
+      created_at:
+        type: string
+      cross_post_root_id:
+        type: integer
+      cumulative_interactions:
+        type: integer
+      edited_at:
+        type: string
+      id:
+        type: integer
+      interaction_count:
+        type: integer
+      is_ai_generated:
+        type: boolean
+      is_deleted:
+        type: boolean
+      is_educational:
+        type: boolean
+      is_entertaining:
+        type: boolean
+      is_nsfw:
+        type: boolean
+      language:
+        type: string
+      license:
+        type: string
+      locked:
+        type: boolean
+      mood:
+        type: integer
+      moved_from_community_id:
+        type: integer
+      scheduled_at:
+        type: string
+      status:
+        type: integer
+      sticky:
+        type: boolean
+      sticky_at:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.PostReport:
+    properties:
+      category:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      reason:
+        type: string
+      reporter_id:
+        type: integer
+      resolved_at:
+        type: string
+      resolved_by:
+        type: integer
+      status:
+        type: integer
+    type: object
+  model.PostResponse:
+    properties:
+      message:
+        type: string
+      post:
+        $ref: '#/definitions/model.Post'
+    type: object
+  model.RegisterRequest:
+    properties:
+      email:
+        type: string
+      invite_code:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        maxLength: 30
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  model.SiteConfig:
+    properties:
+      admin_contact_email:
+        type: string
+      admin_users:
+        items:
+          type: string
+        type: array
+      code_of_conduct_url:
+        type: string
+      credit_action_costs:
+        type: string
+      credit_transfer_tax_pct:
+        type: number
+      defederation_policy_url:
+        type: string
+      donate_text:
+        type: string
+      donation_url:
+        type: string
+      id:
+        type: integer
+      image_max_size_mb:
+        type: integer
+      image_storage_backend:
+        type: string
+      instance_description:
+        type: string
+      instance_name:
+        type: string
+      instance_short_description:
+        type: string
+      invite_limit_threshold_0:
+        type: integer
+      invite_limit_threshold_1:
+        type: integer
+      invite_limit_threshold_2:
+        type: integer
+      invite_limit_threshold_3:
+        type: integer
+      invite_limit_threshold_4:
+        type: integer
+      invite_limit_threshold_5:
+        type: integer
+      min_trust_level_for_community_create:
+        type: integer
+      min_trust_level_for_curator:
+        type: integer
+      min_trust_level_for_review_voting:
+        type: integer
+      privacy_policy_url:
+        type: string
+      prune_age_days:
+        type: integer
+      prune_min_interactions:
+        type: integer
+      registration_mode:
+        type: string
+      terms_url:
+        type: string
+      unfair_min_reviews:
+        type: integer
+      unfair_penalty_amount:
+        type: number
+      unfair_penalty_cooldown_hrs:
+        type: integer
+      unfair_threshold_pct:
+        type: number
+      updated_at:
+        type: string
+      version:
+        type: string
+      weekly_bounty_commenter:
+        type: integer
+      weekly_bounty_curator:
+        type: integer
+      weekly_bounty_poster:
+        type: integer
+      weekly_bounty_tagger:
+        type: integer
+    type: object
+  model.Tag:
+    properties:
+      category:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      is_wiki:
+        type: boolean
+      name:
+        type: string
+    type: object
+  model.TagVoteRequest:
+    properties:
+      vote:
+        enum:
+        - -1
+        - 1
+        type: integer
+    required:
+    - vote
+    type: object
+  model.TrendingTopic:
+    properties:
+      created_at:
+        type: string
+      frequency:
+        type: integer
+      id:
+        type: integer
+      tag_id:
+        type: integer
+      topic:
+        type: string
+      velocity:
+        type: number
+    type: object
+  model.TrustConnection:
+    properties:
+      created_at:
+        type: string
+      expires_at:
+        type: string
+      id:
+        type: integer
+      signature:
+        type: string
+      trustee_id:
+        type: integer
+      truster_id:
+        type: integer
+      weight:
+        type: number
+    type: object
+  model.UpdateConfigRequest:
+    properties:
+      admin_contact_email:
+        type: string
+      code_of_conduct_url:
+        type: string
+      credit_action_costs:
+        type: string
+      credit_transfer_tax_pct:
+        type: number
+      defederation_policy_url:
+        type: string
+      donate_text:
+        type: string
+      donation_url:
+        type: string
+      image_max_size_mb:
+        type: integer
+      image_storage_backend:
+        type: string
+      instance_description:
+        type: string
+      instance_name:
+        type: string
+      instance_short_description:
+        type: string
+      invite_limit_threshold_0:
+        type: integer
+      invite_limit_threshold_1:
+        type: integer
+      invite_limit_threshold_2:
+        type: integer
+      invite_limit_threshold_3:
+        type: integer
+      invite_limit_threshold_4:
+        type: integer
+      invite_limit_threshold_5:
+        type: integer
+      min_trust_level_for_community_create:
+        type: integer
+      min_trust_level_for_curator:
+        type: integer
+      min_trust_level_for_review_voting:
+        type: integer
+      privacy_policy_url:
+        type: string
+      prune_age_days:
+        type: integer
+      prune_min_interactions:
+        type: integer
+      registration_mode:
+        type: string
+      terms_url:
+        type: string
+      unfair_min_reviews:
+        type: integer
+      unfair_penalty_amount:
+        type: number
+      unfair_penalty_cooldown_hrs:
+        type: integer
+      unfair_threshold_pct:
+        type: number
+      weekly_bounty_commenter:
+        type: integer
+      weekly_bounty_curator:
+        type: integer
+      weekly_bounty_poster:
+        type: integer
+      weekly_bounty_tagger:
+        type: integer
+    type: object
+  model.UpdatePostRequest:
+    properties:
+      body:
+        type: string
+      content_type:
+        type: integer
+      content_warning:
+        type: string
+      is_educational:
+        type: boolean
+      is_entertaining:
+        type: boolean
+      is_nsfw:
+        type: boolean
+      mood:
+        type: integer
+      title:
+        type: string
+    type: object
+  model.UpdateUserListRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      visibility:
+        type: integer
+    type: object
+  model.User:
+    properties:
+      actor_id:
+        type: string
+      avatar_url:
+        type: string
+      banner_url:
+        type: string
+      bio:
+        type: string
+      bio_html:
+        type: string
+      created_at:
+        type: string
+      credits:
+        type: integer
+      deleted_at:
+        type: string
+      display_name:
+        type: string
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      hide_read_posts:
+        type: boolean
+      id:
+        type: integer
+      invite_code:
+        type: string
+      invited_by:
+        type: integer
+      is_active:
+        type: boolean
+      is_deleted:
+        type: boolean
+      is_local:
+        type: boolean
+      last_active_at:
+        type: string
+      location_hash:
+        type: string
+      onboarding_stage:
+        type: integer
+      proximity_opt_out:
+        type: boolean
+      public_key:
+        type: string
+      reputation:
+        type: integer
+      theme:
+        type: string
+      trust_level:
+        type: integer
+      trust_score:
+        type: number
+      username:
+        type: string
+    type: object
+  model.UserAchievement:
+    properties:
+      achievement_id:
+        type: integer
+      id:
+        type: integer
+      progress:
+        type: number
+      unlocked_at:
+        type: string
+      user_id:
+        type: integer
+      visible:
+        type: boolean
+    type: object
+  model.UserAffinity:
+    properties:
+      affinity_score:
+        type: number
+      breakdown:
+        description: JSON
+        type: string
+      computed_at:
+        type: string
+      recency_factor:
+        type: number
+      user_a_id:
+        type: integer
+      user_b_id:
+        type: integer
+    type: object
+  model.UserInvite:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      inviter_id:
+        type: integer
+      used_at:
+        type: string
+      used_by:
+        type: integer
+    type: object
+  model.UserList:
+    properties:
+      created_at:
+        type: string
+      criteria_json:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_algorithmic:
+        type: boolean
+      last_refreshed_at:
+        type: string
+      list_type:
+        description: 0=follow, 1=block
+        type: integer
+      name:
+        type: string
+      owner_id:
+        type: integer
+      refresh_interval:
+        type: string
+      scope:
+        description: 0=global, 1=per-tag
+        type: integer
+      tag_id:
+        type: integer
+      updated_at:
+        type: string
+      visibility:
+        description: 0=private, 1=public, 2=shared
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Threadlight social platform API
+  title: Polaris API
+  version: "0.1"
+paths:
+  /about:
+    get:
+      description: Returns public instance metadata such as instance name, description,
+        version, admin contact, and links to policies
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AboutResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get instance about info
+      tags:
+      - about
+  /achievements:
+    get:
+      description: Get a list of all available achievements
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Achievement'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List all achievements
+      tags:
+      - achievements
+  /achievements/unlock:
+    post:
+      consumes:
+      - application/json
+      description: Unlock or update progress on an achievement for the authenticated
+        user
+      parameters:
+      - description: Achievement unlock request
+        in: body
+        name: unlock
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.UserAchievement'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Unlock an achievement
+      tags:
+      - achievements
+  /achievements/user/{user_id}:
+    get:
+      description: Get all achievements unlocked by a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.UserAchievement'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get user achievements
+      tags:
+      - achievements
+  /admin/config:
+    get:
+      description: Returns the full site configuration for admin management
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SiteConfig'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get site config
+      tags:
+      - admin
+      - config
+    put:
+      consumes:
+      - application/json
+      description: Updates site configuration values. Only provided fields are changed
+        (partial update).
+      parameters:
+      - description: Configuration fields to update
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SiteConfig'
+        "400":
+          description: invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update site config
+      tags:
+      - admin
+      - config
+  /admin/invites:
+    get:
+      description: Returns a paginated list of invite codes generated by the authenticated
+        user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: paginated list of UserInvite
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List my invites
+      tags:
+      - admin
+      - invites
+    post:
+      consumes:
+      - application/json
+      description: Generates a new invite code for the authenticated user, subject
+        to monthly limits
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.UserInvite'
+        "403":
+          description: no invites remaining this month
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Generate invite
+      tags:
+      - admin
+      - invites
+  /admin/invites/limit:
+    get:
+      description: Returns how many invites the user can generate this month and how
+        many have been used
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: limit and used fields
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get invite limit
+      tags:
+      - admin
+      - invites
+  /admin/stats:
+    get:
+      description: Returns aggregate system statistics for the admin dashboard
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AdminStats'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get system stats
+      tags:
+      - admin
+  /affinity:
+    get:
+      description: Get the authenticated user's computed affinities with other users
+      parameters:
+      - description: Max results (default 50)
+        in: query
+        name: limit
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.UserAffinity'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get user affinities
+      tags:
+      - affinity
+  /affinity/similar:
+    get:
+      description: Get user IDs similar to the authenticated user based on affinity
+      parameters:
+      - description: Max results (default 20)
+        in: query
+        name: limit
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get similar users
+      tags:
+      - affinity
+  /auth/forgot:
+    post:
+      consumes:
+      - application/json
+      description: Generates a password reset token sent to the user's email
+      parameters:
+      - description: Email address
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.forgotRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: reset token generated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: email not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Forgot password
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user with username/email and password, returning
+        a JWT token and user object
+      parameters:
+      - description: Login credentials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+        "400":
+          description: invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Logs out the authenticated user by invalidating their session
+      responses:
+        "200":
+          description: logged out message
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Logout
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account with username, email, password, and
+        optional invite code
+      parameters:
+      - description: Registration details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.AuthResponse'
+        "400":
+          description: invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: conflict (user already exists)
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /auth/reset:
+    post:
+      consumes:
+      - application/json
+      description: Resets the user's password using a valid reset token and new password
+      parameters:
+      - description: Reset token and new password
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.resetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: password reset successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: invalid request body or token
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Reset password
+      tags:
+      - auth
+  /auth/session:
+    get:
+      description: Returns the authenticated user's profile from the current session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user object
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: user not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get current session
+      tags:
+      - auth
+  /blocklist/check:
+    post:
+      description: Check whether a specific type/value pair is on the blocklist
+      parameters:
+      - description: Entry type
+        in: query
+        name: type
+        required: true
+        type: integer
+      - description: Entry value to check
+        in: query
+        name: value
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Check if blocked
+      tags:
+      - blocklist
+  /blocklist/entries:
+    get:
+      description: Get all entries in the blocklist
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List blocklist entries
+      tags:
+      - blocklist
+    post:
+      consumes:
+      - application/json
+      description: Add a new entry (user, domain, etc.) to the blocklist
+      parameters:
+      - description: Blocklist entry
+        in: body
+        name: entry
+        required: true
+        schema:
+          $ref: '#/definitions/model.BlocklistEntry'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.BlocklistEntry'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a blocklist entry
+      tags:
+      - blocklist
+  /blocklist/entries/{id}:
+    delete:
+      description: Delete a blocklist entry by its ID
+      parameters:
+      - description: Entry ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Remove a blocklist entry
+      tags:
+      - blocklist
+  /blocks:
+    get:
+      description: List all users blocked by the authenticated user
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List blocked users
+      tags:
+      - blocks
+    post:
+      description: Create a block to prevent interactions with another user
+      parameters:
+      - description: Block request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.blockRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Block a user
+      tags:
+      - blocks
+  /blocks/{id}:
+    delete:
+      description: Remove a block by its ID
+      parameters:
+      - description: Block ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Unblock a user
+      tags:
+      - blocks
+  /blocks/check/{user_id}:
+    get:
+      description: Check whether the authenticated user has blocked a specific user
+      parameters:
+      - description: Target user ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Check if user is blocked
+      tags:
+      - blocks
+  /circles:
+    get:
+      description: Get a list of all available circles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Circle'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List all circles
+      tags:
+      - circles
+    post:
+      consumes:
+      - application/json
+      description: Create a new circle/group
+      parameters:
+      - description: Circle object
+        in: body
+        name: circle
+        required: true
+        schema:
+          $ref: '#/definitions/model.Circle'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Circle'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a circle
+      tags:
+      - circles
+  /circles/{id}:
+    get:
+      description: Get a single circle by its ID
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Circle'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a circle by ID
+      tags:
+      - circles
+    put:
+      consumes:
+      - application/json
+      description: Update an existing circle's details
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated circle object
+        in: body
+        name: circle
+        required: true
+        schema:
+          $ref: '#/definitions/model.Circle'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Circle'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a circle
+      tags:
+      - circles
+  /circles/{id}/join:
+    post:
+      consumes:
+      - application/json
+      description: Allow the authenticated user to join a circle with an optional
+        status
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Join status
+        in: body
+        name: status
+        schema:
+          $ref: '#/definitions/handlers.joinCircleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Join a circle
+      tags:
+      - circles
+  /circles/{id}/leave:
+    post:
+      description: Allow the authenticated user to leave a circle
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Leave a circle
+      tags:
+      - circles
+  /circles/{id}/members:
+    get:
+      description: Get all members belonging to a circle
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.CircleMember'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get circle members
+      tags:
+      - circles
+  /circles/{id}/suggest:
+    post:
+      consumes:
+      - application/json
+      description: Suggest a user to join a circle
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Member suggestion
+        in: body
+        name: suggestion
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Suggest a circle member
+      tags:
+      - circles
+  /collections:
+    get:
+      description: List all collections for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List user collections
+      tags:
+      - collections
+    post:
+      consumes:
+      - application/json
+      description: Create a new collection for the authenticated user
+      parameters:
+      - description: Collection object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Collection'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Collection'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a collection
+      tags:
+      - collections
+  /collections/{id}:
+    delete:
+      description: Delete a collection by ID
+      parameters:
+      - description: Collection ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a collection
+      tags:
+      - collections
+    get:
+      description: Get a single collection by its ID
+      parameters:
+      - description: Collection ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Collection'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get collection by ID
+      tags:
+      - collections
+    put:
+      consumes:
+      - application/json
+      description: Update an existing collection
+      parameters:
+      - description: Collection ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated collection object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Collection'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Collection'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a collection
+      tags:
+      - collections
+  /collections/{id}/posts:
+    get:
+      description: List all posts in a collection
+      parameters:
+      - description: Collection ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List posts in collection
+      tags:
+      - collections
+    post:
+      consumes:
+      - application/json
+      description: Add a post to a collection
+      parameters:
+      - description: Collection ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Post ID to add
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add post to collection
+      tags:
+      - collections
+  /collections/{id}/posts/{post_id}:
+    delete:
+      description: Remove a post from a collection
+      parameters:
+      - description: Collection ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Remove post from collection
+      tags:
+      - collections
+  /communities:
+    get:
+      description: List all communities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List communities
+      tags:
+      - communities
+    post:
+      consumes:
+      - application/json
+      description: Create a new community
+      parameters:
+      - description: Community object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Community'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Community'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a community
+      tags:
+      - communities
+  /communities/{slug}:
+    delete:
+      description: Archive (soft-delete) a community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Archive a community
+      tags:
+      - communities
+    get:
+      description: Get a single community by its slug
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Community'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get community by slug
+      tags:
+      - communities
+    put:
+      consumes:
+      - application/json
+      description: Update an existing community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - description: Updated community object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Community'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Community'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a community
+      tags:
+      - communities
+  /communities/{slug}/balance:
+    get:
+      description: Get the credit treasury balance for a community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get community treasury balance
+      tags:
+      - communities
+  /communities/{slug}/curators:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add a curator to a community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - description: User ID to add as curator
+        in: formData
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.CommunityMember'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add curator to community
+      tags:
+      - communities
+  /communities/{slug}/curators/{user_id}:
+    delete:
+      description: Remove a curator from a community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - description: User ID to remove as curator
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Remove curator from community
+      tags:
+      - communities
+  /communities/{slug}/fork:
+    post:
+      consumes:
+      - application/json
+      description: Fork an existing community (create a new community based on it)
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - description: Reason for forking
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Community'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Fork a community
+      tags:
+      - communities
+  /communities/{slug}/join:
+    post:
+      description: Join a community as a member
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Join a community
+      tags:
+      - communities
+  /communities/{slug}/join/check:
+    get:
+      description: Check if the authenticated user can join a community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Check join/invite status
+      tags:
+      - communities
+  /communities/{slug}/leave:
+    post:
+      description: Leave a community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Leave a community
+      tags:
+      - communities
+  /communities/{slug}/members:
+    get:
+      description: List members of a community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List community members
+      tags:
+      - communities
+  /communities/{slug}/trust:
+    get:
+      description: Get the trust graph for a community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get community trust graph
+      tags:
+      - communities
+    post:
+      consumes:
+      - application/json
+      description: Create a trust connection between users in a community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - description: Trust connection details
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create trust connection
+      tags:
+      - communities
+  /communities/{slug}/trust/score:
+    get:
+      description: Get the trust score for a user within a community
+      parameters:
+      - description: Community slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      - description: User ID (defaults to authenticated user)
+        in: query
+        name: user_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get community trust score
+      tags:
+      - communities
+  /credits/balance:
+    get:
+      description: Get the authenticated user's credit balance, streak, and daily
+        quests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get credit balance
+      tags:
+      - credits
+  /credits/bounties:
+    post:
+      consumes:
+      - application/json
+      description: Create a new bounty
+      parameters:
+      - description: Bounty object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.Bounty'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Bounty'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a bounty
+      tags:
+      - credits
+  /credits/bounties/{id}:
+    get:
+      description: Get a bounty by its ID
+      parameters:
+      - description: Bounty ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Bounty'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a bounty
+      tags:
+      - credits
+  /credits/bounties/{id}/award:
+    post:
+      consumes:
+      - application/json
+      description: Award a bounty to a specific answer
+      parameters:
+      - description: Bounty ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Answer ID to award
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Award a bounty
+      tags:
+      - credits
+  /credits/costs:
+    get:
+      description: Get the credit action cost configuration
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get credit action costs
+      tags:
+      - credits
+  /credits/daily-reward:
+    get:
+      description: Get the current daily reward claim status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get daily reward status
+      tags:
+      - credits
+    post:
+      consumes:
+      - application/json
+      description: Claim the daily credit reward
+      parameters:
+      - description: Optional reward amount override
+        in: body
+        name: body
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CreditTransaction'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Claim daily reward
+      tags:
+      - credits
+  /credits/quest/complete:
+    post:
+      consumes:
+      - application/json
+      description: Mark a daily quest as completed
+      parameters:
+      - description: Quest type to complete
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Complete a daily quest
+      tags:
+      - credits
+  /credits/transactions:
+    get:
+      description: Get the credit transaction history for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get credit transactions
+      tags:
+      - credits
+  /credits/transfer:
+    post:
+      consumes:
+      - application/json
+      description: Transfer credits from the authenticated user to another user
+      parameters:
+      - description: Transfer details
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CreditTransaction'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Transfer credits
+      tags:
+      - credits
+  /feed-plugins:
+    get:
+      description: List all reviewed/approved feed plugins
+      parameters:
+      - description: Filter by reviewed status (default true)
+        in: query
+        name: reviewed
+        type: boolean
+      - description: Sort order (newest, oldest) default newest
+        in: query
+        name: sort
+        type: string
+      - description: Max results (default 50)
+        in: query
+        name: limit
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.FeedPlugin'
+            type: array
+      summary: List feed plugins
+      tags:
+      - feed-plugins
+    post:
+      description: Upload a WASM feed plugin via multipart form
+      parameters:
+      - description: Plugin name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Plugin description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Plugin version (default 1.0.0)
+        in: formData
+        name: version
+        type: string
+      - description: Plugin type (default 0)
+        in: formData
+        name: plugin_type
+        type: integer
+      - description: Price in credits (default 0)
+        in: formData
+        name: price_credits
+        type: integer
+      - description: WASM plugin binary
+        in: formData
+        name: wasm
+        required: true
+        type: file
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.FeedPlugin'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a feed plugin
+      tags:
+      - feed-plugins
+  /feed-plugins/{id}:
+    get:
+      description: Get a single feed plugin by ID
+      parameters:
+      - description: Plugin ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.FeedPlugin'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a feed plugin
+      tags:
+      - feed-plugins
+  /feed-plugins/{id}/execute:
+    post:
+      description: Execute a feed plugin against a set of post IDs
+      parameters:
+      - description: Plugin ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Execution request with post_ids and optional context
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Execute a feed plugin
+      tags:
+      - feed-plugins
+  /feed-plugins/{id}/install:
+    post:
+      description: Install a feed plugin for the authenticated user
+      parameters:
+      - description: Plugin ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.FeedPluginInstall'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Install a feed plugin
+      tags:
+      - feed-plugins
+  /feed-plugins/{id}/review:
+    post:
+      description: Submit or update a review for a feed plugin
+      parameters:
+      - description: Plugin ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Review with rating (1-5) and optional text
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.FeedPluginReview'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Review a feed plugin
+      tags:
+      - feed-plugins
+  /feed-plugins/{id}/uninstall:
+    post:
+      description: Uninstall a feed plugin for the authenticated user
+      parameters:
+      - description: Plugin ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Uninstall a feed plugin
+      tags:
+      - feed-plugins
+  /feed-plugins/installs:
+    get:
+      description: List all feed plugins installed by the authenticated user
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.FeedPluginInstall'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List installed feed plugins
+      tags:
+      - feed-plugins
+  /feeds:
+    get:
+      description: List all custom feeds belonging to the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List custom feeds for the user
+      tags:
+      - feeds
+    post:
+      consumes:
+      - application/json
+      description: Create a new custom feed for the authenticated user
+      parameters:
+      - description: Custom feed object
+        in: body
+        name: feed
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomFeed'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.CustomFeed'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a custom feed
+      tags:
+      - feeds
+  /feeds/{id}:
+    delete:
+      description: Delete a custom feed by ID
+      parameters:
+      - description: Feed ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a custom feed
+      tags:
+      - feeds
+    get:
+      description: Get a single custom feed by its ID
+      parameters:
+      - description: Feed ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CustomFeed'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a custom feed by ID
+      tags:
+      - feeds
+    put:
+      consumes:
+      - application/json
+      description: Update an existing custom feed
+      parameters:
+      - description: Feed ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated custom feed object
+        in: body
+        name: feed
+        required: true
+        schema:
+          $ref: '#/definitions/model.CustomFeed'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CustomFeed'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a custom feed
+      tags:
+      - feeds
+  /feeds/{id}/sources:
+    get:
+      description: List all content sources associated with a custom feed
+      parameters:
+      - description: Feed ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List sources for a feed
+      tags:
+      - feeds
+    post:
+      consumes:
+      - application/json
+      description: Add a content source to a custom feed
+      parameters:
+      - description: Feed ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Feed source object
+        in: body
+        name: source
+        required: true
+        schema:
+          $ref: '#/definitions/model.FeedSource'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.FeedSource'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a source to a feed
+      tags:
+      - feeds
+  /feeds/sources/{source_id}:
+    delete:
+      description: Remove a content source from a custom feed by source ID
+      parameters:
+      - description: Source ID
+        in: path
+        name: source_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Remove a source from a feed
+      tags:
+      - feeds
+  /filters:
+    get:
+      description: List all content filters for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List user filters
+      tags:
+      - filters
+    post:
+      consumes:
+      - application/json
+      description: Create a new content filter for the authenticated user
+      parameters:
+      - description: Content filter object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ContentFilter'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.ContentFilter'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a content filter
+      tags:
+      - filters
+  /filters/{id}:
+    delete:
+      description: Delete a content filter by ID
+      parameters:
+      - description: Filter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a content filter
+      tags:
+      - filters
+    put:
+      consumes:
+      - application/json
+      description: Update an existing content filter
+      parameters:
+      - description: Filter ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated content filter object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ContentFilter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ContentFilter'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a content filter
+      tags:
+      - filters
+  /filters/check:
+    get:
+      description: Check if a specific value is blocked by user's filters
+      parameters:
+      - description: Filter type
+        in: query
+        name: type
+        required: true
+        type: integer
+      - description: Value to check
+        in: query
+        name: value
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Check a content filter
+      tags:
+      - filters
+  /health:
+    get:
+      description: Check API, database, and Redis connectivity
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Health check
+      tags:
+      - system
+  /interactions:
+    post:
+      consumes:
+      - application/json
+      description: Create a new interaction on a post (like, repost, follow, etc.)
+      parameters:
+      - description: Interaction object
+        in: body
+        name: interaction
+        required: true
+        schema:
+          $ref: '#/definitions/model.Interaction'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Interaction'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create an interaction
+      tags:
+      - interactions
+  /interactions/{id}:
+    delete:
+      description: Delete an interaction by its ID
+      parameters:
+      - description: Interaction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Remove an interaction
+      tags:
+      - interactions
+  /interactions/check:
+    get:
+      description: Check whether the authenticated user has interacted with a specific
+        post
+      parameters:
+      - description: Post ID
+        in: query
+        name: post_id
+        required: true
+        type: integer
+      - description: Interaction type filter
+        in: query
+        name: type
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Check user interaction
+      tags:
+      - interactions
+  /interactions/post/{postID}:
+    get:
+      description: Get all interactions (likes, reposts, etc.) for a specific post
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      - description: Interaction type filter
+        in: query
+        name: type
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Interaction'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get interactions for a post
+      tags:
+      - interactions
+  /lists:
+    get:
+      description: List all user lists belonging to the authenticated user
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List user lists
+      tags:
+      - user-lists
+    post:
+      description: Create a new user list for the authenticated user
+      parameters:
+      - description: List creation request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateUserListRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.UserList'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a user list
+      tags:
+      - user-lists
+  /lists/{id}:
+    delete:
+      description: Delete a user list by ID (owner only)
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a user list
+      tags:
+      - user-lists
+    get:
+      description: Get a single user list by ID
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserList'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a user list
+      tags:
+      - user-lists
+    put:
+      description: Update a user list's name, description, or visibility
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: List update request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateUserListRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UserList'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a user list
+      tags:
+      - user-lists
+  /lists/{id}/collaborators:
+    get:
+      description: List all collaborators of a user list
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List collaborators
+      tags:
+      - user-lists
+    post:
+      description: Invite a user to collaborate on a list
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User ID and role (0=viewer, 1=editor)
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.ListCollaborator'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Invite a collaborator
+      tags:
+      - user-lists
+  /lists/{id}/collaborators/{user_id}:
+    delete:
+      description: Remove a collaborator from a list
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Collaborator user ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Remove a collaborator
+      tags:
+      - user-lists
+  /lists/{id}/collaborators/accept:
+    post:
+      description: Accept an invitation to collaborate on a list
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ListCollaborator'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Accept a collaborator invite
+      tags:
+      - user-lists
+  /lists/{id}/evaluate:
+    post:
+      description: Evaluate an algorithmic list and return matching user IDs
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Evaluate an algorithmic list
+      tags:
+      - user-lists
+  /lists/{id}/members:
+    get:
+      description: List all members of a user list
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List list members
+      tags:
+      - user-lists
+    post:
+      description: Add a user as a member of a list
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Target user ID
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.ListMember'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add member to list
+      tags:
+      - user-lists
+  /lists/{id}/members/{user_id}:
+    delete:
+      description: Remove a user from a list's members
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Target user ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Remove member from list
+      tags:
+      - user-lists
+  /lists/{id}/subscribe:
+    post:
+      description: Subscribe to a user list to follow its members
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Optional action preference
+        in: body
+        name: body
+        schema:
+          type: object
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.ListSubscription'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Subscribe to a list
+      tags:
+      - user-lists
+  /lists/{id}/subscribers:
+    get:
+      description: List all subscribers of a user list
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List list subscribers
+      tags:
+      - user-lists
+  /lists/{id}/unsubscribe:
+    post:
+      description: Unsubscribe from a user list
+      parameters:
+      - description: List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Unsubscribe from a list
+      tags:
+      - user-lists
+  /lists/algorithmic:
+    post:
+      description: Create a user list based on algorithmic/query criteria
+      parameters:
+      - description: Algorithmic list creation request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateAlgorithmicListRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create an algorithmic list
+      tags:
+      - user-lists
+  /lists/subscriptions:
+    get:
+      description: Get all user lists the authenticated user is subscribed to
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get my subscriptions
+      tags:
+      - user-lists
+  /media/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads an image file as multipart form data. May deduct credits
+        depending on site configuration.
+      parameters:
+      - description: Image file to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Media'
+        "400":
+          description: file is required
+          schema:
+            additionalProperties: true
+            type: object
+        "402":
+          description: insufficient credits
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: upload failed
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Upload image
+      tags:
+      - media
+  /moderation/actions:
+    get:
+      description: Get paginated list of moderation actions
+      parameters:
+      - description: Number of results per page (default 20)
+        in: query
+        name: limit
+        type: integer
+      - description: Number of results to skip (default 0)
+        in: query
+        name: offset
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List moderation actions
+      tags:
+      - moderation
+    post:
+      description: Create a new moderation action against a post
+      parameters:
+      - description: Moderation action details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.ModerationAction'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.ModerationAction'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create moderation action
+      tags:
+      - moderation
+  /moderation/actions/{id}:
+    get:
+      description: Get a moderation action by ID
+      parameters:
+      - description: Action ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ModerationAction'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get moderation action
+      tags:
+      - moderation
+  /moderation/actions/{id}/jurors:
+    post:
+      description: Add the authenticated user as a juror for a moderation action
+      parameters:
+      - description: Action ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add juror
+      tags:
+      - moderation
+  /moderation/actions/{id}/resolve:
+    post:
+      description: Resolve/close a jury for a moderation action
+      parameters:
+      - description: Action ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Resolve jury
+      tags:
+      - moderation
+  /moderation/jurors/{panel_id}/vote:
+    post:
+      description: Submit a vote on a jury panel for a moderation action
+      parameters:
+      - description: Panel ID
+        in: path
+        name: panel_id
+        required: true
+        type: integer
+      - description: Vote details
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Vote on jury panel
+      tags:
+      - moderation
+  /modlog/{id}/my-review:
+    get:
+      description: Get the authenticated user's review vote for a moderation action
+      parameters:
+      - description: Action ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get my vote
+      tags:
+      - modlog
+  /modlog/{id}/review:
+    post:
+      description: Vote on whether a moderation action was fair (1) or unfair (-1)
+      parameters:
+      - description: Action ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Vote details
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Cast moderation review vote
+      tags:
+      - modlog
+  /modlog/{id}/reviews:
+    get:
+      description: Get all review votes and counts for a moderation action
+      parameters:
+      - description: Action ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get action reviews
+      tags:
+      - modlog
+  /modlog/controversial:
+    get:
+      description: Get paginated list of controversial moderation decisions
+      parameters:
+      - description: Number of results per page (default 20)
+        in: query
+        name: limit
+        type: integer
+      - description: Number of results to skip (default 0)
+        in: query
+        name: offset
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get controversial decisions
+      tags:
+      - modlog
+  /notes/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing community note
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated community note object
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CommunityNote'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CommunityNote'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a community note
+      tags:
+      - notes
+  /notes/{id}/vote:
+    post:
+      consumes:
+      - application/json
+      description: Vote on a community note (helpful/not helpful) with a trust score
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Vote details
+        in: body
+        name: body
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Vote on a community note
+      tags:
+      - notes
+  /notes/post/{postID}:
+    get:
+      description: List all community notes for a given post
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List notes for a post
+      tags:
+      - notes
+  /notifications:
+    get:
+      description: List all notifications for the authenticated user
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Notification'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List notifications
+      tags:
+      - notifications
+  /notifications/{id}/read:
+    put:
+      description: Mark a specific notification as read by ID
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Mark notification as read
+      tags:
+      - notifications
+  /notifications/read-all:
+    put:
+      description: Mark all pending notifications for the authenticated user as read
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Mark all notifications as read
+      tags:
+      - notifications
+  /notifications/unread-count:
+    get:
+      description: Get the count of unread notifications for the authenticated user
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get unread notification count
+      tags:
+      - notifications
+  /posts:
+    get:
+      description: Returns a paginated list of all posts, with optional limit and
+        offset
+      parameters:
+      - description: Number of posts per page (default 50)
+        in: query
+        name: limit
+        type: integer
+      - description: Number of posts to skip (default 0)
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: paginated list of Post
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List posts
+      tags:
+      - posts
+    post:
+      consumes:
+      - application/json
+      description: Creates a new post for the authenticated user
+      parameters:
+      - description: Post content
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.PostResponse'
+        "400":
+          description: invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a post
+      tags:
+      - posts
+  /posts/{id}:
+    delete:
+      description: Archives (soft-deletes) a post. Only the author can delete their
+        post.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: post deleted message
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: invalid post id
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: you do not own this post
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a post
+      tags:
+      - posts
+    get:
+      description: Returns a single post identified by its unique ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Post'
+        "400":
+          description: invalid post id
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: post not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get post by ID
+      tags:
+      - posts
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing post's content. Only the author can update
+        their post.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated post fields
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Post'
+        "400":
+          description: invalid post id or request body
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: you do not own this post
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a post
+      tags:
+      - posts
+  /posts/{id}/archive:
+    post:
+      description: Archives (soft-deletes) a post. Only the author can archive their
+        post.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: post archived message
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: invalid post id
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: you do not own this post
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Archive a post
+      tags:
+      - posts
+  /posts/{id}/remove:
+    post:
+      description: Allows moderators (trust level >= 3) to remove a post. Archives
+        the post and records the moderator action.
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: post removed by moderator message
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: invalid post id
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: user not found
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: moderator access required
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: post not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Moderator remove post
+      tags:
+      - posts
+      - moderation
+  /posts/author/{author_id}:
+    get:
+      description: Returns a paginated list of posts authored by the given user ID
+      parameters:
+      - description: Author user ID
+        in: path
+        name: author_id
+        required: true
+        type: integer
+      - description: Number of posts per page (default 20)
+        in: query
+        name: limit
+        type: integer
+      - description: Number of posts to skip (default 0)
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: paginated list of Post
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "400":
+          description: invalid author_id
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List posts by author
+      tags:
+      - posts
+  /posts/count:
+    get:
+      description: Returns the total count of posts on the instance
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: count field
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get post count
+      tags:
+      - posts
+  /ready:
+    get:
+      description: Check all service dependencies (Postgres, Redis, MinIO, migrations)
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Readiness check
+      tags:
+      - system
+  /reports:
+    get:
+      description: List all reports for moderation
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.PostReport'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List reports
+      tags:
+      - reports
+    post:
+      description: Report a post for moderation review
+      parameters:
+      - description: Report details
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.createReportRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.PostReport'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a report
+      tags:
+      - reports
+  /reports/{id}:
+    get:
+      description: Get a single report by ID
+      parameters:
+      - description: Report ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PostReport'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a report
+      tags:
+      - reports
+  /reports/{id}/resolve:
+    put:
+      description: Resolve a report with a given status
+      parameters:
+      - description: Report ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Resolution status
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.resolveReportRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Resolve a report
+      tags:
+      - reports
+  /search:
+    get:
+      description: Perform a global search across posts, users, and communities
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Max results (default 20)
+        in: query
+        name: limit
+        type: integer
+      - description: Result offset (default 0)
+        in: query
+        name: offset
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Search
+      tags:
+      - search
+  /search/advanced:
+    post:
+      description: Perform an advanced search with a JSON body for more options
+      parameters:
+      - description: Advanced search query
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Advanced search
+      tags:
+      - search
+  /search/communities:
+    get:
+      description: Search for communities by name or description
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Results per page (default 20)
+        in: query
+        name: limit
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Search communities
+      tags:
+      - search
+  /search/posts:
+    get:
+      description: Full-text post search with filters (author, tag, community, date
+        range, mood, etc.)
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Filter by author username
+        in: query
+        name: author
+        type: string
+      - description: Filter by tag
+        in: query
+        name: tag
+        type: string
+      - description: Filter by community
+        in: query
+        name: community
+        type: string
+      - description: Filter posts from date (RFC3339)
+        in: query
+        name: date_from
+        type: string
+      - description: Filter posts to date (RFC3339)
+        in: query
+        name: date_to
+        type: string
+      - description: Sort order (relevance, newest, oldest) default relevance
+        in: query
+        name: sort
+        type: string
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Results per page (default 20)
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by mood
+        in: query
+        name: mood
+        type: integer
+      - description: Filter by content type
+        in: query
+        name: content_type
+        type: integer
+      - description: Filter educational posts
+        in: query
+        name: is_educational
+        type: boolean
+      - description: Filter NSFW posts
+        in: query
+        name: is_nsfw
+        type: boolean
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Search posts
+      tags:
+      - search
+  /search/suggest:
+    get:
+      description: Get prefix-based autocomplete suggestions for users, communities,
+        and tags
+      parameters:
+      - description: Search prefix
+        in: query
+        name: q
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Search suggestions
+      tags:
+      - search
+  /search/users:
+    get:
+      description: Search for users by username or display name
+      parameters:
+      - description: Search query
+        in: query
+        name: q
+        required: true
+        type: string
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Results per page (default 20)
+        in: query
+        name: limit
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Search users
+      tags:
+      - search
+  /tags:
+    get:
+      description: List all available tags
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List all tags
+      tags:
+      - tags
+    post:
+      consumes:
+      - application/json
+      description: Create a new tag
+      parameters:
+      - description: Tag object
+        in: body
+        name: tag
+        required: true
+        schema:
+          $ref: '#/definitions/model.Tag'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Tag'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a tag
+      tags:
+      - tags
+  /tags/{id}:
+    delete:
+      description: Delete a tag by its ID
+      parameters:
+      - description: Tag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a tag
+      tags:
+      - tags
+    get:
+      description: Get a single tag by its ID
+      parameters:
+      - description: Tag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Tag'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a tag by ID
+      tags:
+      - tags
+    put:
+      consumes:
+      - application/json
+      description: Update an existing tag
+      parameters:
+      - description: Tag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated tag object
+        in: body
+        name: tag
+        required: true
+        schema:
+          $ref: '#/definitions/model.Tag'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Tag'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a tag
+      tags:
+      - tags
+  /tags/{id}/vote:
+    post:
+      consumes:
+      - application/json
+      description: Upvote or downvote a tag
+      parameters:
+      - description: Tag ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Vote request
+        in: body
+        name: vote
+        required: true
+        schema:
+          $ref: '#/definitions/model.TagVoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Vote on a tag
+      tags:
+      - tags
+  /tags/posts/{post_id}/tags:
+    get:
+      description: Get all tags associated with a specific post
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get tags for a post
+      tags:
+      - tags
+  /tags/posts/{post_id}/tags/{tag_id}:
+    delete:
+      description: Remove the association between a tag and a post
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - description: Tag ID
+        in: path
+        name: tag_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Remove a tag from a post
+      tags:
+      - tags
+    post:
+      description: Associate a tag with a post
+      parameters:
+      - description: Post ID
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - description: Tag ID
+        in: path
+        name: tag_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Tag a post
+      tags:
+      - tags
+  /trending:
+    get:
+      description: Get a list of currently trending topics
+      parameters:
+      - description: Maximum number of topics (default 20)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.TrendingTopic'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List trending topics
+      tags:
+      - trending
+  /trending/increment:
+    post:
+      consumes:
+      - application/json
+      description: Increment the activity count for a topic by name
+      parameters:
+      - description: Topic to increment
+        in: body
+        name: topic
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.incrementTopicRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Increment a trending topic
+      tags:
+      - trending
+  /trending/topics:
+    post:
+      consumes:
+      - application/json
+      description: Add a new topic to the trending list
+      parameters:
+      - description: Topic to add
+        in: body
+        name: topic
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.addTopicRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.TrendingTopic'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Add a trending topic
+      tags:
+      - trending
+  /trust/connections:
+    post:
+      consumes:
+      - application/json
+      description: Create a trust connection from the authenticated user to another
+        user
+      parameters:
+      - description: Connection request
+        in: body
+        name: connection
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.createConnectionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.TrustConnection'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a trust connection
+      tags:
+      - trust
+  /trust/connections/{id}:
+    delete:
+      description: Delete a trust connection by its ID
+      parameters:
+      - description: Connection ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a trust connection
+      tags:
+      - trust
+    get:
+      description: Get a single trust connection by its ID
+      parameters:
+      - description: Connection ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.TrustConnection'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a trust connection
+      tags:
+      - trust
+    put:
+      consumes:
+      - application/json
+      description: Update the weight of an existing trust connection
+      parameters:
+      - description: Connection ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated connection weight
+        in: body
+        name: connection
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.updateConnectionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.TrustConnection'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a trust connection
+      tags:
+      - trust
+  /trust/connections/incoming:
+    get:
+      description: Get all trust connections pointing to the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.TrustConnection'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List incoming trust connections
+      tags:
+      - trust
+  /trust/connections/outgoing:
+    get:
+      description: Get all trust connections originating from the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.TrustConnection'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List outgoing trust connections
+      tags:
+      - trust
+  /users/{id}/block:
+    delete:
+      description: Unblock a previously blocked user by their user ID
+      parameters:
+      - description: User ID to unblock
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Unblock a user
+      tags:
+      - users
+    post:
+      description: Block another user by their user ID
+      parameters:
+      - description: User ID to block
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Block a user
+      tags:
+      - users
+  /users/{me}:
+    get:
+      description: Get the authenticated user's profile
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get current user profile
+      tags:
+      - users
+    put:
+      description: Update the authenticated user's profile
+      parameters:
+      - description: Updated profile data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update user profile
+      tags:
+      - users
+  /users/{me}/avatar:
+    post:
+      description: Upload a new avatar image URL for the authenticated user
+      parameters:
+      - description: Avatar URL
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Upload avatar
+      tags:
+      - users
+  /users/{me}/banner:
+    post:
+      description: Upload a new banner image URL for the authenticated user
+      parameters:
+      - description: Banner URL
+        in: body
+        name: body
+        required: true
+        schema:
+          type: object
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Upload banner
+      tags:
+      - users
+  /users/{me}/blocks:
+    get:
+      description: List all users blocked by the authenticated user
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List blocked users
+      tags:
+      - users
+  /users/{me}/notifications:
+    get:
+      description: Get all notifications for the authenticated user
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PaginatedResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get user notifications
+      tags:
+      - users
+  /users/{username}:
+    get:
+      description: Get a user's public profile by their username
+      parameters:
+      - description: Username
+        in: path
+        name: username
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get user profile by username
+      tags:
+      - users
+  /users/notifications/{id}/read:
+    put:
+      description: Mark a specific notification as read by ID (legacy endpoint)
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Mark notification as read
+      tags:
+      - users
+swagger: "2.0"

@@ -1,0 +1,2 @@
+import{G as e,L as t,Qt as n,Xt as r,q as i,xt as a}from"../chunks/DhdsNEKP.js";import"../chunks/xihTtKlq.js";var o=i(`<div class="fixed inset-0 bg-slate-50 dark:bg-zinc-925 z-50 p-8 sm:p-16 lg:p-24 overflow-auto"><!></div>`);function s(i,s){var c=o();t(a(c),()=>s.children??n),r(c),e(i,c)}export{s as component};
+//# sourceMappingURL=14.DJs1-xl4.js.map

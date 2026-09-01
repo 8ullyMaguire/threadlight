@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import{n as t}from"../chunks/Bin8K3vy.js";var n=e({load:()=>r});async function r({params:e}){t(302,`/go?localize=${e.link}`)}export{n as universal};
+//# sourceMappingURL=44.Lx3NooZN.js.map

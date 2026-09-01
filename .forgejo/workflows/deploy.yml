@@ -1,0 +1,26 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and deploy
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_KEY" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+          ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no $HOST "
+            cd /opt/polaris
+            git pull origin main
+            go build -o bin/polaris ./cmd/polaris
+            sudo systemctl restart polaris
+            cd web && npm ci && npm run build
+            sudo systemctl restart nginx
+          "

@@ -1,0 +1,2 @@
+import{n as e}from"../chunks/QTnfLwEv.js";import{G as t,X as n,Yt as r}from"../chunks/DhdsNEKP.js";import"../chunks/xihTtKlq.js";import"../chunks/C8_XEMsh.js";import{n as i}from"../chunks/Bin8K3vy.js";var a=e({load:()=>o});async function o(){i(302,`/moderation`)}function s(e){r(),t(e,n(`You are being redirected.`))}export{s as component,a as universal};
+//# sourceMappingURL=81.DgfTI4uT.js.map
