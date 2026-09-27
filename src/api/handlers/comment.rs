@@ -17,8 +17,12 @@ pub async fn create(
     Json(req): Json<CreateCommentRequest>,
 ) -> Result<Json<ApiResponse<CommentResponse>>, AppError> {
     let comment = services::comment::create_comment(&pool, auth.user_id, req).await?;
-    let response = services::comment::get_comment_with_details(&pool, comment.id, Some(auth.user_id)).await?;
-    Ok(Json(ApiResponse::with_message(response, "Comment created".to_string())))
+    let response =
+        services::comment::get_comment_with_details(&pool, comment.id, Some(auth.user_id)).await?;
+    Ok(Json(ApiResponse::with_message(
+        response,
+        "Comment created".to_string(),
+    )))
 }
 
 /// GET /api/v1/comments — List comments for a post
@@ -51,7 +55,10 @@ pub async fn delete(
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::comment::delete_comment(&pool, id, auth.user_id, auth.is_admin).await?;
-    Ok(Json(ApiResponse::with_message("deleted", "Comment deleted".to_string())))
+    Ok(Json(ApiResponse::with_message(
+        "deleted",
+        "Comment deleted".to_string(),
+    )))
 }
 
 /// POST /api/v1/comments/:id/like — Vote on a comment
@@ -63,7 +70,10 @@ pub async fn like(
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     let score = req.get("score").and_then(|v| v.as_i64()).unwrap_or(0) as i16;
     services::comment::vote_on_comment(&pool, auth.user_id, id, score).await?;
-    Ok(Json(ApiResponse::with_message("voted", "Vote recorded".to_string())))
+    Ok(Json(ApiResponse::with_message(
+        "voted",
+        "Vote recorded".to_string(),
+    )))
 }
 
 /// GET /api/v1/comments/count/:post_id — Get comment count for a post

@@ -13,12 +13,10 @@ pub async fn create_community(
     req: CreateCommunityRequest,
 ) -> Result<Community, AppError> {
     // Check for slug uniqueness
-    let existing = sqlx::query_scalar::<_, i64>(
-        "SELECT id FROM communities WHERE slug = $1",
-    )
-    .bind(&req.slug)
-    .fetch_optional(pool)
-    .await?;
+    let existing = sqlx::query_scalar::<_, i64>("SELECT id FROM communities WHERE slug = $1")
+        .bind(&req.slug)
+        .fetch_optional(pool)
+        .await?;
 
     if existing.is_some() {
         return Err(AppError::Conflict("slug already taken".into()));
@@ -187,12 +185,10 @@ pub async fn archive_community(
     // Only owner (role=100) can archive
     check_curator_permission(pool, community_id, user_id, 100).await?;
 
-    sqlx::query(
-        "UPDATE communities SET archived_at = NOW() WHERE id = $1 AND archived_at IS NULL",
-    )
-    .bind(community_id)
-    .execute(pool)
-    .await?;
+    sqlx::query("UPDATE communities SET archived_at = NOW() WHERE id = $1 AND archived_at IS NULL")
+        .bind(community_id)
+        .execute(pool)
+        .await?;
 
     Ok(())
 }
@@ -208,18 +204,14 @@ pub async fn join_community(
     let community = get_community(pool, community_id).await?;
 
     if community.invite_only {
-        return Err(AppError::Forbidden(
-            "community is invite-only".into(),
-        ));
+        return Err(AppError::Forbidden("community is invite-only".into()));
     }
 
     // Check trust score requirement
-    let trust_score = sqlx::query_scalar::<_, f64>(
-        "SELECT trust_score FROM users WHERE id = $1",
-    )
-    .bind(user_id)
-    .fetch_one(pool)
-    .await?;
+    let trust_score = sqlx::query_scalar::<_, f64>("SELECT trust_score FROM users WHERE id = $1")
+        .bind(user_id)
+        .fetch_one(pool)
+        .await?;
 
     if trust_score < community.min_trust_score {
         return Err(AppError::Forbidden(format!(
@@ -269,12 +261,10 @@ pub async fn join_community(
     .await?;
 
     // Increment member count
-    sqlx::query(
-        "UPDATE communities SET member_count = member_count + 1 WHERE id = $1",
-    )
-    .bind(community_id)
-    .execute(pool)
-    .await?;
+    sqlx::query("UPDATE communities SET member_count = member_count + 1 WHERE id = $1")
+        .bind(community_id)
+        .execute(pool)
+        .await?;
 
     Ok(member)
 }
@@ -393,22 +383,17 @@ pub async fn remove_curator(
 ) -> Result<(), AppError> {
     check_curator_permission(pool, community_id, user_id, 100).await?;
 
-    sqlx::query(
-        "DELETE FROM curators WHERE community_id = $1 AND user_id = $2",
-    )
-    .bind(community_id)
-    .bind(target_user_id)
-    .execute(pool)
-    .await?;
+    sqlx::query("DELETE FROM curators WHERE community_id = $1 AND user_id = $2")
+        .bind(community_id)
+        .bind(target_user_id)
+        .execute(pool)
+        .await?;
 
     Ok(())
 }
 
 /// List curators of a community.
-pub async fn list_curators(
-    pool: &PgPool,
-    community_id: i64,
-) -> Result<Vec<Curator>, AppError> {
+pub async fn list_curators(pool: &PgPool, community_id: i64) -> Result<Vec<Curator>, AppError> {
     let curators = sqlx::query_as::<_, Curator>(
         "SELECT * FROM curators WHERE community_id = $1 ORDER BY permission DESC",
     )
@@ -477,10 +462,7 @@ pub async fn fork_community(
 }
 
 /// List forks of a community.
-pub async fn list_forks(
-    pool: &PgPool,
-    community_id: i64,
-) -> Result<Vec<CommunityFork>, AppError> {
+pub async fn list_forks(pool: &PgPool, community_id: i64) -> Result<Vec<CommunityFork>, AppError> {
     let forks = sqlx::query_as::<_, CommunityFork>(
         "SELECT * FROM community_forks WHERE source_id = $1 ORDER BY created_at DESC",
     )

@@ -142,9 +142,7 @@ mod tests {
             "ORDER BY c.created_at ASC, c.path ASC"
         );
         assert!(
-            CommentSort::Controversial
-                .order_clause()
-                .contains("float8"),
+            CommentSort::Controversial.order_clause().contains("float8"),
             "Controversial order clause should use float division"
         );
     }

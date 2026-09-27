@@ -1,5 +1,5 @@
-use sqlx::PgPool;
 use serde_json::Value;
+use sqlx::PgPool;
 
 use crate::error::AppError;
 use crate::model::interaction::Interaction;
@@ -99,13 +99,11 @@ pub async fn remove_interaction_by_id(
     interaction_id: i64,
     user_id: i64,
 ) -> Result<(), AppError> {
-    let result = sqlx::query(
-        "DELETE FROM interactions WHERE id = $1 AND user_id = $2",
-    )
-    .bind(interaction_id)
-    .bind(user_id)
-    .execute(pool)
-    .await?;
+    let result = sqlx::query("DELETE FROM interactions WHERE id = $1 AND user_id = $2")
+        .bind(interaction_id)
+        .bind(user_id)
+        .execute(pool)
+        .await?;
 
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound);

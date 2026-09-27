@@ -1,22 +1,15 @@
 use sqlx::PgPool;
 
 use crate::error::AppError;
-use crate::model::circle::{
-    Circle, CircleMember, CreateCircleRequest, UpdateCircleRequest,
-};
+use crate::model::circle::{Circle, CircleMember, CreateCircleRequest, UpdateCircleRequest};
 
 /// Create a new circle.
-pub async fn create_circle(
-    pool: &PgPool,
-    req: CreateCircleRequest,
-) -> Result<Circle, AppError> {
+pub async fn create_circle(pool: &PgPool, req: CreateCircleRequest) -> Result<Circle, AppError> {
     // Check for duplicate name
-    let existing = sqlx::query_scalar::<_, i64>(
-        "SELECT id FROM circles WHERE name = $1",
-    )
-    .bind(&req.name)
-    .fetch_optional(pool)
-    .await?;
+    let existing = sqlx::query_scalar::<_, i64>("SELECT id FROM circles WHERE name = $1")
+        .bind(&req.name)
+        .fetch_optional(pool)
+        .await?;
 
     if existing.is_some() {
         return Err(AppError::Conflict("circle name already exists".into()));
@@ -41,12 +34,11 @@ pub async fn create_circle(
 
 /// Get a circle by id.
 pub async fn get_circle(pool: &PgPool, circle_id: i64) -> Result<Circle, AppError> {
-    let circle = sqlx::query_as::<_, Circle>(
-        "SELECT * FROM circles WHERE id = $1 AND is_active = true",
-    )
-    .bind(circle_id)
-    .fetch_one(pool)
-    .await?;
+    let circle =
+        sqlx::query_as::<_, Circle>("SELECT * FROM circles WHERE id = $1 AND is_active = true")
+            .bind(circle_id)
+            .fetch_one(pool)
+            .await?;
 
     Ok(circle)
 }
@@ -97,11 +89,10 @@ pub async fn list_circles(
         .fetch_all(pool)
         .await?;
 
-        let count = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM circles WHERE is_active = true",
-        )
-        .fetch_one(pool)
-        .await?;
+        let count =
+            sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM circles WHERE is_active = true")
+                .fetch_one(pool)
+                .await?;
 
         (rows, count)
     };
@@ -139,16 +130,12 @@ pub async fn update_circle(
 }
 
 /// Deactivate (soft-delete) a circle.
-pub async fn deactivate_circle(
-    pool: &PgPool,
-    circle_id: i64,
-) -> Result<(), AppError> {
-    let result = sqlx::query(
-        "UPDATE circles SET is_active = false WHERE id = $1 AND is_active = true",
-    )
-    .bind(circle_id)
-    .execute(pool)
-    .await?;
+pub async fn deactivate_circle(pool: &PgPool, circle_id: i64) -> Result<(), AppError> {
+    let result =
+        sqlx::query("UPDATE circles SET is_active = false WHERE id = $1 AND is_active = true")
+            .bind(circle_id)
+            .execute(pool)
+            .await?;
 
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound);
@@ -250,11 +237,7 @@ pub async fn join_circle(
 }
 
 /// Leave a circle.
-pub async fn leave_circle(
-    pool: &PgPool,
-    circle_id: i64,
-    user_id: i64,
-) -> Result<(), AppError> {
+pub async fn leave_circle(pool: &PgPool, circle_id: i64, user_id: i64) -> Result<(), AppError> {
     let result = sqlx::query(
         "UPDATE circle_members SET status = 2 WHERE circle_id = $1 AND user_id = $2 AND status = 1",
     )

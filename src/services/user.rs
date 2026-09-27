@@ -1,18 +1,23 @@
-use sqlx::PgPool;
-use crate::model::user::*;
-use crate::model::site_config::SiteConfig;
 use crate::error::AppError;
+use crate::model::site_config::SiteConfig;
+use crate::model::user::*;
 use crate::services::auth as auth_utils;
+use sqlx::PgPool;
 
 pub struct UserService;
 
 impl UserService {
-    pub async fn register(pool: &PgPool, req: &RegisterRequest, jwt_secret: &str) -> Result<AuthResponse, AppError> {
-        let existing: Option<i64> = sqlx::query_scalar("SELECT id FROM users WHERE email = $1 OR username = $2")
-            .bind(&req.email)
-            .bind(&req.username)
-            .fetch_optional(pool)
-            .await?;
+    pub async fn register(
+        pool: &PgPool,
+        req: &RegisterRequest,
+        jwt_secret: &str,
+    ) -> Result<AuthResponse, AppError> {
+        let existing: Option<i64> =
+            sqlx::query_scalar("SELECT id FROM users WHERE email = $1 OR username = $2")
+                .bind(&req.email)
+                .bind(&req.username)
+                .fetch_optional(pool)
+                .await?;
         if existing.is_some() {
             return Err(AppError::Conflict("email or username already taken".into()));
         }
@@ -22,7 +27,7 @@ impl UserService {
 
         let user: User = sqlx::query_as(
             "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)
-             RETURNING *"
+             RETURNING *",
         )
         .bind(&req.username)
         .bind(&req.email)
@@ -39,23 +44,30 @@ impl UserService {
             .await?;
 
         let profile: UserProfile = user.into();
-        let token = auth_utils::create_token(profile.id, &profile.username, profile.is_admin, jwt_secret)
-            .map_err(|e| AppError::Internal(e.to_string()))?;
+        let token =
+            auth_utils::create_token(profile.id, &profile.username, profile.is_admin, jwt_secret)
+                .map_err(|e| AppError::Internal(e.to_string()))?;
 
-        Ok(AuthResponse { token, user: profile })
+        Ok(AuthResponse {
+            token,
+            user: profile,
+        })
     }
 
-    pub async fn login(pool: &PgPool, req: &LoginRequest, jwt_secret: &str) -> Result<AuthResponse, AppError> {
+    pub async fn login(
+        pool: &PgPool,
+        req: &LoginRequest,
+        jwt_secret: &str,
+    ) -> Result<AuthResponse, AppError> {
         let user: User = sqlx::query_as(
-            "SELECT * FROM users WHERE (email = $1 OR username = $1) AND is_deleted = false"
+            "SELECT * FROM users WHERE (email = $1 OR username = $1) AND is_deleted = false",
         )
         .bind(&req.email)
         .fetch_optional(pool)
         .await?
         .ok_or(AppError::Unauthorized)?;
 
-        let valid = bcrypt::verify(req.password.as_bytes(), &user.password_hash)
-            .unwrap_or(false);
+        let valid = bcrypt::verify(req.password.as_bytes(), &user.password_hash).unwrap_or(false);
         if !valid {
             return Err(AppError::Unauthorized);
         }
@@ -70,7 +82,10 @@ impl UserService {
             .execute(pool)
             .await?;
 
-        Ok(AuthResponse { token, user: profile })
+        Ok(AuthResponse {
+            token,
+            user: profile,
+        })
     }
 
     pub async fn get_profile(pool: &PgPool, user_id: i64) -> Result<UserProfile, AppError> {
@@ -82,21 +97,29 @@ impl UserService {
         Ok(user.into())
     }
 
-    pub async fn get_profile_by_username(pool: &PgPool, username: &str) -> Result<UserProfile, AppError> {
-        let user: User = sqlx::query_as("SELECT * FROM users WHERE username = $1 AND is_deleted = false")
-            .bind(username)
-            .fetch_optional(pool)
-            .await?
-            .ok_or(AppError::NotFound)?;
+    pub async fn get_profile_by_username(
+        pool: &PgPool,
+        username: &str,
+    ) -> Result<UserProfile, AppError> {
+        let user: User =
+            sqlx::query_as("SELECT * FROM users WHERE username = $1 AND is_deleted = false")
+                .bind(username)
+                .fetch_optional(pool)
+                .await?
+                .ok_or(AppError::NotFound)?;
         Ok(user.into())
     }
 
-    pub async fn update_profile(pool: &PgPool, user_id: i64, req: &UpdateProfileRequest) -> Result<UserProfile, AppError> {
+    pub async fn update_profile(
+        pool: &PgPool,
+        user_id: i64,
+        req: &UpdateProfileRequest,
+    ) -> Result<UserProfile, AppError> {
         sqlx::query(
             "UPDATE users SET display_name = COALESCE($1, display_name), bio = COALESCE($2, bio),
              theme = COALESCE($3, theme), hide_read_posts = COALESCE($4, hide_read_posts),
              proximity_opt_out = COALESCE($5, proximity_opt_out)
-             WHERE id = $6"
+             WHERE id = $6",
         )
         .bind(&req.display_name)
         .bind(&req.bio)
@@ -118,33 +141,44 @@ impl UserService {
         Ok(config)
     }
 
-    pub async fn update_site_config(pool: &PgPool, updates: &serde_json::Value) -> Result<SiteConfig, AppError> {
+    pub async fn update_site_config(
+        pool: &PgPool,
+        updates: &serde_json::Value,
+    ) -> Result<SiteConfig, AppError> {
         // Dynamic update - build individual column updates from JSON
         let _query = String::from("UPDATE site_config SET updated_at = NOW()");
         if let Some(val) = updates.get("registration_mode").and_then(|v| v.as_str()) {
             sqlx::query("UPDATE site_config SET registration_mode = $1 WHERE id = 1")
                 .bind(val)
-                .execute(pool).await?;
+                .execute(pool)
+                .await?;
         }
         if let Some(val) = updates.get("instance_name").and_then(|v| v.as_str()) {
             sqlx::query("UPDATE site_config SET instance_name = $1 WHERE id = 1")
                 .bind(val)
-                .execute(pool).await?;
+                .execute(pool)
+                .await?;
         }
-        if let Some(val) = updates.get("instance_short_description").and_then(|v| v.as_str()) {
+        if let Some(val) = updates
+            .get("instance_short_description")
+            .and_then(|v| v.as_str())
+        {
             sqlx::query("UPDATE site_config SET instance_short_description = $1 WHERE id = 1")
                 .bind(val)
-                .execute(pool).await?;
+                .execute(pool)
+                .await?;
         }
         if let Some(val) = updates.get("instance_description").and_then(|v| v.as_str()) {
             sqlx::query("UPDATE site_config SET instance_description = $1 WHERE id = 1")
                 .bind(val)
-                .execute(pool).await?;
+                .execute(pool)
+                .await?;
         }
         if let Some(val) = updates.get("admin_contact_email").and_then(|v| v.as_str()) {
             sqlx::query("UPDATE site_config SET admin_contact_email = $1 WHERE id = 1")
                 .bind(val)
-                .execute(pool).await?;
+                .execute(pool)
+                .await?;
         }
 
         Self::get_site_config(pool).await

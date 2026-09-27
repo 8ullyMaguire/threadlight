@@ -90,9 +90,7 @@ pub async fn create(
     auth: AuthUser,
     Json(req): Json<CreateNoteRequest>,
 ) -> Result<Json<ApiResponse<CommunityNote>>, AppError> {
-    let user_id = auth
-        .user_id
-        .ok_or_else(|| AppError::Unauthorized)?;
+    let user_id = auth.user_id.ok_or_else(|| AppError::Unauthorized)?;
 
     if req.body.trim().is_empty() {
         return Err(AppError::Validation("Note body cannot be empty".into()));
@@ -123,21 +121,18 @@ pub async fn update(
     Path(id): Path<i64>,
     Json(req): Json<UpdateNoteRequest>,
 ) -> Result<Json<ApiResponse<CommunityNote>>, AppError> {
-    let user_id = auth
-        .user_id
-        .ok_or_else(|| AppError::Unauthorized)?;
+    let user_id = auth.user_id.ok_or_else(|| AppError::Unauthorized)?;
 
     if req.body.trim().is_empty() {
         return Err(AppError::Validation("Note body cannot be empty".into()));
     }
 
     // Only the author or admin can update
-    let existing = sqlx::query_as::<_, CommunityNote>(
-        r#"SELECT * FROM community_notes WHERE id = $1"#,
-    )
-    .bind(id)
-    .fetch_one(&pool)
-    .await?;
+    let existing =
+        sqlx::query_as::<_, CommunityNote>(r#"SELECT * FROM community_notes WHERE id = $1"#)
+            .bind(id)
+            .fetch_one(&pool)
+            .await?;
 
     if existing.author_id != user_id && !auth.is_admin {
         return Err(AppError::Forbidden(
@@ -167,16 +162,13 @@ pub async fn delete(
     auth: AuthUser,
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<()>>, AppError> {
-    let user_id = auth
-        .user_id
-        .ok_or_else(|| AppError::Unauthorized)?;
+    let user_id = auth.user_id.ok_or_else(|| AppError::Unauthorized)?;
 
-    let existing = sqlx::query_as::<_, CommunityNote>(
-        r#"SELECT * FROM community_notes WHERE id = $1"#,
-    )
-    .bind(id)
-    .fetch_one(&pool)
-    .await?;
+    let existing =
+        sqlx::query_as::<_, CommunityNote>(r#"SELECT * FROM community_notes WHERE id = $1"#)
+            .bind(id)
+            .fetch_one(&pool)
+            .await?;
 
     if existing.author_id != user_id && !auth.is_admin {
         return Err(AppError::Forbidden(
@@ -189,10 +181,7 @@ pub async fn delete(
         .execute(&pool)
         .await?;
 
-    Ok(Json(ApiResponse::with_message(
-        (),
-        "Note deleted".into(),
-    )))
+    Ok(Json(ApiResponse::with_message((), "Note deleted".into())))
 }
 
 /// POST /api/notes/:id/vote
@@ -203,12 +192,11 @@ pub async fn vote(
     Json(req): Json<VoteNoteRequest>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
     // Check note exists
-    let _note = sqlx::query_as::<_, CommunityNote>(
-        r#"SELECT * FROM community_notes WHERE id = $1"#,
-    )
-    .bind(id)
-    .fetch_one(&pool)
-    .await?;
+    let _note =
+        sqlx::query_as::<_, CommunityNote>(r#"SELECT * FROM community_notes WHERE id = $1"#)
+            .bind(id)
+            .fetch_one(&pool)
+            .await?;
 
     // Upsert vote
     sqlx::query(

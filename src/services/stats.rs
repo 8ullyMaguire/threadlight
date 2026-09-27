@@ -1,5 +1,5 @@
-use sqlx::PgPool;
 use serde_json::json;
+use sqlx::PgPool;
 
 use crate::error::AppError;
 
@@ -14,35 +14,26 @@ impl StatsService {
 
     /// Get overall site statistics
     pub async fn get_site_stats(&self) -> Result<serde_json::Value, AppError> {
-        let total_users: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM users",
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        let total_users: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM users")
+            .fetch_one(&self.pool)
+            .await?;
 
-        let total_posts: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM posts",
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        let total_posts: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM posts")
+            .fetch_one(&self.pool)
+            .await?;
 
-        let total_comments: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM posts WHERE parent_id IS NOT NULL",
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        let total_comments: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM posts WHERE parent_id IS NOT NULL")
+                .fetch_one(&self.pool)
+                .await?;
 
-        let total_communities: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM communities",
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        let total_communities: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM communities")
+            .fetch_one(&self.pool)
+            .await?;
 
-        let total_tags: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM tags",
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        let total_tags: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM tags")
+            .fetch_one(&self.pool)
+            .await?;
 
         let active_users_24h: i64 = sqlx::query_scalar(
             r#"
@@ -124,19 +115,17 @@ impl StatsService {
         .fetch_one(&self.pool)
         .await?;
 
-        let follower_count: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM user_follows WHERE followee_id = $1",
-        )
-        .bind(user_id)
-        .fetch_one(&self.pool)
-        .await?;
+        let follower_count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM user_follows WHERE followee_id = $1")
+                .bind(user_id)
+                .fetch_one(&self.pool)
+                .await?;
 
-        let following_count: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM user_follows WHERE follower_id = $1",
-        )
-        .bind(user_id)
-        .fetch_one(&self.pool)
-        .await?;
+        let following_count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM user_follows WHERE follower_id = $1")
+                .bind(user_id)
+                .fetch_one(&self.pool)
+                .await?;
 
         Ok(json!({
             "user_id": user_id,
@@ -155,12 +144,11 @@ impl StatsService {
         &self,
         community_id: i64,
     ) -> Result<serde_json::Value, AppError> {
-        let member_count: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM community_members WHERE community_id = $1",
-        )
-        .bind(community_id)
-        .fetch_one(&self.pool)
-        .await?;
+        let member_count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM community_members WHERE community_id = $1")
+                .bind(community_id)
+                .fetch_one(&self.pool)
+                .await?;
 
         let post_count: i64 = sqlx::query_scalar(
             "SELECT COUNT(*) FROM posts WHERE community_id = $1 AND parent_id IS NULL",
@@ -216,12 +204,11 @@ impl StatsService {
         .fetch_one(&self.pool)
         .await?;
 
-        let comment_count: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM posts WHERE parent_id = $1",
-        )
-        .bind(post_id)
-        .fetch_one(&self.pool)
-        .await?;
+        let comment_count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM posts WHERE parent_id = $1")
+                .bind(post_id)
+                .fetch_one(&self.pool)
+                .await?;
 
         Ok(json!({
             "post_id": post_id,
@@ -234,11 +221,9 @@ impl StatsService {
 
     /// Get moderation statistics
     pub async fn get_moderation_stats(&self) -> Result<serde_json::Value, AppError> {
-        let total_actions: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM moderation_actions",
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        let total_actions: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM moderation_actions")
+            .fetch_one(&self.pool)
+            .await?;
 
         let pending_jury: i64 = sqlx::query_scalar(
             r#"
@@ -323,9 +308,10 @@ impl StatsService {
                 .await?;
                 Ok(json!({ "metric": "top_reputation", "data": rows }))
             }
-            _ => {
-                Err(AppError::Validation(format!("unknown leaderboard metric: {}", metric)))
-            }
+            _ => Err(AppError::Validation(format!(
+                "unknown leaderboard metric: {}",
+                metric
+            ))),
         }
     }
 }

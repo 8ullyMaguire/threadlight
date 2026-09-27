@@ -1,8 +1,13 @@
-use sqlx::PgPool;
 use crate::error::AppError;
 use crate::model::trust::*;
+use sqlx::PgPool;
 
-pub async fn create_connection(pool: &PgPool, truster_id: i64, trustee_id: i64, weight: f64) -> Result<TrustConnection, AppError> {
+pub async fn create_connection(
+    pool: &PgPool,
+    truster_id: i64,
+    trustee_id: i64,
+    weight: f64,
+) -> Result<TrustConnection, AppError> {
     let conn: TrustConnection = sqlx::query_as(
         "INSERT INTO trust_connections (truster_id, trustee_id, weight) VALUES ($1, $2, $3) RETURNING *"
     )
@@ -13,16 +18,20 @@ pub async fn create_connection(pool: &PgPool, truster_id: i64, trustee_id: i64, 
 
 pub async fn get_outgoing(pool: &PgPool, user_id: i64) -> Result<Vec<TrustConnection>, AppError> {
     let conns = sqlx::query_as::<_, TrustConnection>(
-        "SELECT * FROM trust_connections WHERE truster_id = $1"
+        "SELECT * FROM trust_connections WHERE truster_id = $1",
     )
-    .bind(user_id).fetch_all(pool).await?;
+    .bind(user_id)
+    .fetch_all(pool)
+    .await?;
     Ok(conns)
 }
 
 pub async fn get_incoming(pool: &PgPool, user_id: i64) -> Result<Vec<TrustConnection>, AppError> {
     let conns = sqlx::query_as::<_, TrustConnection>(
-        "SELECT * FROM trust_connections WHERE trustee_id = $1"
+        "SELECT * FROM trust_connections WHERE trustee_id = $1",
     )
-    .bind(user_id).fetch_all(pool).await?;
+    .bind(user_id)
+    .fetch_all(pool)
+    .await?;
     Ok(conns)
 }

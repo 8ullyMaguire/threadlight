@@ -7,7 +7,9 @@ use sqlx::PgPool;
 
 use crate::api::middleware::auth::{AuthUser, RequiredAuth};
 use crate::error::AppError;
-use crate::model::feed::{AddSourceRequest, CreateFeedRequest, CustomFeed, FeedItem, FeedSource, UpdateFeedRequest};
+use crate::model::feed::{
+    AddSourceRequest, CreateFeedRequest, CustomFeed, FeedItem, FeedSource, UpdateFeedRequest,
+};
 use crate::model::response::ApiResponse;
 use crate::services;
 
@@ -101,7 +103,10 @@ pub async fn add_source(
     Json(req): Json<AddSourceRequest>,
 ) -> Result<Json<ApiResponse<FeedSource>>, AppError> {
     let source = services::feed::add_source(&pool, id, auth.user_id, req).await?;
-    Ok(Json(ApiResponse::with_message(source, "Source added".into())))
+    Ok(Json(ApiResponse::with_message(
+        source,
+        "Source added".into(),
+    )))
 }
 
 /// DELETE /api/feeds/:id/sources/:source_id — Remove a source from a feed.

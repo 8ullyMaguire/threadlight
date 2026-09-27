@@ -1,5 +1,5 @@
-use sqlx::PgPool;
 use chrono::Utc;
+use sqlx::PgPool;
 
 use crate::error::AppError;
 use crate::model::feed_plugin::*;
@@ -210,12 +210,10 @@ impl FeedPluginService {
         .await?;
 
         // Increment install count
-        sqlx::query(
-            "UPDATE feed_plugins SET install_count = install_count + 1 WHERE id = $1",
-        )
-        .bind(plugin_id)
-        .execute(&self.pool)
-        .await?;
+        sqlx::query("UPDATE feed_plugins SET install_count = install_count + 1 WHERE id = $1")
+            .bind(plugin_id)
+            .execute(&self.pool)
+            .await?;
 
         Ok(install)
     }

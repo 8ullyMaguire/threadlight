@@ -25,11 +25,10 @@ pub async fn get_config(
         return Err(AppError::Forbidden("Admin access required".into()));
     }
 
-    let config = sqlx::query_as::<_, SiteConfig>(
-        r#"SELECT * FROM site_config ORDER BY id DESC LIMIT 1"#,
-    )
-    .fetch_one(&pool)
-    .await?;
+    let config =
+        sqlx::query_as::<_, SiteConfig>(r#"SELECT * FROM site_config ORDER BY id DESC LIMIT 1"#)
+            .fetch_one(&pool)
+            .await?;
 
     Ok(Json(ApiResponse::new(config)))
 }
@@ -45,11 +44,10 @@ pub async fn update_config(
     }
 
     // Fetch current config as base
-    let current = sqlx::query_as::<_, SiteConfig>(
-        r#"SELECT * FROM site_config ORDER BY id DESC LIMIT 1"#,
-    )
-    .fetch_one(&pool)
-    .await?;
+    let current =
+        sqlx::query_as::<_, SiteConfig>(r#"SELECT * FROM site_config ORDER BY id DESC LIMIT 1"#)
+            .fetch_one(&pool)
+            .await?;
 
     let registration_mode = req
         .get("registration_mode")
@@ -144,23 +142,19 @@ pub async fn get_stats(
         return Err(AppError::Forbidden("Admin access required".into()));
     }
 
-    let total_users = sqlx::query_scalar::<_, i64>(
-        r#"SELECT COUNT(*) FROM users WHERE is_deleted = false"#,
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_users =
+        sqlx::query_scalar::<_, i64>(r#"SELECT COUNT(*) FROM users WHERE is_deleted = false"#)
+            .fetch_one(&pool)
+            .await?;
 
-    let total_posts = sqlx::query_scalar::<_, i64>(
-        r#"SELECT COUNT(*) FROM posts WHERE is_deleted = false"#,
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_posts =
+        sqlx::query_scalar::<_, i64>(r#"SELECT COUNT(*) FROM posts WHERE is_deleted = false"#)
+            .fetch_one(&pool)
+            .await?;
 
-    let total_communities = sqlx::query_scalar::<_, i64>(
-        r#"SELECT COUNT(*) FROM communities"#,
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_communities = sqlx::query_scalar::<_, i64>(r#"SELECT COUNT(*) FROM communities"#)
+        .fetch_one(&pool)
+        .await?;
 
     let total_active_today = sqlx::query_scalar::<_, i64>(
         r#"SELECT COUNT(*) FROM users WHERE last_active_at >= NOW() - INTERVAL '24 hours'"#,
@@ -168,17 +162,15 @@ pub async fn get_stats(
     .fetch_one(&pool)
     .await?;
 
-    let total_notes = sqlx::query_scalar::<_, i64>(
-        r#"SELECT COUNT(*) FROM community_notes WHERE status >= 0"#,
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_notes =
+        sqlx::query_scalar::<_, i64>(r#"SELECT COUNT(*) FROM community_notes WHERE status >= 0"#)
+            .fetch_one(&pool)
+            .await?;
 
-    let total_mod_actions = sqlx::query_scalar::<_, i64>(
-        r#"SELECT COUNT(*) FROM moderation_actions"#,
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_mod_actions =
+        sqlx::query_scalar::<_, i64>(r#"SELECT COUNT(*) FROM moderation_actions"#)
+            .fetch_one(&pool)
+            .await?;
 
     let result = serde_json::json!({
         "total_users": total_users,
@@ -205,7 +197,16 @@ pub async fn list_invites(
     let limit = params.limit.unwrap_or(50).min(200);
     let offset = params.offset.unwrap_or(0);
 
-    let invites_raw = sqlx::query_as::<_, (i64, String, Option<String>, Option<i64>, Option<chrono::DateTime<chrono::Utc>>,)>(
+    let invites_raw = sqlx::query_as::<
+        _,
+        (
+            i64,
+            String,
+            Option<String>,
+            Option<i64>,
+            Option<chrono::DateTime<chrono::Utc>>,
+        ),
+    >(
         r#"
         SELECT ui.id, ui.code, u.username AS inviter_username, ui.used_by, ui.used_at
         FROM user_invites ui
@@ -282,12 +283,10 @@ pub async fn get_page(
     State(pool): State<PgPool>,
     axum::extract::Path(slug): axum::extract::Path<String>,
 ) -> Result<Json<ApiResponse<CustomPage>>, AppError> {
-    let page = sqlx::query_as::<_, CustomPage>(
-        r#"SELECT * FROM custom_pages WHERE slug = $1"#,
-    )
-    .bind(&slug)
-    .fetch_one(&pool)
-    .await?;
+    let page = sqlx::query_as::<_, CustomPage>(r#"SELECT * FROM custom_pages WHERE slug = $1"#)
+        .bind(&slug)
+        .fetch_one(&pool)
+        .await?;
 
     Ok(Json(ApiResponse::new(page)))
 }

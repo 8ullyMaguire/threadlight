@@ -30,7 +30,10 @@ pub async fn create_filter(
     Json(req): Json<CreateFilterRequest>,
 ) -> Result<Json<ApiResponse<ContentFilter>>, AppError> {
     let filter = services::filter::create_filter(&pool, auth.user_id, req).await?;
-    Ok(Json(ApiResponse::with_message(filter, "Filter created".into())))
+    Ok(Json(ApiResponse::with_message(
+        filter,
+        "Filter created".into(),
+    )))
 }
 
 /// PUT /api/filters/:id — Update a content filter.
@@ -41,7 +44,10 @@ pub async fn update_filter(
     Json(req): Json<UpdateFilterRequest>,
 ) -> Result<Json<ApiResponse<ContentFilter>>, AppError> {
     let filter = services::filter::update_filter(&pool, id, auth.user_id, req).await?;
-    Ok(Json(ApiResponse::with_message(filter, "Filter updated".into())))
+    Ok(Json(ApiResponse::with_message(
+        filter,
+        "Filter updated".into(),
+    )))
 }
 
 /// DELETE /api/filters/:id — Delete a content filter.
@@ -69,8 +75,13 @@ pub async fn check_filter(
     auth: RequiredAuth,
     Query(query): Query<CheckFilterQuery>,
 ) -> Result<Json<ApiResponse<Vec<ContentFilter>>>, AppError> {
-    let filters =
-        services::filter::check_content_filtered(&pool, auth.user_id, query.filter_type, &query.filter_value).await?;
+    let filters = services::filter::check_content_filtered(
+        &pool,
+        auth.user_id,
+        query.filter_type,
+        &query.filter_value,
+    )
+    .await?;
     Ok(Json(ApiResponse::new(filters)))
 }
 
@@ -80,6 +91,8 @@ pub async fn check_filters_bulk(
     auth: RequiredAuth,
     Query(query): Query<BulkCheckFilterQuery>,
 ) -> Result<Json<ApiResponse<Vec<ContentFilter>>>, AppError> {
-    let filters = services::filter::check_content_bulk(&pool, auth.user_id, query.filter_type, &query.values).await?;
+    let filters =
+        services::filter::check_content_bulk(&pool, auth.user_id, query.filter_type, &query.values)
+            .await?;
     Ok(Json(ApiResponse::new(filters)))
 }

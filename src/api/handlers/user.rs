@@ -1,15 +1,19 @@
-use axum::{extract::{Path, State}, Json};
-use serde_json::{json, Value};
 use crate::api::middleware::auth::RequiredAuth;
 use crate::app_state::AppState;
 use crate::error::AppError;
-use crate::model::user::{UpdateProfileRequest};
+use crate::model::user::UpdateProfileRequest;
+use axum::{
+    extract::{Path, State},
+    Json,
+};
+use serde_json::{json, Value};
 
 pub async fn get_profile_by_username(
     State(state): State<AppState>,
     Path(username): Path<String>,
 ) -> Result<Json<Value>, AppError> {
-    let user = crate::services::user::UserService::get_profile_by_username(&state.pool, &username).await?;
+    let user =
+        crate::services::user::UserService::get_profile_by_username(&state.pool, &username).await?;
     Ok(Json(json!(user)))
 }
 
@@ -26,7 +30,8 @@ pub async fn update_profile(
     State(state): State<AppState>,
     Json(req): Json<UpdateProfileRequest>,
 ) -> Result<Json<Value>, AppError> {
-    let user = crate::services::user::UserService::update_profile(&state.pool, auth.user_id, &req).await?;
+    let user =
+        crate::services::user::UserService::update_profile(&state.pool, auth.user_id, &req).await?;
     Ok(Json(json!(user)))
 }
 
@@ -64,9 +69,12 @@ pub async fn list_blocked_users(
     auth: RequiredAuth,
     State(state): State<AppState>,
 ) -> Result<Json<Value>, AppError> {
-    let blocked: Vec<(i64,)> = sqlx::query_as("SELECT blocked_id FROM blocked_users WHERE blocker_id = $1")
-        .bind(auth.user_id)
-        .fetch_all(&state.pool)
-        .await?;
-    Ok(Json(json!({"blocked": blocked.iter().map(|(id,)| id).collect::<Vec<_>>()})))
+    let blocked: Vec<(i64,)> =
+        sqlx::query_as("SELECT blocked_id FROM blocked_users WHERE blocker_id = $1")
+            .bind(auth.user_id)
+            .fetch_all(&state.pool)
+            .await?;
+    Ok(Json(
+        json!({"blocked": blocked.iter().map(|(id,)| id).collect::<Vec<_>>()}),
+    ))
 }

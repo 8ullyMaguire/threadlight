@@ -40,12 +40,10 @@ impl ModerationService {
 
         // Check if this action requires a jury (action_type >= 10 indicates jury-eligible)
         if req.action_type >= 10 {
-            sqlx::query(
-                "UPDATE moderation_actions SET is_jury_decision = true WHERE id = $1",
-            )
-            .bind(action.id)
-            .execute(&self.pool)
-            .await?;
+            sqlx::query("UPDATE moderation_actions SET is_jury_decision = true WHERE id = $1")
+                .bind(action.id)
+                .execute(&self.pool)
+                .await?;
         }
 
         Ok(action)
@@ -289,13 +287,11 @@ impl ModerationService {
         if action.moderator_id != Some(moderator_id) {
             return Err(AppError::Forbidden("not the action moderator".into()));
         }
-        sqlx::query(
-            "DELETE FROM jury_panel WHERE target_action_id = $1 AND juror_id = $2",
-        )
-        .bind(action_id)
-        .bind(juror_id)
-        .execute(&self.pool)
-        .await?;
+        sqlx::query("DELETE FROM jury_panel WHERE target_action_id = $1 AND juror_id = $2")
+            .bind(action_id)
+            .bind(juror_id)
+            .execute(&self.pool)
+            .await?;
 
         // Recalculate votes
         sqlx::query(

@@ -15,23 +15,19 @@ pub async fn about(
     .fetch_optional(&pool)
     .await?;
 
-    let total_users = sqlx::query_scalar::<_, i64>(
-        r#"SELECT COUNT(*) FROM users WHERE is_deleted = false"#,
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_users =
+        sqlx::query_scalar::<_, i64>(r#"SELECT COUNT(*) FROM users WHERE is_deleted = false"#)
+            .fetch_one(&pool)
+            .await?;
 
-    let total_posts = sqlx::query_scalar::<_, i64>(
-        r#"SELECT COUNT(*) FROM posts WHERE is_deleted = false"#,
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_posts =
+        sqlx::query_scalar::<_, i64>(r#"SELECT COUNT(*) FROM posts WHERE is_deleted = false"#)
+            .fetch_one(&pool)
+            .await?;
 
-    let total_communities = sqlx::query_scalar::<_, i64>(
-        r#"SELECT COUNT(*) FROM communities"#,
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_communities = sqlx::query_scalar::<_, i64>(r#"SELECT COUNT(*) FROM communities"#)
+        .fetch_one(&pool)
+        .await?;
 
     let info = json!({
         "instance_name": site_config.as_ref().and_then(|c| c.instance_name.as_deref()),

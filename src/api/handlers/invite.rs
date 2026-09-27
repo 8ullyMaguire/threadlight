@@ -1,8 +1,8 @@
-use axum::{extract::State, Json};
-use serde_json::{json, Value};
 use crate::api::middleware::auth::RequiredAuth;
 use crate::app_state::AppState;
 use crate::error::AppError;
+use axum::{extract::State, Json};
+use serde_json::{json, Value};
 
 pub async fn generate(
     _auth: RequiredAuth,
@@ -21,12 +21,13 @@ pub async fn list(
     _auth: RequiredAuth,
     State(state): State<AppState>,
 ) -> Result<Json<Value>, AppError> {
-    let invites: Vec<(i64, String,)> = sqlx::query_as(
-        "SELECT id, code FROM user_invites WHERE used_by IS NULL ORDER BY created_at DESC LIMIT 50"
+    let invites: Vec<(i64, String)> = sqlx::query_as(
+        "SELECT id, code FROM user_invites WHERE used_by IS NULL ORDER BY created_at DESC LIMIT 50",
     )
     .fetch_all(&state.pool)
     .await?;
-    let items: Vec<Value> = invites.into_iter()
+    let items: Vec<Value> = invites
+        .into_iter()
         .map(|(id, code)| json!({"id": id, "code": code}))
         .collect();
     Ok(Json(json!({"invites": items})))

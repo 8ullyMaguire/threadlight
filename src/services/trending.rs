@@ -1,6 +1,6 @@
-use sqlx::PgPool;
 use serde::Serialize;
 use sqlx::FromRow;
+use sqlx::PgPool;
 
 use crate::error::AppError;
 

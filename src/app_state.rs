@@ -1,7 +1,7 @@
-use std::sync::Arc;
 use axum::extract::FromRef;
-use sqlx::PgPool;
 use redis::aio::MultiplexedConnection;
+use sqlx::PgPool;
+use std::sync::Arc;
 
 use crate::config::Config;
 

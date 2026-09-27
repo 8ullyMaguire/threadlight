@@ -148,7 +148,10 @@ impl MediaService {
     }
 
     /// Get trending topics (recently popular tags/topics)
-    pub async fn get_trending_topics(&self, limit: Option<i64>) -> Result<Vec<TrendingTopic>, AppError> {
+    pub async fn get_trending_topics(
+        &self,
+        limit: Option<i64>,
+    ) -> Result<Vec<TrendingTopic>, AppError> {
         let limit = limit.unwrap_or(20);
         let topics = sqlx::query_as::<_, TrendingTopic>(
             r#"

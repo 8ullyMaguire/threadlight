@@ -1,15 +1,16 @@
-use axum::{extract::State, Json};
-use serde_json::{json, Value};
 use crate::api::middleware::auth::RequiredAuth;
 use crate::app_state::AppState;
 use crate::error::AppError;
 use crate::model::user::{LoginRequest, RegisterRequest, UpdateProfileRequest};
+use axum::{extract::State, Json};
+use serde_json::{json, Value};
 
 pub async fn register(
     State(state): State<AppState>,
     Json(req): Json<RegisterRequest>,
 ) -> Result<Json<Value>, AppError> {
-    let resp = crate::services::user::UserService::register(&state.pool, &req, &state.jwt_secret).await?;
+    let resp =
+        crate::services::user::UserService::register(&state.pool, &req, &state.jwt_secret).await?;
     Ok(Json(json!(resp)))
 }
 
@@ -17,7 +18,8 @@ pub async fn login(
     State(state): State<AppState>,
     Json(req): Json<LoginRequest>,
 ) -> Result<Json<Value>, AppError> {
-    let resp = crate::services::user::UserService::login(&state.pool, &req, &state.jwt_secret).await?;
+    let resp =
+        crate::services::user::UserService::login(&state.pool, &req, &state.jwt_secret).await?;
     Ok(Json(json!(resp)))
 }
 
@@ -29,9 +31,7 @@ pub async fn reset_password() -> Result<Json<Value>, AppError> {
     Ok(Json(json!({"message": "Not implemented yet"})))
 }
 
-pub async fn logout(
-    _auth: RequiredAuth,
-) -> Result<Json<Value>, AppError> {
+pub async fn logout(_auth: RequiredAuth) -> Result<Json<Value>, AppError> {
     Ok(Json(json!({"message": "Logged out"})))
 }
 

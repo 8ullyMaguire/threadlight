@@ -32,7 +32,8 @@ pub async fn get_trending_posts(
     let offset = query.offset.unwrap_or(0);
     let time_window = query.time_window_hours.unwrap_or(24);
 
-    let posts = services::trending::get_trending_posts(&pool, time_window, limit, offset, None).await?;
+    let posts =
+        services::trending::get_trending_posts(&pool, time_window, limit, offset, None).await?;
     Ok(Json(ApiResponse::new(posts)))
 }
 
@@ -46,9 +47,14 @@ pub async fn get_trending_posts_in_community(
     let offset = query.offset.unwrap_or(0);
     let time_window = query.time_window_hours.unwrap_or(24);
 
-    let posts =
-        services::trending::get_trending_posts(&pool, time_window, limit, offset, Some(&community_slug))
-            .await?;
+    let posts = services::trending::get_trending_posts(
+        &pool,
+        time_window,
+        limit,
+        offset,
+        Some(&community_slug),
+    )
+    .await?;
     Ok(Json(ApiResponse::new(posts)))
 }
 

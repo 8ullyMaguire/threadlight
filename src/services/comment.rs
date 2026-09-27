@@ -14,11 +14,12 @@ pub async fn create_comment(
     author_id: i64,
     req: CreateCommentRequest,
 ) -> Result<Comment, AppError> {
-    let post_exists: bool =
-        sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1 AND is_deleted = false)")
-            .bind(req.post_id)
-            .fetch_one(pool)
-            .await?;
+    let post_exists: bool = sqlx::query_scalar(
+        "SELECT EXISTS(SELECT 1 FROM posts WHERE id = $1 AND is_deleted = false)",
+    )
+    .bind(req.post_id)
+    .fetch_one(pool)
+    .await?;
     if !post_exists {
         return Err(AppError::NotFound);
     }
@@ -52,12 +53,10 @@ pub async fn create_comment(
 
     // Update path based on parent
     if let Some(parent_id) = req.parent_id {
-        let parent: Comment = sqlx::query_as::<_, Comment>(
-            "SELECT * FROM comments WHERE id = $1",
-        )
-        .bind(parent_id)
-        .fetch_one(pool)
-        .await?;
+        let parent: Comment = sqlx::query_as::<_, Comment>("SELECT * FROM comments WHERE id = $1")
+            .bind(parent_id)
+            .fetch_one(pool)
+            .await?;
         let new_path = format!("{}.{}", parent.path, format_path_segment(comment.id));
         sqlx::query("UPDATE comments SET path = $2, depth = $3 WHERE id = $1")
             .bind(comment.id)
@@ -79,12 +78,11 @@ pub async fn create_comment(
 
 /// Get a single comment by ID
 pub async fn get_comment(pool: &PgPool, id: i64) -> Result<Comment, AppError> {
-    let comment = sqlx::query_as::<_, Comment>(
-        "SELECT * FROM comments WHERE id = $1 AND deleted = false",
-    )
-    .bind(id)
-    .fetch_one(pool)
-    .await?;
+    let comment =
+        sqlx::query_as::<_, Comment>("SELECT * FROM comments WHERE id = $1 AND deleted = false")
+            .bind(id)
+            .fetch_one(pool)
+            .await?;
     Ok(comment)
 }
 
@@ -95,27 +93,23 @@ pub async fn get_comment_with_details(
     current_user_id: Option<i64>,
 ) -> Result<CommentResponse, AppError> {
     let comment = get_comment(pool, id).await?;
-    let author = sqlx::query_as::<_, UserProfile>(
-        "SELECT * FROM users WHERE id = $1",
-    )
-    .bind(comment.author_id)
-    .fetch_optional(pool)
-    .await?;
+    let author = sqlx::query_as::<_, UserProfile>("SELECT * FROM users WHERE id = $1")
+        .bind(comment.author_id)
+        .fetch_optional(pool)
+        .await?;
 
-    let score: (i64,) = sqlx::query_as(
-        "SELECT COALESCE(SUM(score), 0) FROM comment_likes WHERE comment_id = $1",
-    )
-    .bind(id)
-    .fetch_one(pool)
-    .await?;
+    let score: (i64,) =
+        sqlx::query_as("SELECT COALESCE(SUM(score), 0) FROM comment_likes WHERE comment_id = $1")
+            .bind(id)
+            .fetch_one(pool)
+            .await?;
 
-    let my_vote: Option<(i16,)> = sqlx::query_as(
-        "SELECT score FROM comment_likes WHERE comment_id = $1 AND user_id = $2",
-    )
-    .bind(id)
-    .bind(current_user_id)
-    .fetch_optional(pool)
-    .await?;
+    let my_vote: Option<(i16,)> =
+        sqlx::query_as("SELECT score FROM comment_likes WHERE comment_id = $1 AND user_id = $2")
+            .bind(id)
+            .bind(current_user_id)
+            .fetch_optional(pool)
+            .await?;
 
     Ok(CommentResponse {
         comment,
@@ -316,7 +310,12 @@ pub async fn list_comments(
 }
 
 /// Soft-delete a comment (only by its author)
-pub async fn delete_comment(pool: &PgPool, id: i64, user_id: i64, is_admin: bool) -> Result<(), AppError> {
+pub async fn delete_comment(
+    pool: &PgPool,
+    id: i64,
+    user_id: i64,
+    is_admin: bool,
+) -> Result<(), AppError> {
     let comment = get_comment(pool, id).await?;
     if comment.author_id != user_id && !is_admin {
         return Err(AppError::Forbidden(
@@ -365,12 +364,11 @@ pub async fn vote_on_comment(
 
 /// Get total visible comment count for a post
 pub async fn get_comment_count(pool: &PgPool, post_id: i64) -> Result<i64, AppError> {
-    let count: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM comments WHERE post_id = $1 AND deleted = false",
-    )
-    .bind(post_id)
-    .fetch_one(pool)
-    .await?;
+    let count: (i64,) =
+        sqlx::query_as("SELECT COUNT(*) FROM comments WHERE post_id = $1 AND deleted = false")
+            .bind(post_id)
+            .fetch_one(pool)
+            .await?;
     Ok(count.0)
 }
 

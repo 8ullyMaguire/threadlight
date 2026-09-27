@@ -3,11 +3,13 @@ use sqlx::PgPool;
 use crate::error::AppError;
 use crate::model::block::BlockedUser;
 
-pub async fn create_block(pool: &PgPool, blocker_id: i64, blocked_id: i64) -> Result<BlockedUser, AppError> {
+pub async fn create_block(
+    pool: &PgPool,
+    blocker_id: i64,
+    blocked_id: i64,
+) -> Result<BlockedUser, AppError> {
     if blocker_id == blocked_id {
-        return Err(AppError::Validation(
-            "cannot block yourself".to_string(),
-        ));
+        return Err(AppError::Validation("cannot block yourself".to_string()));
     }
 
     // Check if block already exists

@@ -1,9 +1,9 @@
-use axum::{extract::State, Json};
-use serde_json::{json, Value};
 use crate::api::middleware::auth::RequiredAuth;
 use crate::app_state::AppState;
 use crate::error::AppError;
 use crate::model::userlist::*;
+use axum::{extract::State, Json};
+use serde_json::{json, Value};
 
 pub async fn create(
     auth: RequiredAuth,
@@ -12,7 +12,7 @@ pub async fn create(
 ) -> Result<Json<Value>, AppError> {
     let list: UserList = sqlx::query_as(
         "INSERT INTO user_lists (owner_id, name, description, list_type, visibility, scope, tag_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *"
+         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
     )
     .bind(auth.user_id)
     .bind(&req.name)
@@ -30,12 +30,11 @@ pub async fn list(
     auth: RequiredAuth,
     State(state): State<AppState>,
 ) -> Result<Json<Value>, AppError> {
-    let lists: Vec<UserList> = sqlx::query_as(
-        "SELECT * FROM user_lists WHERE owner_id = $1 ORDER BY created_at DESC"
-    )
-    .bind(auth.user_id)
-    .fetch_all(&state.pool)
-    .await?;
+    let lists: Vec<UserList> =
+        sqlx::query_as("SELECT * FROM user_lists WHERE owner_id = $1 ORDER BY created_at DESC")
+            .bind(auth.user_id)
+            .fetch_all(&state.pool)
+            .await?;
     Ok(Json(json!({"lists": lists})))
 }
 
@@ -45,7 +44,7 @@ pub async fn get(
     axum::extract::Path(id): axum::extract::Path<i64>,
 ) -> Result<Json<Value>, AppError> {
     let list: UserList = sqlx::query_as(
-        "SELECT * FROM user_lists WHERE id = $1 AND (owner_id = $2 OR visibility > 0)"
+        "SELECT * FROM user_lists WHERE id = $1 AND (owner_id = $2 OR visibility > 0)",
     )
     .bind(id)
     .bind(auth.user_id)
@@ -63,7 +62,7 @@ pub async fn update(
 ) -> Result<Json<Value>, AppError> {
     sqlx::query(
         "UPDATE user_lists SET name = COALESCE($1, name), description = COALESCE($2, description),
-         visibility = COALESCE($3, visibility), updated_at = NOW() WHERE id = $4 AND owner_id = $5"
+         visibility = COALESCE($3, visibility), updated_at = NOW() WHERE id = $4 AND owner_id = $5",
     )
     .bind(&req.name)
     .bind(&req.description)
@@ -123,12 +122,11 @@ pub async fn list_members(
     State(state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i64>,
 ) -> Result<Json<Value>, AppError> {
-    let members: Vec<ListMember> = sqlx::query_as(
-        "SELECT * FROM list_members WHERE list_id = $1 ORDER BY added_at DESC"
-    )
-    .bind(id)
-    .fetch_all(&state.pool)
-    .await?;
+    let members: Vec<ListMember> =
+        sqlx::query_as("SELECT * FROM list_members WHERE list_id = $1 ORDER BY added_at DESC")
+            .bind(id)
+            .fetch_all(&state.pool)
+            .await?;
     Ok(Json(json!({"members": members})))
 }
 
@@ -165,12 +163,11 @@ pub async fn list_subscribers(
     State(state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i64>,
 ) -> Result<Json<Value>, AppError> {
-    let subs: Vec<ListSubscription> = sqlx::query_as(
-        "SELECT * FROM list_subscriptions WHERE list_id = $1 AND active = true"
-    )
-    .bind(id)
-    .fetch_all(&state.pool)
-    .await?;
+    let subs: Vec<ListSubscription> =
+        sqlx::query_as("SELECT * FROM list_subscriptions WHERE list_id = $1 AND active = true")
+            .bind(id)
+            .fetch_all(&state.pool)
+            .await?;
     Ok(Json(json!({"subscribers": subs})))
 }
 
@@ -178,12 +175,11 @@ pub async fn my_subscriptions(
     auth: RequiredAuth,
     State(state): State<AppState>,
 ) -> Result<Json<Value>, AppError> {
-    let subs: Vec<ListSubscription> = sqlx::query_as(
-        "SELECT * FROM list_subscriptions WHERE user_id = $1 AND active = true"
-    )
-    .bind(auth.user_id)
-    .fetch_all(&state.pool)
-    .await?;
+    let subs: Vec<ListSubscription> =
+        sqlx::query_as("SELECT * FROM list_subscriptions WHERE user_id = $1 AND active = true")
+            .bind(auth.user_id)
+            .fetch_all(&state.pool)
+            .await?;
     Ok(Json(json!({"subscriptions": subs})))
 }
 
@@ -210,11 +206,13 @@ pub async fn accept_invite(
     State(state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i64>,
 ) -> Result<Json<Value>, AppError> {
-    sqlx::query("UPDATE list_collaborators SET accepted_at = NOW() WHERE list_id = $1 AND user_id = $2")
-        .bind(id)
-        .bind(auth.user_id)
-        .execute(&state.pool)
-        .await?;
+    sqlx::query(
+        "UPDATE list_collaborators SET accepted_at = NOW() WHERE list_id = $1 AND user_id = $2",
+    )
+    .bind(id)
+    .bind(auth.user_id)
+    .execute(&state.pool)
+    .await?;
     Ok(Json(json!({"message": "invite accepted"})))
 }
 
@@ -236,12 +234,11 @@ pub async fn list_collaborators(
     State(state): State<AppState>,
     axum::extract::Path(id): axum::extract::Path<i64>,
 ) -> Result<Json<Value>, AppError> {
-    let collabs: Vec<ListCollaborator> = sqlx::query_as(
-        "SELECT * FROM list_collaborators WHERE list_id = $1"
-    )
-    .bind(id)
-    .fetch_all(&state.pool)
-    .await?;
+    let collabs: Vec<ListCollaborator> =
+        sqlx::query_as("SELECT * FROM list_collaborators WHERE list_id = $1")
+            .bind(id)
+            .fetch_all(&state.pool)
+            .await?;
     Ok(Json(json!({"collaborators": collabs})))
 }
 

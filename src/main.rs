@@ -30,8 +30,7 @@ async fn main() {
         .expect("Failed to run migrations");
 
     tracing::info!("Connecting to Redis...");
-    let redis_client = redis::Client::open(cfg.redis_addr.as_str())
-        .expect("Invalid Redis URL");
+    let redis_client = redis::Client::open(cfg.redis_addr.as_str()).expect("Invalid Redis URL");
     let redis_conn = redis_client
         .get_multiplexed_async_connection()
         .await
@@ -41,10 +40,7 @@ async fn main() {
 
     let app = api::create_router(app_state);
 
-    let addr: SocketAddr = cfg
-        .listen_addr
-        .parse()
-        .expect("Invalid LISTEN_ADDR");
+    let addr: SocketAddr = cfg.listen_addr.parse().expect("Invalid LISTEN_ADDR");
 
     tracing::info!("Starting Threadlight server on {}", addr);
 
@@ -52,7 +48,5 @@ async fn main() {
         .await
         .expect("Failed to bind");
 
-    axum::serve(listener, app)
-        .await
-        .expect("Server failed");
+    axum::serve(listener, app).await.expect("Server failed");
 }

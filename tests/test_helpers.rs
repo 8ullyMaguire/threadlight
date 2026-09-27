@@ -6,6 +6,24 @@
 use rand::Rng;
 use sqlx::PgPool;
 
+/// bcrypt cost for test fixtures.
+///
+/// Production hashes at `bcrypt::DEFAULT_COST` (12) and that is correct -- a
+/// stolen table of real password hashes must be expensive to attack offline.
+/// A test fixture has no such requirement: it only needs to produce a hash the
+/// same verification code will accept. At cost 12 a single hash takes 604ms on
+/// this machine, and the suite needs about fifty of them per run, so the
+/// fixtures alone cost 30 seconds of pure CPU and the suite looked hung.
+///
+/// Measured on this host, 10 hashes per cost (tests/bcrypt_cost_probe.rs):
+///   cost  4:   2.5 ms/hash
+///   cost 10: 150.9 ms/hash
+///   cost 12: 604.1 ms/hash
+///
+/// If a test ever needs to assert something about work factor, it must hash
+/// explicitly at DEFAULT_COST rather than relying on this constant.
+const TEST_BCRYPT_COST: u32 = 4;
+
 /// Generate a random 4-digit suffix for use in test usernames/emails
 /// to avoid collisions when tests run in parallel against a shared DB.
 pub fn unique_suffix() -> String {
@@ -16,7 +34,7 @@ pub fn unique_suffix() -> String {
 /// Create a test user with the given username and email.
 /// Returns the user ID.
 pub async fn create_test_user(pool: &PgPool, username: &str, email: &str) -> i64 {
-    let hash = bcrypt::hash("password123", bcrypt::DEFAULT_COST).unwrap();
+    let hash = bcrypt::hash("password123", TEST_BCRYPT_COST).unwrap();
     let suffix = unique_suffix();
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO users (username, email, password_hash, is_admin) VALUES ($1, $2, $3, false) RETURNING id"
@@ -32,7 +50,7 @@ pub async fn create_test_user(pool: &PgPool, username: &str, email: &str) -> i64
 
 /// Create an admin user.
 pub async fn create_admin_user(pool: &PgPool, username: &str, email: &str) -> i64 {
-    let hash = bcrypt::hash("admin123", bcrypt::DEFAULT_COST).unwrap();
+    let hash = bcrypt::hash("admin123", TEST_BCRYPT_COST).unwrap();
     let suffix = unique_suffix();
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO users (username, email, password_hash, is_admin) VALUES ($1, $2, $3, true) RETURNING id"
@@ -61,7 +79,12 @@ pub async fn create_test_post(pool: &PgPool, author_id: i64, title: &str, body: 
 }
 
 /// Create a test comment on a post.
-pub async fn create_test_comment(pool: &PgPool, post_id: i64, author_id: i64, content: &str) -> i64 {
+pub async fn create_test_comment(
+    pool: &PgPool,
+    post_id: i64,
+    author_id: i64,
+    content: &str,
+) -> i64 {
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO comments (post_id, author_id, content, path, depth) VALUES ($1, $2, $3, '', 0) RETURNING id"
     )
@@ -101,7 +124,12 @@ pub async fn like_comment(pool: &PgPool, user_id: i64, comment_id: i64, score: i
 }
 
 /// Send a private message between users.
-pub async fn send_private_message(pool: &PgPool, sender_id: i64, recipient_id: i64, content: &str) -> i64 {
+pub async fn send_private_message(
+    pool: &PgPool,
+    sender_id: i64,
+    recipient_id: i64,
+    content: &str,
+) -> i64 {
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO private_messages (sender_id, recipient_id, content) VALUES ($1, $2, $3) RETURNING id"
     )
@@ -115,7 +143,12 @@ pub async fn send_private_message(pool: &PgPool, sender_id: i64, recipient_id: i
 }
 
 /// Create a user filter.
-pub async fn create_user_filter(pool: &PgPool, user_id: i64, filter_type: &str, filter_value: &str) -> i64 {
+pub async fn create_user_filter(
+    pool: &PgPool,
+    user_id: i64,
+    filter_type: &str,
+    filter_value: &str,
+) -> i64 {
     let suffix = unique_suffix();
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO user_filters (user_id, filter_type, filter_value) VALUES ($1, $2, $3) RETURNING id"
@@ -131,20 +164,18 @@ pub async fn create_user_filter(pool: &PgPool, user_id: i64, filter_type: &str, 
 
 /// Create user settings for a user.
 pub async fn create_user_settings(pool: &PgPool, user_id: i64) {
-    sqlx::query(
-        "INSERT INTO user_settings (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING"
-    )
-    .bind(user_id)
-    .execute(pool)
-    .await
-    .expect("Failed to create user settings");
+    sqlx::query("INSERT INTO user_settings (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING")
+        .bind(user_id)
+        .execute(pool)
+        .await
+        .expect("Failed to create user settings");
 }
 
 /// Create a community.
 pub async fn create_test_community(pool: &PgPool, name: &str, slug: &str, created_by: i64) -> i64 {
     let suffix = unique_suffix();
     let row: (i64,) = sqlx::query_as(
-        "INSERT INTO communities (name, slug, created_by) VALUES ($1, $2, $3) RETURNING id"
+        "INSERT INTO communities (name, slug, created_by) VALUES ($1, $2, $3) RETURNING id",
     )
     .bind(format!("{}_{}", name, suffix))
     .bind(format!("{}_{}", slug, suffix))
@@ -196,7 +227,7 @@ pub async fn submit_registration_application(
     email: &str,
     application_text: &str,
 ) -> i64 {
-    let hash = bcrypt::hash("testpass", bcrypt::DEFAULT_COST).unwrap();
+    let hash = bcrypt::hash("testpass", TEST_BCRYPT_COST).unwrap();
     let suffix = unique_suffix();
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO registration_applications (username, email, password_hash, application_text) VALUES ($1, $2, $3, $4) RETURNING id"
@@ -214,14 +245,13 @@ pub async fn submit_registration_application(
 /// Create a tag.
 pub async fn create_test_tag(pool: &PgPool, name: &str, created_by: i64) -> i32 {
     let suffix = unique_suffix();
-    let row: (i32,) = sqlx::query_as(
-        "INSERT INTO tags (name, created_by) VALUES ($1, $2) RETURNING id"
-    )
-    .bind(format!("{}_{}", name, suffix))
-    .bind(created_by)
-    .fetch_one(pool)
-    .await
-    .expect("Failed to create tag");
+    let row: (i32,) =
+        sqlx::query_as("INSERT INTO tags (name, created_by) VALUES ($1, $2) RETURNING id")
+            .bind(format!("{}_{}", name, suffix))
+            .bind(created_by)
+            .fetch_one(pool)
+            .await
+            .expect("Failed to create tag");
     row.0
 }
 
@@ -239,7 +269,12 @@ pub async fn tag_post(pool: &PgPool, post_id: i64, tag_id: i32, tagged_by: i64) 
 }
 
 /// Create a credit transaction (earnings for recipient).
-pub async fn create_credit_transaction(pool: &PgPool, from_user: i64, to_user: i64, amount: i64) -> i64 {
+pub async fn create_credit_transaction(
+    pool: &PgPool,
+    from_user: i64,
+    to_user: i64,
+    amount: i64,
+) -> i64 {
     let row: (i64,) = sqlx::query_as(
         "INSERT INTO credit_transactions (from_user, to_user, amount) VALUES ($1, $2, $3) RETURNING id"
     )

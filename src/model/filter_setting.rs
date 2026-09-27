@@ -6,7 +6,7 @@ use sqlx::FromRow;
 pub struct UserFilter {
     pub id: i64,
     pub user_id: i64,
-    pub filter_type: String,  // 'user', 'word', 'tag', 'domain', 'regex', 'community'
+    pub filter_type: String, // 'user', 'word', 'tag', 'domain', 'regex', 'community'
     pub filter_value: String,
     pub is_regex: bool,
     pub is_active: bool,

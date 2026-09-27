@@ -29,7 +29,9 @@ pub async fn create_action(
     Json(req): Json<CreateModActionRequest>,
 ) -> Result<Json<ApiResponse<ModerationAction>>, AppError> {
     if !auth.is_admin {
-        return Err(AppError::Forbidden("Only admins can create moderation actions".into()));
+        return Err(AppError::Forbidden(
+            "Only admins can create moderation actions".into(),
+        ));
     }
 
     if req.reason.trim().is_empty() {
@@ -62,12 +64,11 @@ pub async fn get_action(
     State(pool): State<PgPool>,
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<ModerationAction>>, AppError> {
-    let action = sqlx::query_as::<_, ModerationAction>(
-        r#"SELECT * FROM moderation_actions WHERE id = $1"#,
-    )
-    .bind(id)
-    .fetch_one(&pool)
-    .await?;
+    let action =
+        sqlx::query_as::<_, ModerationAction>(r#"SELECT * FROM moderation_actions WHERE id = $1"#)
+            .bind(id)
+            .fetch_one(&pool)
+            .await?;
 
     Ok(Json(ApiResponse::new(action)))
 }
@@ -130,12 +131,11 @@ pub async fn add_juror(
     }
 
     // Verify action exists
-    let _action = sqlx::query_as::<_, ModerationAction>(
-        r#"SELECT * FROM moderation_actions WHERE id = $1"#,
-    )
-    .bind(action_id)
-    .fetch_one(&pool)
-    .await?;
+    let _action =
+        sqlx::query_as::<_, ModerationAction>(r#"SELECT * FROM moderation_actions WHERE id = $1"#)
+            .bind(action_id)
+            .fetch_one(&pool)
+            .await?;
 
     let juror = sqlx::query_as::<_, JuryPanel>(
         r#"
@@ -181,12 +181,10 @@ pub async fn vote_jury(
     Json(req): Json<VoteJuryRequest>,
 ) -> Result<Json<ApiResponse<JuryPanel>>, AppError> {
     // Verify the user is a juror on this panel
-    let existing = sqlx::query_as::<_, JuryPanel>(
-        r#"SELECT * FROM jury_panel WHERE id = $1"#,
-    )
-    .bind(jury_id)
-    .fetch_one(&pool)
-    .await?;
+    let existing = sqlx::query_as::<_, JuryPanel>(r#"SELECT * FROM jury_panel WHERE id = $1"#)
+        .bind(jury_id)
+        .fetch_one(&pool)
+        .await?;
 
     if existing.juror_id != Some(auth.user_id) && !auth.is_admin {
         return Err(AppError::Forbidden(
@@ -231,14 +229,12 @@ pub async fn vote_jury(
 pub async fn list_jury_votes(
     State(pool): State<PgPool>,
     Path(jury_id): Path<i64>,
-) -> Result<Json<ApiResponse<Vec<JuryPanel>> >, AppError> {
+) -> Result<Json<ApiResponse<Vec<JuryPanel>>>, AppError> {
     // For a specific jury panel entry, return all votes for the same action
-    let panel_entry = sqlx::query_as::<_, JuryPanel>(
-        r#"SELECT * FROM jury_panel WHERE id = $1"#,
-    )
-    .bind(jury_id)
-    .fetch_one(&pool)
-    .await?;
+    let panel_entry = sqlx::query_as::<_, JuryPanel>(r#"SELECT * FROM jury_panel WHERE id = $1"#)
+        .bind(jury_id)
+        .fetch_one(&pool)
+        .await?;
 
     let votes = if let Some(action_id) = panel_entry.target_action_id {
         sqlx::query_as::<_, JuryPanel>(

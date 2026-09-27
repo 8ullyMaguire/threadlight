@@ -230,10 +230,7 @@ impl ConfigService {
 
     pub async fn get_action_cost(&self, action_name: &str) -> Result<i64, AppError> {
         let costs = self.get_credit_action_costs().await?;
-        let cost = costs
-            .get(action_name)
-            .and_then(|v| v.as_i64())
-            .unwrap_or(0);
+        let cost = costs.get(action_name).and_then(|v| v.as_i64()).unwrap_or(0);
         Ok(cost)
     }
 

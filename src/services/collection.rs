@@ -50,17 +50,17 @@ pub async fn get_collection(
     collection_id: i64,
     requesting_user_id: Option<i64>,
 ) -> Result<Collection, AppError> {
-    let collection = sqlx::query_as::<_, Collection>(
-        "SELECT * FROM collections WHERE id = $1",
-    )
-    .bind(collection_id)
-    .fetch_one(pool)
-    .await?;
+    let collection = sqlx::query_as::<_, Collection>("SELECT * FROM collections WHERE id = $1")
+        .bind(collection_id)
+        .fetch_one(pool)
+        .await?;
 
     // Check visibility
     // visibility: 0=private (owner only), 1=public, 2=unlisted
     if collection.visibility == 0
-        && requesting_user_id.map(|uid| uid != collection.owner_id).unwrap_or(true)
+        && requesting_user_id
+            .map(|uid| uid != collection.owner_id)
+            .unwrap_or(true)
     {
         return Err(AppError::NotFound);
     }
@@ -96,12 +96,11 @@ pub async fn list_user_collections(
         .fetch_all(pool)
         .await?;
 
-        let count = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM collections WHERE owner_id = $1",
-        )
-        .bind(owner_id)
-        .fetch_one(pool)
-        .await?;
+        let count =
+            sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM collections WHERE owner_id = $1")
+                .bind(owner_id)
+                .fetch_one(pool)
+                .await?;
 
         (rows, count)
     } else {
@@ -181,13 +180,11 @@ pub async fn delete_collection(
     collection_id: i64,
     owner_id: i64,
 ) -> Result<(), AppError> {
-    let result = sqlx::query(
-        "DELETE FROM collections WHERE id = $1 AND owner_id = $2",
-    )
-    .bind(collection_id)
-    .bind(owner_id)
-    .execute(pool)
-    .await?;
+    let result = sqlx::query("DELETE FROM collections WHERE id = $1 AND owner_id = $2")
+        .bind(collection_id)
+        .bind(owner_id)
+        .execute(pool)
+        .await?;
 
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound);
@@ -232,12 +229,11 @@ pub async fn add_post_to_collection(
     }
 
     // Get next sort_order
-    let max_order: Option<i32> = sqlx::query_scalar(
-        "SELECT MAX(sort_order) FROM collection_posts WHERE collection_id = $1",
-    )
-    .bind(collection_id)
-    .fetch_one(pool)
-    .await?;
+    let max_order: Option<i32> =
+        sqlx::query_scalar("SELECT MAX(sort_order) FROM collection_posts WHERE collection_id = $1")
+            .bind(collection_id)
+            .fetch_one(pool)
+            .await?;
 
     let next_order = max_order.map(|o| o + 1).unwrap_or(0);
 
@@ -257,12 +253,10 @@ pub async fn add_post_to_collection(
     .await?;
 
     // Update collection timestamp
-    sqlx::query(
-        "UPDATE collections SET updated_at = NOW() WHERE id = $1",
-    )
-    .bind(collection_id)
-    .execute(pool)
-    .await?;
+    sqlx::query("UPDATE collections SET updated_at = NOW() WHERE id = $1")
+        .bind(collection_id)
+        .execute(pool)
+        .await?;
 
     Ok(cp)
 }
@@ -287,25 +281,22 @@ pub async fn remove_post_from_collection(
         return Err(AppError::NotFound);
     }
 
-    let result = sqlx::query(
-        "DELETE FROM collection_posts WHERE collection_id = $1 AND post_id = $2",
-    )
-    .bind(collection_id)
-    .bind(post_id)
-    .execute(pool)
-    .await?;
+    let result =
+        sqlx::query("DELETE FROM collection_posts WHERE collection_id = $1 AND post_id = $2")
+            .bind(collection_id)
+            .bind(post_id)
+            .execute(pool)
+            .await?;
 
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound);
     }
 
     // Update collection timestamp
-    sqlx::query(
-        "UPDATE collections SET updated_at = NOW() WHERE id = $1",
-    )
-    .bind(collection_id)
-    .execute(pool)
-    .await?;
+    sqlx::query("UPDATE collections SET updated_at = NOW() WHERE id = $1")
+        .bind(collection_id)
+        .execute(pool)
+        .await?;
 
     Ok(())
 }
@@ -380,12 +371,10 @@ pub async fn reorder_collection_posts(
     }
 
     // Update collection timestamp
-    sqlx::query(
-        "UPDATE collections SET updated_at = NOW() WHERE id = $1",
-    )
-    .bind(collection_id)
-    .execute(pool)
-    .await?;
+    sqlx::query("UPDATE collections SET updated_at = NOW() WHERE id = $1")
+        .bind(collection_id)
+        .execute(pool)
+        .await?;
 
     Ok(())
 }

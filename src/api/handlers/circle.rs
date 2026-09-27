@@ -27,7 +27,10 @@ pub async fn create_circle(
     Json(req): Json<CreateCircleRequest>,
 ) -> Result<Json<ApiResponse<Circle>>, AppError> {
     let circle = services::circle::create_circle(&pool, req).await?;
-    Ok(Json(ApiResponse::with_message(circle, "Circle created".into())))
+    Ok(Json(ApiResponse::with_message(
+        circle,
+        "Circle created".into(),
+    )))
 }
 
 /// GET /api/circles/:id
@@ -74,7 +77,10 @@ pub async fn deactivate_circle(
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::circle::deactivate_circle(&pool, id).await?;
-    Ok(Json(ApiResponse::with_message("deactivated", "Circle deactivated".into())))
+    Ok(Json(ApiResponse::with_message(
+        "deactivated",
+        "Circle deactivated".into(),
+    )))
 }
 
 /// GET /api/circles/nearby?grid_cell=...&radius=...
@@ -82,8 +88,9 @@ pub async fn get_nearby_circles(
     State(pool): State<PgPool>,
     Query(params): Query<NearbyCirclesParams>,
 ) -> Result<Json<ApiResponse<Vec<Circle>>>, AppError> {
-    let circles = services::circle::get_nearby_circles(&pool, &params.grid_cell, params.radius.unwrap_or(1))
-        .await?;
+    let circles =
+        services::circle::get_nearby_circles(&pool, &params.grid_cell, params.radius.unwrap_or(1))
+            .await?;
     Ok(Json(ApiResponse::new(circles)))
 }
 
@@ -101,7 +108,10 @@ pub async fn suggest_member(
     Json(req): Json<SuggestMemberRequest>,
 ) -> Result<Json<ApiResponse<CircleMember>>, AppError> {
     let member = services::circle::suggest_member(&pool, id, req.user_id, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message(member, "Member suggested".into())))
+    Ok(Json(ApiResponse::with_message(
+        member,
+        "Member suggested".into(),
+    )))
 }
 
 #[derive(Deserialize)]
@@ -116,7 +126,10 @@ pub async fn join_circle(
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<CircleMember>>, AppError> {
     let member = services::circle::join_circle(&pool, id, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message(member, "Joined circle".into())))
+    Ok(Json(ApiResponse::with_message(
+        member,
+        "Joined circle".into(),
+    )))
 }
 
 /// POST /api/circles/:id/leave
@@ -126,7 +139,10 @@ pub async fn leave_circle(
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::circle::leave_circle(&pool, id, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message("left", "Left circle".into())))
+    Ok(Json(ApiResponse::with_message(
+        "left",
+        "Left circle".into(),
+    )))
 }
 
 /// GET /api/circles/:id/members
@@ -138,8 +154,7 @@ pub async fn list_circle_members(
     let page = params.page.unwrap_or(1).max(1);
     let per_page = params.per_page.unwrap_or(20).max(1).min(100);
 
-    let (members, total) =
-        services::circle::list_circle_members(&pool, id, page, per_page).await?;
+    let (members, total) = services::circle::list_circle_members(&pool, id, page, per_page).await?;
 
     Ok(Json(ApiResponse::new(serde_json::json!({
         "items": members,

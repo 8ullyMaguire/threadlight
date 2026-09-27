@@ -42,11 +42,9 @@ pub async fn list_plugins(
     State(pool): State<PgPool>,
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<PaginatedResponse<FeedPlugin>>, AppError> {
-    let total: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM feed_plugins WHERE enabled = true",
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM feed_plugins WHERE enabled = true")
+        .fetch_one(&pool)
+        .await?;
 
     let plugins = sqlx::query_as::<_, FeedPlugin>(
         "SELECT * FROM feed_plugins WHERE enabled = true ORDER BY install_count DESC, rating DESC LIMIT $1 OFFSET $2",
@@ -128,13 +126,25 @@ pub async fn update_plugin(
     .await?
     .ok_or(AppError::NotFound)?;
 
-    let name = req.get("name").and_then(|v| v.as_str()).map(|s| s.to_string()).unwrap_or(existing.name);
-    let description = req.get("description")
+    let name = req
+        .get("name")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+        .unwrap_or(existing.name);
+    let description = req
+        .get("description")
         .and_then(|v| v.as_str())
         .map(|s| s.to_string())
         .or(existing.description);
-    let plugin_type = req.get("plugin_type").and_then(|v| v.as_i64()).map(|v| v as i16).unwrap_or(existing.plugin_type);
-    let price_credits = req.get("price_credits").and_then(|v| v.as_i64()).unwrap_or(existing.price_credits);
+    let plugin_type = req
+        .get("plugin_type")
+        .and_then(|v| v.as_i64())
+        .map(|v| v as i16)
+        .unwrap_or(existing.plugin_type);
+    let price_credits = req
+        .get("price_credits")
+        .and_then(|v| v.as_i64())
+        .unwrap_or(existing.price_credits);
 
     let updated = sqlx::query_as::<_, FeedPlugin>(
         r#"UPDATE feed_plugins
@@ -204,12 +214,10 @@ pub async fn install_plugin(
     .await?;
 
     // Increment install count
-    sqlx::query(
-        "UPDATE feed_plugins SET install_count = install_count + 1 WHERE id = $1",
-    )
-    .bind(id)
-    .execute(&pool)
-    .await?;
+    sqlx::query("UPDATE feed_plugins SET install_count = install_count + 1 WHERE id = $1")
+        .bind(id)
+        .execute(&pool)
+        .await?;
 
     Ok(Json(ApiResponse::with_message(
         install,
@@ -224,13 +232,12 @@ pub async fn uninstall_plugin(
     State(pool): State<PgPool>,
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<()>>, AppError> {
-    let result = sqlx::query(
-        "DELETE FROM feed_plugin_installs WHERE plugin_id = $1 AND user_id = $2",
-    )
-    .bind(id)
-    .bind(auth.user_id)
-    .execute(&pool)
-    .await?;
+    let result =
+        sqlx::query("DELETE FROM feed_plugin_installs WHERE plugin_id = $1 AND user_id = $2")
+            .bind(id)
+            .bind(auth.user_id)
+            .execute(&pool)
+            .await?;
 
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound);
@@ -291,17 +298,17 @@ pub async fn review_plugin(
 ) -> Result<Json<ApiResponse<FeedPluginReview>>, AppError> {
     // Validate rating range
     if req.rating < 1 || req.rating > 5 {
-        return Err(AppError::Validation("Rating must be between 1 and 5".into()));
+        return Err(AppError::Validation(
+            "Rating must be between 1 and 5".into(),
+        ));
     }
 
     // Verify plugin exists
-    let _plugin = sqlx::query_as::<_, FeedPlugin>(
-        "SELECT * FROM feed_plugins WHERE id = $1",
-    )
-    .bind(id)
-    .fetch_optional(&pool)
-    .await?
-    .ok_or(AppError::NotFound)?;
+    let _plugin = sqlx::query_as::<_, FeedPlugin>("SELECT * FROM feed_plugins WHERE id = $1")
+        .bind(id)
+        .fetch_optional(&pool)
+        .await?
+        .ok_or(AppError::NotFound)?;
 
     // Upsert review
     let review = sqlx::query_as::<_, FeedPluginReview>(
@@ -319,12 +326,11 @@ pub async fn review_plugin(
     .await?;
 
     // Recalculate average rating
-    let avg: (Option<f64>,) = sqlx::query_as(
-        "SELECT AVG(rating::float) FROM feed_plugin_reviews WHERE plugin_id = $1",
-    )
-    .bind(id)
-    .fetch_one(&pool)
-    .await?;
+    let avg: (Option<f64>,) =
+        sqlx::query_as("SELECT AVG(rating::float) FROM feed_plugin_reviews WHERE plugin_id = $1")
+            .bind(id)
+            .fetch_one(&pool)
+            .await?;
 
     if let Some(avg_rating) = avg.0 {
         sqlx::query("UPDATE feed_plugins SET rating = $1 WHERE id = $2")

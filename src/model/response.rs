@@ -16,16 +16,27 @@ pub struct PaginatedResponse<T: Serialize> {
 
 impl<T: Serialize> ApiResponse<T> {
     pub fn new(data: T) -> Self {
-        Self { data, message: None }
+        Self {
+            data,
+            message: None,
+        }
     }
 
     pub fn with_message(data: T, message: String) -> Self {
-        Self { data, message: Some(message) }
+        Self {
+            data,
+            message: Some(message),
+        }
     }
 }
 
 impl<T: Serialize> PaginatedResponse<T> {
     pub fn new(data: Vec<T>, total: i64, page: i64, per_page: i64) -> Self {
-        Self { data, total, page, per_page }
+        Self {
+            data,
+            total,
+            page,
+            per_page,
+        }
     }
 }

@@ -69,8 +69,7 @@ pub async fn update_collection(
     Path(id): Path<i64>,
     Json(req): Json<UpdateCollectionRequest>,
 ) -> Result<Json<ApiResponse<Collection>>, AppError> {
-    let collection =
-        services::collection::update_collection(&pool, id, auth.user_id, req).await?;
+    let collection = services::collection::update_collection(&pool, id, auth.user_id, req).await?;
     Ok(Json(ApiResponse::new(collection)))
 }
 
@@ -96,8 +95,7 @@ pub async fn add_post_to_collection(
     Path(id): Path<i64>,
     Json(req): Json<AddCollectionPostRequest>,
 ) -> Result<Json<ApiResponse<CollectionPost>>, AppError> {
-    let cp =
-        services::collection::add_post_to_collection(&pool, id, auth.user_id, req).await?;
+    let cp = services::collection::add_post_to_collection(&pool, id, auth.user_id, req).await?;
     Ok(Json(ApiResponse::with_message(
         cp,
         "Post added to collection".into(),
@@ -163,6 +161,7 @@ pub async fn get_or_create_default_collection(
     State(pool): State<PgPool>,
     auth: RequiredAuth,
 ) -> Result<Json<ApiResponse<Collection>>, AppError> {
-    let collection = services::collection::get_or_create_default_collection(&pool, auth.user_id).await?;
+    let collection =
+        services::collection::get_or_create_default_collection(&pool, auth.user_id).await?;
     Ok(Json(ApiResponse::new(collection)))
 }

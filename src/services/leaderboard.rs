@@ -1,7 +1,9 @@
 use sqlx::PgPool;
 
 use crate::error::AppError;
-use crate::model::leaderboard::{LeaderboardCategory, LeaderboardEntry, LeaderboardPeriod, LeaderboardQuery, LeaderboardResponse};
+use crate::model::leaderboard::{
+    LeaderboardCategory, LeaderboardEntry, LeaderboardPeriod, LeaderboardQuery, LeaderboardResponse,
+};
 
 /// Helper to get the interval SQL param value for a period, or NULL for "all time".
 fn period_param(period: &LeaderboardPeriod) -> Option<String> {
@@ -105,7 +107,7 @@ async fn get_posting_leaderboard(
          AND ($1::interval IS NULL OR p.created_at >= NOW() - $1::interval) \
          GROUP BY u.id, u.username, u.avatar_url \
          ORDER BY action_count DESC \
-         LIMIT $2 OFFSET $3"
+         LIMIT $2 OFFSET $3",
     )
     .bind(interval)
     .bind(limit)
@@ -129,7 +131,7 @@ async fn get_commenting_leaderboard(
          AND ($1::interval IS NULL OR c.created_at >= NOW() - $1::interval) \
          GROUP BY u.id, u.username, u.avatar_url \
          ORDER BY action_count DESC \
-         LIMIT $2 OFFSET $3"
+         LIMIT $2 OFFSET $3",
     )
     .bind(interval)
     .bind(limit)
@@ -153,7 +155,7 @@ async fn get_tagging_leaderboard(
          AND ($1::interval IS NULL OR pt.created_at >= NOW() - $1::interval) \
          GROUP BY u.id, u.username, u.avatar_url \
          ORDER BY action_count DESC \
-         LIMIT $2 OFFSET $3"
+         LIMIT $2 OFFSET $3",
     )
     .bind(interval)
     .bind(limit)
@@ -184,7 +186,7 @@ async fn get_voting_leaderboard(
          ) votes ON votes.user_id = u.id \
          GROUP BY u.id, u.username, u.avatar_url \
          ORDER BY action_count DESC \
-         LIMIT $2 OFFSET $3"
+         LIMIT $2 OFFSET $3",
     )
     .bind(interval)
     .bind(limit)
@@ -208,7 +210,7 @@ async fn get_moderation_leaderboard(
          AND ($1::interval IS NULL OR ml.created_at >= NOW() - $1::interval) \
          GROUP BY u.id, u.username, u.avatar_url \
          ORDER BY action_count DESC \
-         LIMIT $2 OFFSET $3"
+         LIMIT $2 OFFSET $3",
     )
     .bind(interval)
     .bind(limit)
@@ -232,7 +234,7 @@ async fn get_credits_leaderboard(
          AND ($1::interval IS NULL OR ct.created_at >= NOW() - $1::interval) \
          GROUP BY u.id, u.username, u.avatar_url \
          ORDER BY action_count DESC \
-         LIMIT $2 OFFSET $3"
+         LIMIT $2 OFFSET $3",
     )
     .bind(interval)
     .bind(limit)

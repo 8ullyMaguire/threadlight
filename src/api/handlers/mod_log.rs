@@ -17,10 +17,18 @@ pub async fn record(
     Json(body): Json<serde_json::Value>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     if !auth.is_admin {
-        return Err(AppError::Forbidden("Only admins can log moderation actions".to_string()));
+        return Err(AppError::Forbidden(
+            "Only admins can log moderation actions".to_string(),
+        ));
     }
-    let action_type = body.get("action_type").and_then(|v| v.as_str()).unwrap_or("unknown");
-    let target_type = body.get("target_type").and_then(|v| v.as_str()).unwrap_or("unknown");
+    let action_type = body
+        .get("action_type")
+        .and_then(|v| v.as_str())
+        .unwrap_or("unknown");
+    let target_type = body
+        .get("target_type")
+        .and_then(|v| v.as_str())
+        .unwrap_or("unknown");
     let target_id = body.get("target_id").and_then(|v| v.as_i64()).unwrap_or(0);
     let reason = body.get("reason").and_then(|v| v.as_str());
     let details = body.get("details");
@@ -40,7 +48,10 @@ pub async fn record(
     .execute(&pool)
     .await?;
 
-    Ok(Json(ApiResponse::with_message("recorded", "Moderation action logged".to_string())))
+    Ok(Json(ApiResponse::with_message(
+        "recorded",
+        "Moderation action logged".to_string(),
+    )))
 }
 
 /// GET /api/v1/mod-log — List moderation actions

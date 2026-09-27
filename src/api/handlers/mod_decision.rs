@@ -1,4 +1,7 @@
-use axum::{extract::{Path, Query, State}, Json};
+use axum::{
+    extract::{Path, Query, State},
+    Json,
+};
 use serde::Deserialize;
 use sqlx::PgPool;
 
@@ -78,13 +81,12 @@ pub async fn cast_review_vote(
     }
 
     // Verify the moderation action exists and allows reviews
-    let action = sqlx::query_as::<_, ModerationAction>(
-        "SELECT * FROM moderation_actions WHERE id = $1",
-    )
-    .bind(action_id)
-    .fetch_optional(&pool)
-    .await?
-    .ok_or(AppError::NotFound)?;
+    let action =
+        sqlx::query_as::<_, ModerationAction>("SELECT * FROM moderation_actions WHERE id = $1")
+            .bind(action_id)
+            .fetch_optional(&pool)
+            .await?
+            .ok_or(AppError::NotFound)?;
 
     if !action.is_jury_decision {
         return Err(AppError::Validation(
@@ -93,12 +95,11 @@ pub async fn cast_review_vote(
     }
 
     // Get voter's trust score
-    let trust_row: Option<(Option<f64>,)> = sqlx::query_as(
-        "SELECT trust_score FROM users WHERE id = $1",
-    )
-    .bind(auth.user_id)
-    .fetch_optional(&pool)
-    .await?;
+    let trust_row: Option<(Option<f64>,)> =
+        sqlx::query_as("SELECT trust_score FROM users WHERE id = $1")
+            .bind(auth.user_id)
+            .fetch_optional(&pool)
+            .await?;
 
     let voter_trust_score = trust_row.and_then(|r| r.0).unwrap_or(0.0);
 
@@ -132,20 +133,18 @@ pub async fn get_reviews(
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<PaginatedResponse<ModDecisionReview>>, AppError> {
     // Verify action exists
-    let _action = sqlx::query_as::<_, ModerationAction>(
-        "SELECT * FROM moderation_actions WHERE id = $1",
-    )
-    .bind(action_id)
-    .fetch_optional(&pool)
-    .await?
-    .ok_or(AppError::NotFound)?;
+    let _action =
+        sqlx::query_as::<_, ModerationAction>("SELECT * FROM moderation_actions WHERE id = $1")
+            .bind(action_id)
+            .fetch_optional(&pool)
+            .await?
+            .ok_or(AppError::NotFound)?;
 
-    let total: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM mod_decision_reviews WHERE moderation_action_id = $1",
-    )
-    .bind(action_id)
-    .fetch_one(&pool)
-    .await?;
+    let total: (i64,) =
+        sqlx::query_as("SELECT COUNT(*) FROM mod_decision_reviews WHERE moderation_action_id = $1")
+            .bind(action_id)
+            .fetch_one(&pool)
+            .await?;
 
     let reviews = sqlx::query_as::<_, ModDecisionReview>(
         "SELECT * FROM mod_decision_reviews WHERE moderation_action_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3",

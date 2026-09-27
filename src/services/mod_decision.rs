@@ -23,7 +23,9 @@ impl ModDecisionService {
     ) -> Result<ModDecisionReview, AppError> {
         // Validate vote value
         if req.vote != 1 && req.vote != -1 && req.vote != 0 {
-            return Err(AppError::Validation("vote must be 1 (support), -1 (oppose), or 0 (abstain)".into()));
+            return Err(AppError::Validation(
+                "vote must be 1 (support), -1 (oppose), or 0 (abstain)".into(),
+            ));
         }
 
         // Get voter's trust score
@@ -61,9 +63,10 @@ impl ModDecisionService {
         .unwrap_or(0);
 
         if voter_level < min_trust {
-            return Err(AppError::Forbidden(
-                format!("trust level {} below minimum {}", voter_level, min_trust),
-            ));
+            return Err(AppError::Forbidden(format!(
+                "trust level {} below minimum {}",
+                voter_level, min_trust
+            )));
         }
 
         // Ensure the action exists and is a jury decision
@@ -193,10 +196,7 @@ impl ModDecisionService {
 
     /// Calculate weighted controversy score that accounts for voter trust scores
     /// Same formula but votes are weighted by voter_trust_score
-    pub async fn get_weighted_controversy_score(
-        &self,
-        action_id: i64,
-    ) -> Result<f64, AppError> {
+    pub async fn get_weighted_controversy_score(&self, action_id: i64) -> Result<f64, AppError> {
         let votes = sqlx::query_as::<_, (i16, f64)>(
             r#"
             SELECT vote, voter_trust_score
@@ -274,10 +274,7 @@ impl ModDecisionService {
     // --- Review Stats ---
 
     /// Get voting statistics for a user (review participation)
-    pub async fn get_user_voting_stats(
-        &self,
-        user_id: i64,
-    ) -> Result<serde_json::Value, AppError> {
+    pub async fn get_user_voting_stats(&self, user_id: i64) -> Result<serde_json::Value, AppError> {
         let total_votes: i64 = sqlx::query_scalar(
             r#"
             SELECT COUNT(*) FROM mod_decision_reviews WHERE user_id = $1

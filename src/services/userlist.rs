@@ -153,13 +153,11 @@ impl UserListService {
         requester_id: i64,
     ) -> Result<(), AppError> {
         self.verify_list_access(list_id, requester_id).await?;
-        sqlx::query(
-            "DELETE FROM list_members WHERE list_id = $1 AND target_user_id = $2",
-        )
-        .bind(list_id)
-        .bind(target_user_id)
-        .execute(&self.pool)
-        .await?;
+        sqlx::query("DELETE FROM list_members WHERE list_id = $1 AND target_user_id = $2")
+            .bind(list_id)
+            .bind(target_user_id)
+            .execute(&self.pool)
+            .await?;
         Ok(())
     }
 
@@ -280,15 +278,15 @@ impl UserListService {
     ) -> Result<(), AppError> {
         let list = self.get_list(list_id).await?;
         if list.owner_id != requester_id && user_id != requester_id {
-            return Err(AppError::Forbidden("not authorized to remove collaborator".into()));
+            return Err(AppError::Forbidden(
+                "not authorized to remove collaborator".into(),
+            ));
         }
-        sqlx::query(
-            "DELETE FROM list_collaborators WHERE list_id = $1 AND user_id = $2",
-        )
-        .bind(list_id)
-        .bind(user_id)
-        .execute(&self.pool)
-        .await?;
+        sqlx::query("DELETE FROM list_collaborators WHERE list_id = $1 AND user_id = $2")
+            .bind(list_id)
+            .bind(user_id)
+            .execute(&self.pool)
+            .await?;
         Ok(())
     }
 
@@ -347,9 +345,9 @@ impl UserListService {
             return Err(AppError::Validation("list is not algorithmic".into()));
         }
 
-        let criteria = list.criteria_json.ok_or_else(|| {
-            AppError::Validation("algorithmic list has no criteria".into())
-        })?;
+        let criteria = list
+            .criteria_json
+            .ok_or_else(|| AppError::Validation("algorithmic list has no criteria".into()))?;
 
         // Evaluate criteria against users and update members
         // For now, a simple tag-based evaluation
@@ -374,12 +372,10 @@ impl UserListService {
         .await?;
 
         // Update last_refreshed_at
-        sqlx::query(
-            "UPDATE user_lists SET last_refreshed_at = NOW() WHERE id = $1",
-        )
-        .bind(list_id)
-        .execute(&self.pool)
-        .await?;
+        sqlx::query("UPDATE user_lists SET last_refreshed_at = NOW() WHERE id = $1")
+            .bind(list_id)
+            .execute(&self.pool)
+            .await?;
 
         Ok(members)
     }

@@ -7,9 +7,7 @@ use sqlx::PgPool;
 
 use crate::api::middleware::auth::AuthUser;
 use crate::error::AppError;
-use crate::model::blocklist::{
-    BlocklistEntry, CheckBlocklistQuery, CreateBlocklistEntryRequest,
-};
+use crate::model::blocklist::{BlocklistEntry, CheckBlocklistQuery, CreateBlocklistEntryRequest};
 use crate::model::response::{ApiResponse, PaginatedResponse};
 
 #[derive(Debug, Deserialize)]
@@ -77,12 +75,10 @@ pub async fn get(
         return Err(AppError::Forbidden("Admin access required".into()));
     }
 
-    let entry = sqlx::query_as::<_, BlocklistEntry>(
-        r#"SELECT * FROM blocklist WHERE id = $1"#,
-    )
-    .bind(id)
-    .fetch_one(&pool)
-    .await?;
+    let entry = sqlx::query_as::<_, BlocklistEntry>(r#"SELECT * FROM blocklist WHERE id = $1"#)
+        .bind(id)
+        .fetch_one(&pool)
+        .await?;
 
     Ok(Json(ApiResponse::new(entry)))
 }
@@ -173,7 +169,10 @@ pub async fn delete(
         .execute(&pool)
         .await?;
 
-    Ok(Json(ApiResponse::with_message((), "Blocklist entry deleted".into())))
+    Ok(Json(ApiResponse::with_message(
+        (),
+        "Blocklist entry deleted".into(),
+    )))
 }
 
 /// GET /api/admin/blocklist/check?entry_type=&entry_value=

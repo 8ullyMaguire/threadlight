@@ -19,12 +19,11 @@ pub async fn send(
     Json(req): Json<CreatePrivateMessageRequest>,
 ) -> Result<Json<ApiResponse<PrivateMessageResponse>>, AppError> {
     // Validate recipient exists
-    let recipient_exists: bool = sqlx::query_scalar(
-        "SELECT EXISTS(SELECT 1 FROM users WHERE id = $1 AND is_active = true)",
-    )
-    .bind(req.recipient_id)
-    .fetch_one(&pool)
-    .await?;
+    let recipient_exists: bool =
+        sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM users WHERE id = $1 AND is_active = true)")
+            .bind(req.recipient_id)
+            .fetch_one(&pool)
+            .await?;
     if !recipient_exists {
         return Err(AppError::NotFound);
     }
@@ -135,7 +134,10 @@ pub async fn mark_read(
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound);
     }
-    Ok(Json(ApiResponse::with_message("read", "Marked as read".to_string())))
+    Ok(Json(ApiResponse::with_message(
+        "read",
+        "Marked as read".to_string(),
+    )))
 }
 
 /// DELETE /api/v1/private-messages/:id — Soft-delete a message
@@ -160,7 +162,10 @@ pub async fn delete(
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound);
     }
-    Ok(Json(ApiResponse::with_message("deleted", "Message deleted".to_string())))
+    Ok(Json(ApiResponse::with_message(
+        "deleted",
+        "Message deleted".to_string(),
+    )))
 }
 
 #[cfg(test)]

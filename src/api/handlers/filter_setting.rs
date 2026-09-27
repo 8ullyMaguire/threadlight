@@ -86,7 +86,10 @@ pub async fn delete_filter(
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::filter_setting::delete_filter(&pool, id, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message("deleted", "Filter deleted".to_string())))
+    Ok(Json(ApiResponse::with_message(
+        "deleted",
+        "Filter deleted".to_string(),
+    )))
 }
 
 /// GET /api/v1/settings — Get current user's settings
@@ -125,13 +128,12 @@ pub async fn get_community_settings(
     _auth: RequiredAuth,
     Path(slug): Path<String>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
-    let community: crate::model::community::Community = sqlx::query_as(
-        "SELECT * FROM communities WHERE slug = $1",
-    )
-    .bind(&slug)
-    .fetch_optional(&pool)
-    .await?
-    .ok_or(AppError::NotFound)?;
+    let community: crate::model::community::Community =
+        sqlx::query_as("SELECT * FROM communities WHERE slug = $1")
+            .bind(&slug)
+            .fetch_optional(&pool)
+            .await?
+            .ok_or(AppError::NotFound)?;
 
     let settings = services::filter_setting::get_community_settings(&pool, community.id).await?;
     Ok(Json(ApiResponse::new(serde_json::json!({
@@ -151,15 +153,15 @@ pub async fn update_community_settings(
     if !auth.is_admin {
         return Err(AppError::Forbidden("Admin only".to_string()));
     }
-    let community: crate::model::community::Community = sqlx::query_as(
-        "SELECT * FROM communities WHERE slug = $1",
-    )
-    .bind(&slug)
-    .fetch_optional(&pool)
-    .await?
-    .ok_or(AppError::NotFound)?;
+    let community: crate::model::community::Community =
+        sqlx::query_as("SELECT * FROM communities WHERE slug = $1")
+            .bind(&slug)
+            .fetch_optional(&pool)
+            .await?
+            .ok_or(AppError::NotFound)?;
 
-    let settings = services::filter_setting::update_community_settings(&pool, community.id, req).await?;
+    let settings =
+        services::filter_setting::update_community_settings(&pool, community.id, req).await?;
     Ok(Json(ApiResponse::new(serde_json::json!({
         "disable_downvotes": settings.disable_downvotes,
         "slow_mode": settings.slow_mode,

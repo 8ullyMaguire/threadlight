@@ -58,11 +58,7 @@ pub async fn get_tag_by_name(pool: &PgPool, name: &str) -> Result<Tag, AppError>
 }
 
 /// Update an existing tag.
-pub async fn update_tag(
-    pool: &PgPool,
-    id: i32,
-    req: UpdateTagRequest,
-) -> Result<Tag, AppError> {
+pub async fn update_tag(pool: &PgPool, id: i32, req: UpdateTagRequest) -> Result<Tag, AppError> {
     let tag = sqlx::query_as::<_, Tag>(
         r#"
         UPDATE tags SET
@@ -148,12 +144,7 @@ pub async fn list_tags(
 }
 
 /// Vote on a tag (upvote = 1, downvote = -1, remove = 0).
-pub async fn vote_tag(
-    pool: &PgPool,
-    tag_id: i32,
-    user_id: i64,
-    vote: i16,
-) -> Result<(), AppError> {
+pub async fn vote_tag(pool: &PgPool, tag_id: i32, user_id: i64, vote: i16) -> Result<(), AppError> {
     get_tag(pool, tag_id).await?;
 
     sqlx::query(

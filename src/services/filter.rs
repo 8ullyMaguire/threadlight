@@ -58,18 +58,12 @@ pub async fn update_filter(
 }
 
 /// Delete a content filter.
-pub async fn delete_filter(
-    pool: &PgPool,
-    filter_id: i64,
-    user_id: i64,
-) -> Result<(), AppError> {
-    let result = sqlx::query(
-        "DELETE FROM content_filters WHERE id = $1 AND user_id = $2",
-    )
-    .bind(filter_id)
-    .bind(user_id)
-    .execute(pool)
-    .await?;
+pub async fn delete_filter(pool: &PgPool, filter_id: i64, user_id: i64) -> Result<(), AppError> {
+    let result = sqlx::query("DELETE FROM content_filters WHERE id = $1 AND user_id = $2")
+        .bind(filter_id)
+        .bind(user_id)
+        .execute(pool)
+        .await?;
 
     if result.rows_affected() == 0 {
         return Err(AppError::NotFound);
@@ -79,10 +73,7 @@ pub async fn delete_filter(
 }
 
 /// Get a filter by its ID.
-pub async fn get_filter_by_id(
-    pool: &PgPool,
-    filter_id: i64,
-) -> Result<ContentFilter, AppError> {
+pub async fn get_filter_by_id(pool: &PgPool, filter_id: i64) -> Result<ContentFilter, AppError> {
     let filter = sqlx::query_as::<_, ContentFilter>(
         r#"
         SELECT id, user_id, filter_type, filter_value, filter_action, is_active, created_at

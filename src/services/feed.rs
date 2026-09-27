@@ -66,11 +66,7 @@ pub async fn update_feed(
 }
 
 /// Delete a custom feed.
-pub async fn delete_feed(
-    pool: &PgPool,
-    feed_id: i64,
-    owner_id: i64,
-) -> Result<(), AppError> {
+pub async fn delete_feed(pool: &PgPool, feed_id: i64, owner_id: i64) -> Result<(), AppError> {
     let existing = get_feed_by_id(pool, feed_id).await?;
     if existing.owner_id != owner_id {
         return Err(AppError::Forbidden("not your feed".into()));
@@ -91,10 +87,7 @@ pub async fn delete_feed(
 }
 
 /// Get a custom feed by ID.
-pub async fn get_feed_by_id(
-    pool: &PgPool,
-    feed_id: i64,
-) -> Result<CustomFeed, AppError> {
+pub async fn get_feed_by_id(pool: &PgPool, feed_id: i64) -> Result<CustomFeed, AppError> {
     let feed = sqlx::query_as::<_, CustomFeed>(
         r#"
         SELECT id, owner_id, name, description, slug, is_public, sort_order,
@@ -111,10 +104,7 @@ pub async fn get_feed_by_id(
 }
 
 /// List all feeds owned by a user.
-pub async fn list_user_feeds(
-    pool: &PgPool,
-    owner_id: i64,
-) -> Result<Vec<CustomFeed>, AppError> {
+pub async fn list_user_feeds(pool: &PgPool, owner_id: i64) -> Result<Vec<CustomFeed>, AppError> {
     let feeds = sqlx::query_as::<_, CustomFeed>(
         r#"
         SELECT id, owner_id, name, description, slug, is_public, sort_order,
@@ -168,12 +158,11 @@ pub async fn add_source(
     }
 
     // Get next sort_priority
-    let max_priority: Option<i16> = sqlx::query_scalar(
-        "SELECT MAX(sort_priority) FROM feed_sources WHERE feed_id = $1",
-    )
-    .bind(feed_id)
-    .fetch_one(pool)
-    .await?;
+    let max_priority: Option<i16> =
+        sqlx::query_scalar("SELECT MAX(sort_priority) FROM feed_sources WHERE feed_id = $1")
+            .bind(feed_id)
+            .fetch_one(pool)
+            .await?;
 
     let next_priority = max_priority.unwrap_or(0) + 1;
 
@@ -218,10 +207,7 @@ pub async fn remove_source(
 }
 
 /// List sources for a feed.
-pub async fn list_sources(
-    pool: &PgPool,
-    feed_id: i64,
-) -> Result<Vec<FeedSource>, AppError> {
+pub async fn list_sources(pool: &PgPool, feed_id: i64) -> Result<Vec<FeedSource>, AppError> {
     let sources = sqlx::query_as::<_, FeedSource>(
         r#"
         SELECT id, feed_id, source_type, source_id, source_value, include_mode,

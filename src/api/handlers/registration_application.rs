@@ -21,7 +21,9 @@ pub async fn submit(
     .fetch_one(&pool)
     .await?;
     if exists {
-        return Err(AppError::Conflict("Application already pending".to_string()));
+        return Err(AppError::Conflict(
+            "Application already pending".to_string(),
+        ));
     }
 
     let hash = bcrypt::hash(&req.password, bcrypt::DEFAULT_COST)
@@ -51,15 +53,19 @@ pub async fn submit(
 pub async fn list(
     State(pool): State<PgPool>,
     auth: RequiredAuth,
-) -> Result<Json<ApiResponse<Vec<crate::model::registration_application::RegistrationApplication>>>, AppError> {
+) -> Result<
+    Json<ApiResponse<Vec<crate::model::registration_application::RegistrationApplication>>>,
+    AppError,
+> {
     if !auth.is_admin {
         return Err(AppError::Forbidden("Admin only".to_string()));
     }
-    let apps = sqlx::query_as::<_, crate::model::registration_application::RegistrationApplication>(
-        "SELECT * FROM registration_applications ORDER BY created_at DESC",
-    )
-    .fetch_all(&pool)
-    .await?;
+    let apps =
+        sqlx::query_as::<_, crate::model::registration_application::RegistrationApplication>(
+            "SELECT * FROM registration_applications ORDER BY created_at DESC",
+        )
+        .fetch_all(&pool)
+        .await?;
     Ok(Json(ApiResponse::new(apps)))
 }
 
@@ -87,7 +93,9 @@ pub async fn review(
     };
 
     if app.status != "pending" {
-        return Err(AppError::Conflict("Application already reviewed".to_string()));
+        return Err(AppError::Conflict(
+            "Application already reviewed".to_string(),
+        ));
     }
 
     if req.approve {
@@ -117,7 +125,10 @@ pub async fn review(
         .execute(&pool)
         .await?;
 
-        Ok(Json(ApiResponse::with_message("approved", "Application approved. User created.".to_string())))
+        Ok(Json(ApiResponse::with_message(
+            "approved",
+            "Application approved. User created.".to_string(),
+        )))
     } else {
         sqlx::query(
             r#"
@@ -132,6 +143,9 @@ pub async fn review(
         .execute(&pool)
         .await?;
 
-        Ok(Json(ApiResponse::with_message("rejected", "Application rejected.".to_string())))
+        Ok(Json(ApiResponse::with_message(
+            "rejected",
+            "Application rejected.".to_string(),
+        )))
     }
 }

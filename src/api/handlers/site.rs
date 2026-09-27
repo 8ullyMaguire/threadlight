@@ -20,29 +20,24 @@ pub async fn get_site(
     .await?;
 
     // Stats
-    let total_users = sqlx::query_scalar::<_, i64>(
-        "SELECT COUNT(*) FROM users WHERE is_deleted = false",
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_users =
+        sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM users WHERE is_deleted = false")
+            .fetch_one(&pool)
+            .await?;
 
-    let total_posts = sqlx::query_scalar::<_, i64>(
-        "SELECT COUNT(*) FROM posts WHERE is_deleted = false",
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_posts =
+        sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM posts WHERE is_deleted = false")
+            .fetch_one(&pool)
+            .await?;
 
-    let total_comments = sqlx::query_scalar::<_, i64>(
-        "SELECT COUNT(*) FROM comments WHERE deleted = false",
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_comments =
+        sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM comments WHERE deleted = false")
+            .fetch_one(&pool)
+            .await?;
 
-    let total_communities = sqlx::query_scalar::<_, i64>(
-        "SELECT COUNT(*) FROM communities",
-    )
-    .fetch_one(&pool)
-    .await?;
+    let total_communities = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM communities")
+        .fetch_one(&pool)
+        .await?;
 
     // Admin list
     let admins = sqlx::query_as::<_, UserProfile>(
@@ -81,12 +76,11 @@ pub async fn get_site(
             .fetch_all(&pool)
             .await?;
 
-            let blocked_users = sqlx::query_scalar::<_, i64>(
-                "SELECT blocked_id FROM blocks WHERE blocker_id = $1",
-            )
-            .bind(uid)
-            .fetch_all(&pool)
-            .await?;
+            let blocked_users =
+                sqlx::query_scalar::<_, i64>("SELECT blocked_id FROM blocks WHERE blocker_id = $1")
+                    .bind(uid)
+                    .fetch_all(&pool)
+                    .await?;
 
             Some(json!({
                 "user": u,

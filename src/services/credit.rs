@@ -1,8 +1,13 @@
-use sqlx::PgPool;
 use crate::error::AppError;
 use crate::model::credit::*;
+use sqlx::PgPool;
 
-pub async fn transfer(pool: &PgPool, from_id: i64, to_id: i64, amount: i64) -> Result<CreditTransaction, AppError> {
+pub async fn transfer(
+    pool: &PgPool,
+    from_id: i64,
+    to_id: i64,
+    amount: i64,
+) -> Result<CreditTransaction, AppError> {
     let tx: CreditTransaction = sqlx::query_as(
         "INSERT INTO credit_transactions (from_user, to_user, amount, transaction_type) VALUES ($1, $2, $3, 0) RETURNING *"
     )
@@ -11,7 +16,12 @@ pub async fn transfer(pool: &PgPool, from_id: i64, to_id: i64, amount: i64) -> R
     Ok(tx)
 }
 
-pub async fn list_transactions(pool: &PgPool, user_id: i64, limit: i64, offset: i64) -> Result<Vec<CreditTransaction>, AppError> {
+pub async fn list_transactions(
+    pool: &PgPool,
+    user_id: i64,
+    limit: i64,
+    offset: i64,
+) -> Result<Vec<CreditTransaction>, AppError> {
     let txs = sqlx::query_as::<_, CreditTransaction>(
         "SELECT * FROM credit_transactions WHERE from_user = $1 OR to_user = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3"
     )
@@ -30,18 +40,23 @@ pub async fn claim_daily_reward(pool: &PgPool, user_id: i64) -> Result<DailyRewa
     Ok(reward)
 }
 
-pub async fn get_daily_reward_status(pool: &PgPool, user_id: i64) -> Result<Option<DailyReward>, AppError> {
+pub async fn get_daily_reward_status(
+    pool: &PgPool,
+    user_id: i64,
+) -> Result<Option<DailyReward>, AppError> {
     let reward = sqlx::query_as::<_, DailyReward>(
-        "SELECT * FROM daily_rewards WHERE user_id = $1 AND date = CURRENT_DATE"
+        "SELECT * FROM daily_rewards WHERE user_id = $1 AND date = CURRENT_DATE",
     )
     .bind(user_id)
-    .fetch_optional(pool).await?;
+    .fetch_optional(pool)
+    .await?;
     Ok(reward)
 }
 
 pub async fn get_balance(pool: &PgPool, user_id: i64) -> Result<i64, AppError> {
     let balance: i64 = sqlx::query_scalar("SELECT credits FROM users WHERE id = $1")
         .bind(user_id)
-        .fetch_one(pool).await?;
+        .fetch_one(pool)
+        .await?;
     Ok(balance)
 }

@@ -30,7 +30,10 @@ pub async fn create_community(
     Json(req): Json<CreateCommunityRequest>,
 ) -> Result<Json<ApiResponse<Community>>, AppError> {
     let community = services::community::create_community(&pool, auth.user_id, req).await?;
-    Ok(Json(ApiResponse::with_message(community, "Community created".into())))
+    Ok(Json(ApiResponse::with_message(
+        community,
+        "Community created".into(),
+    )))
 }
 
 /// GET /api/communities/:id
@@ -88,7 +91,10 @@ pub async fn archive_community(
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::community::archive_community(&pool, id, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message("archived", "Community archived".into())))
+    Ok(Json(ApiResponse::with_message(
+        "archived",
+        "Community archived".into(),
+    )))
 }
 
 /// POST /api/communities/:id/join
@@ -98,7 +104,10 @@ pub async fn join_community(
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<CommunityMember>>, AppError> {
     let member = services::community::join_community(&pool, id, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message(member, "Joined community".into())))
+    Ok(Json(ApiResponse::with_message(
+        member,
+        "Joined community".into(),
+    )))
 }
 
 /// POST /api/communities/:id/leave
@@ -108,7 +117,10 @@ pub async fn leave_community(
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::community::leave_community(&pool, id, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message("left", "Left community".into())))
+    Ok(Json(ApiResponse::with_message(
+        "left",
+        "Left community".into(),
+    )))
 }
 
 /// GET /api/communities/:id/members
@@ -161,7 +173,10 @@ pub async fn appoint_curator(
     let curator =
         services::community::appoint_curator(&pool, id, auth.user_id, req.user_id, req.permission)
             .await?;
-    Ok(Json(ApiResponse::with_message(curator, "Curator appointed".into())))
+    Ok(Json(ApiResponse::with_message(
+        curator,
+        "Curator appointed".into(),
+    )))
 }
 
 #[derive(Deserialize)]
@@ -177,5 +192,8 @@ pub async fn remove_curator(
     Path((id, target_user_id)): Path<(i64, i64)>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::community::remove_curator(&pool, id, auth.user_id, target_user_id).await?;
-    Ok(Json(ApiResponse::with_message("removed", "Curator removed".into())))
+    Ok(Json(ApiResponse::with_message(
+        "removed",
+        "Curator removed".into(),
+    )))
 }

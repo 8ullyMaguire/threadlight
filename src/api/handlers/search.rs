@@ -135,7 +135,8 @@ pub async fn search(
     .fetch_all(&pool)
     .await?;
 
-    let communities: Vec<serde_json::Value> = community_rows.iter().map(row_to_search_community).collect();
+    let communities: Vec<serde_json::Value> =
+        community_rows.iter().map(row_to_search_community).collect();
 
     let total = (posts.len() + users.len() + communities.len()) as i64;
     let results = SearchResults {
@@ -177,7 +178,11 @@ pub async fn advanced(
             .bind(offset)
             .fetch_all(&pool)
             .await?;
-            (rows.iter().map(row_to_search_post).collect(), vec![], vec![])
+            (
+                rows.iter().map(row_to_search_post).collect(),
+                vec![],
+                vec![],
+            )
         }
         "users" => {
             let rows = sqlx::query(
@@ -195,7 +200,11 @@ pub async fn advanced(
             .bind(offset)
             .fetch_all(&pool)
             .await?;
-            (vec![], rows.iter().map(row_to_search_user).collect(), vec![])
+            (
+                vec![],
+                rows.iter().map(row_to_search_user).collect(),
+                vec![],
+            )
         }
         "communities" => {
             let rows = sqlx::query(
@@ -212,7 +221,11 @@ pub async fn advanced(
             .bind(offset)
             .fetch_all(&pool)
             .await?;
-            (vec![], vec![], rows.iter().map(row_to_search_community).collect())
+            (
+                vec![],
+                vec![],
+                rows.iter().map(row_to_search_community).collect(),
+            )
         }
         _ => {
             let post_rows = sqlx::query(
@@ -303,20 +316,27 @@ pub async fn search_posts(
     qb.push_bind(params.q.clone());
     qb.push(" || '%' OR p.body ILIKE '%' || ");
     qb.push_bind(params.q.clone());
-    qb.push(" || '%')
-          AND (");
+    qb.push(
+        " || '%')
+          AND (",
+    );
     qb.push_bind(params.time_range.clone());
     qb.push("::text IS NULL OR p.created_at >= NOW() - ");
     qb.push_bind(params.time_range.clone());
-    qb.push("::interval)
-        ");
+    qb.push(
+        "::interval)
+        ",
+    );
     qb.push(match params.sort.as_deref() {
         Some("oldest") => "ORDER BY p.created_at ASC",
         Some("interactions") => "ORDER BY p.interaction_count DESC",
         Some("relevance") => "ORDER BY p.cumulative_interactions DESC",
         _ => "ORDER BY p.created_at DESC",
     });
-    qb.push(" LIMIT ").push_bind(limit).push(" OFFSET ").push_bind(offset);
+    qb.push(" LIMIT ")
+        .push_bind(limit)
+        .push(" OFFSET ")
+        .push_bind(offset);
 
     let rows = qb.build().fetch_all(&pool).await?;
 
@@ -428,8 +448,10 @@ pub async fn suggest(
     .await?;
 
     let tag_suggestions: Vec<serde_json::Value> = tag_rows.iter().map(row_to_suggestion).collect();
-    let user_suggestions: Vec<serde_json::Value> = user_rows.iter().map(row_to_suggestion).collect();
-    let community_suggestions: Vec<serde_json::Value> = community_rows.iter().map(row_to_suggestion).collect();
+    let user_suggestions: Vec<serde_json::Value> =
+        user_rows.iter().map(row_to_suggestion).collect();
+    let community_suggestions: Vec<serde_json::Value> =
+        community_rows.iter().map(row_to_suggestion).collect();
 
     let result = json!({
         "tags": tag_suggestions,

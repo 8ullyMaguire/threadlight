@@ -61,12 +61,11 @@ pub async fn create_post(
 }
 
 pub async fn get_post(pool: &PgPool, id: i64) -> Result<Post, AppError> {
-    let post = sqlx::query_as::<_, Post>(
-        "SELECT * FROM posts WHERE id = $1 AND is_deleted = false",
-    )
-    .bind(id)
-    .fetch_one(pool)
-    .await?;
+    let post =
+        sqlx::query_as::<_, Post>("SELECT * FROM posts WHERE id = $1 AND is_deleted = false")
+            .bind(id)
+            .fetch_one(pool)
+            .await?;
     Ok(post)
 }
 
@@ -205,10 +204,7 @@ pub async fn delete_post(pool: &PgPool, id: i64, user_id: i64) -> Result<(), App
     Ok(())
 }
 
-pub async fn list_posts(
-    pool: &PgPool,
-    query: PostListQuery,
-) -> Result<(Vec<Post>, i64), AppError> {
+pub async fn list_posts(pool: &PgPool, query: PostListQuery) -> Result<(Vec<Post>, i64), AppError> {
     let limit = query.limit.unwrap_or(20).min(100);
     let offset = query.offset.unwrap_or(0);
 
@@ -330,11 +326,7 @@ pub async fn add_post_tag(
     Ok(())
 }
 
-pub async fn remove_post_tag(
-    pool: &PgPool,
-    post_id: i64,
-    tag_id: i32,
-) -> Result<(), AppError> {
+pub async fn remove_post_tag(pool: &PgPool, post_id: i64, tag_id: i32) -> Result<(), AppError> {
     sqlx::query("DELETE FROM post_tags WHERE post_id = $1 AND tag_id = $2")
         .bind(post_id)
         .bind(tag_id)

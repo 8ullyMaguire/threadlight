@@ -2,8 +2,8 @@ use sqlx::PgPool;
 
 use crate::error::AppError;
 use crate::model::filter_setting::{
-    CreateUserFilterRequest, UpdateUserFilterRequest, UserFilter, UserSettings,
-    UpdateUserSettingsRequest, CommunitySettings, UpdateCommunitySettingsRequest,
+    CommunitySettings, CreateUserFilterRequest, UpdateCommunitySettingsRequest,
+    UpdateUserFilterRequest, UpdateUserSettingsRequest, UserFilter, UserSettings,
 };
 
 // ── User Filters ──────────────────────────────────────────────────────────────
@@ -125,7 +125,10 @@ pub async fn check_filters(
             "word" => {
                 if let Some(text) = content_text {
                     if f.is_regex {
-                        if regex::Regex::new(&f.filter_value).map(|r| r.is_match(text)).unwrap_or(false) {
+                        if regex::Regex::new(&f.filter_value)
+                            .map(|r| r.is_match(text))
+                            .unwrap_or(false)
+                        {
                             return Ok(true);
                         }
                     } else if text.to_lowercase().contains(&f.filter_value.to_lowercase()) {
@@ -169,15 +172,11 @@ pub async fn get_user_settings(pool: &PgPool, user_id: i64) -> Result<UserSettin
 
     match settings {
         Some(s) => Ok(s),
-        None => {
-            sqlx::query_as::<_, UserSettings>(
-                "SELECT * FROM user_settings WHERE user_id = $1",
-            )
+        None => sqlx::query_as::<_, UserSettings>("SELECT * FROM user_settings WHERE user_id = $1")
             .bind(user_id)
             .fetch_one(pool)
             .await
-            .map_err(Into::into)
-        }
+            .map_err(Into::into),
     }
 }
 
@@ -187,12 +186,10 @@ pub async fn update_user_settings(
     req: UpdateUserSettingsRequest,
 ) -> Result<UserSettings, AppError> {
     // Ensure row exists
-    sqlx::query(
-        "INSERT INTO user_settings (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING",
-    )
-    .bind(user_id)
-    .execute(pool)
-    .await?;
+    sqlx::query("INSERT INTO user_settings (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING")
+        .bind(user_id)
+        .execute(pool)
+        .await?;
 
     let settings = sqlx::query_as::<_, UserSettings>(
         r#"
@@ -234,7 +231,10 @@ pub async fn update_user_settings(
 
 // ── Community Settings ────────────────────────────────────────────────────────
 
-pub async fn get_community_settings(pool: &PgPool, community_id: i64) -> Result<CommunitySettings, AppError> {
+pub async fn get_community_settings(
+    pool: &PgPool,
+    community_id: i64,
+) -> Result<CommunitySettings, AppError> {
     let settings = sqlx::query_as::<_, CommunitySettings>(
         r#"
         INSERT INTO community_settings (community_id) VALUES ($1)
@@ -248,15 +248,13 @@ pub async fn get_community_settings(pool: &PgPool, community_id: i64) -> Result<
 
     match settings {
         Some(s) => Ok(s),
-        None => {
-            sqlx::query_as::<_, CommunitySettings>(
-                "SELECT * FROM community_settings WHERE community_id = $1",
-            )
-            .bind(community_id)
-            .fetch_one(pool)
-            .await
-            .map_err(Into::into)
-        }
+        None => sqlx::query_as::<_, CommunitySettings>(
+            "SELECT * FROM community_settings WHERE community_id = $1",
+        )
+        .bind(community_id)
+        .fetch_one(pool)
+        .await
+        .map_err(Into::into),
     }
 }
 
@@ -299,14 +297,16 @@ pub async fn update_community_settings(
 }
 
 /// Check if downvotes are disabled for a given community (or globally)
-pub async fn are_downvotes_disabled(pool: &PgPool, community_id: Option<i64>) -> Result<bool, AppError> {
+pub async fn are_downvotes_disabled(
+    pool: &PgPool,
+    community_id: Option<i64>,
+) -> Result<bool, AppError> {
     // Check site config first
-    let site: (Option<bool>,) = sqlx::query_as(
-        "SELECT disable_downvotes FROM site_config ORDER BY id DESC LIMIT 1",
-    )
-    .fetch_optional(pool)
-    .await?
-    .unwrap_or((Some(false),));
+    let site: (Option<bool>,) =
+        sqlx::query_as("SELECT disable_downvotes FROM site_config ORDER BY id DESC LIMIT 1")
+            .fetch_optional(pool)
+            .await?
+            .unwrap_or((Some(false),));
 
     if site.0.unwrap_or(false) {
         return Ok(true);

@@ -31,9 +31,14 @@ pub async fn create_interaction(
     auth: RequiredAuth,
     Json(req): Json<CreateInteractionRequest>,
 ) -> Result<Json<ApiResponse<Interaction>>, AppError> {
-    let interaction =
-        services::interaction::create_interaction(&pool, auth.user_id, req.post_id, req.interaction_type, req.metadata)
-            .await?;
+    let interaction = services::interaction::create_interaction(
+        &pool,
+        auth.user_id,
+        req.post_id,
+        req.interaction_type,
+        req.metadata,
+    )
+    .await?;
     Ok(Json(ApiResponse::with_message(
         interaction,
         "Interaction toggled".into(),
@@ -46,7 +51,8 @@ pub async fn remove_interaction(
     auth: RequiredAuth,
     Path((post_id, interaction_type)): Path<(i64, i16)>,
 ) -> Result<Json<ApiResponse<()>>, AppError> {
-    services::interaction::remove_interaction(&pool, auth.user_id, post_id, interaction_type).await?;
+    services::interaction::remove_interaction(&pool, auth.user_id, post_id, interaction_type)
+        .await?;
     Ok(Json(ApiResponse::with_message(
         (),
         "Interaction removed".into(),
@@ -59,9 +65,13 @@ pub async fn check_interaction(
     auth: RequiredAuth,
     Query(query): Query<InteractionCheckQuery>,
 ) -> Result<Json<ApiResponse<Vec<Interaction>>>, AppError> {
-    let interactions =
-        services::interaction::check_user_interaction(&pool, auth.user_id, query.post_id, query.interaction_type)
-            .await?;
+    let interactions = services::interaction::check_user_interaction(
+        &pool,
+        auth.user_id,
+        query.post_id,
+        query.interaction_type,
+    )
+    .await?;
     Ok(Json(ApiResponse::new(interactions)))
 }
 
@@ -71,7 +81,8 @@ pub async fn get_post_stats(
     auth: AuthUser,
     Path(post_id): Path<i64>,
 ) -> Result<Json<ApiResponse<InteractionStats>>, AppError> {
-    let stats = services::interaction::get_post_interaction_stats(&pool, post_id, auth.user_id).await?;
+    let stats =
+        services::interaction::get_post_interaction_stats(&pool, post_id, auth.user_id).await?;
     Ok(Json(ApiResponse::new(stats)))
 }
 
@@ -84,8 +95,14 @@ pub async fn get_post_interactions(
     let limit = query.limit.unwrap_or(20).min(100);
     let offset = query.offset.unwrap_or(0);
 
-    let interactions =
-        services::interaction::get_post_interactions(&pool, post_id, query.interaction_type, limit, offset).await?;
+    let interactions = services::interaction::get_post_interactions(
+        &pool,
+        post_id,
+        query.interaction_type,
+        limit,
+        offset,
+    )
+    .await?;
     Ok(Json(ApiResponse::new(interactions)))
 }
 
@@ -98,6 +115,7 @@ pub async fn get_my_interactions(
     let limit = query.limit.unwrap_or(20).min(100);
     let offset = query.offset.unwrap_or(0);
 
-    let interactions = services::interaction::get_user_interactions(&pool, auth.user_id, limit, offset).await?;
+    let interactions =
+        services::interaction::get_user_interactions(&pool, auth.user_id, limit, offset).await?;
     Ok(Json(ApiResponse::new(interactions)))
 }

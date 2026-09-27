@@ -17,7 +17,10 @@ pub async fn create(
     Json(req): Json<CreatePostRequest>,
 ) -> Result<Json<ApiResponse<Post>>, AppError> {
     let post = services::post::create_post(&pool, auth.user_id, req).await?;
-    Ok(Json(ApiResponse::with_message(post, "Post created".to_string())))
+    Ok(Json(ApiResponse::with_message(
+        post,
+        "Post created".to_string(),
+    )))
 }
 
 /// GET /api/v1/posts
@@ -53,7 +56,10 @@ pub async fn update(
     Json(req): Json<UpdatePostRequest>,
 ) -> Result<Json<ApiResponse<Post>>, AppError> {
     let post = services::post::update_post(&pool, id, auth.user_id, req).await?;
-    Ok(Json(ApiResponse::with_message(post, "Post updated".to_string())))
+    Ok(Json(ApiResponse::with_message(
+        post,
+        "Post updated".to_string(),
+    )))
 }
 
 /// DELETE /api/v1/posts/{id}
@@ -63,7 +69,10 @@ pub async fn delete(
     Path(id): Path<i64>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::post::delete_post(&pool, id, auth.user_id).await?;
-    Ok(Json(ApiResponse::with_message("deleted", "Post deleted".to_string())))
+    Ok(Json(ApiResponse::with_message(
+        "deleted",
+        "Post deleted".to_string(),
+    )))
 }
 
 /// GET /api/v1/posts/author/{author_id}
@@ -74,7 +83,10 @@ pub async fn list_by_author(
     Query(query): Query<PostListQuery>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
     let (posts, total) = services::post::list_posts(&pool, query).await?;
-    let author_posts: Vec<Post> = posts.into_iter().filter(|p| p.author_id == author_id).collect();
+    let author_posts: Vec<Post> = posts
+        .into_iter()
+        .filter(|p| p.author_id == author_id)
+        .collect();
     Ok(Json(ApiResponse::new(serde_json::json!({
         "items": author_posts,
         "total": total,
@@ -83,9 +95,7 @@ pub async fn list_by_author(
 }
 
 /// GET /api/v1/posts/count
-pub async fn get_count(
-    State(pool): State<PgPool>,
-) -> Result<Json<ApiResponse<i64>>, AppError> {
+pub async fn get_count(State(pool): State<PgPool>) -> Result<Json<ApiResponse<i64>>, AppError> {
     let count: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM posts WHERE is_deleted = false")
         .fetch_one(&pool)
         .await?;
@@ -108,7 +118,10 @@ pub async fn archive(
         .bind(id)
         .execute(&pool)
         .await?;
-    Ok(Json(ApiResponse::with_message("archived", "Post archived".to_string())))
+    Ok(Json(ApiResponse::with_message(
+        "archived",
+        "Post archived".to_string(),
+    )))
 }
 
 /// POST /api/v1/posts/{id}/remove (moderator removal)
