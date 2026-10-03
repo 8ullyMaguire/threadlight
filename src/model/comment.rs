@@ -22,8 +22,10 @@ pub struct Comment {
 /// Sort option for comment listing.
 /// Maps to the PyFed sort types: Hot, Top, New, Old, Controversial.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Default)]
 pub enum CommentSort {
     #[serde(rename = "hot")]
+    #[default]
     Hot,
     #[serde(rename = "top")]
     Top,
@@ -35,11 +37,6 @@ pub enum CommentSort {
     Controversial,
 }
 
-impl Default for CommentSort {
-    fn default() -> Self {
-        CommentSort::Hot
-    }
-}
 
 impl CommentSort {
     /// Returns the SQL ORDER BY clause for this sort variant.

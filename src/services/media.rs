@@ -120,7 +120,7 @@ impl MediaService {
         .bind(uploader_id)
         .fetch_optional(&self.pool)
         .await?
-        .ok_or_else(|| AppError::NotFound)?;
+        .ok_or(AppError::NotFound)?;
         Ok(media.file_path)
     }
 

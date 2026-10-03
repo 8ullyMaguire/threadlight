@@ -1,4 +1,3 @@
-use sqlx::AssertSqlSafe;
 use sqlx::PgPool;
 use tokio::sync::OnceCell;
 

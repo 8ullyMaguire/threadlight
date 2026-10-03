@@ -235,7 +235,7 @@ impl ModerationService {
         .bind(&req.reason)
         .fetch_optional(&self.pool)
         .await?
-        .ok_or_else(|| AppError::NotFound)?;
+        .ok_or(AppError::NotFound)?;
 
         // Update vote tallies on the action
         sqlx::query(

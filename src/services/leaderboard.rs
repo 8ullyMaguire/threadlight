@@ -36,11 +36,11 @@ pub async fn get_leaderboard(
 
     let category = category_str
         .parse::<LeaderboardCategory>()
-        .map_err(|e| AppError::Validation(e))?;
+        .map_err(AppError::Validation)?;
 
     let period = period_str
         .parse::<LeaderboardPeriod>()
-        .map_err(|e| AppError::Validation(e))?;
+        .map_err(AppError::Validation)?;
 
     let interval = period_param(&period);
 

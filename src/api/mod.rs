@@ -1,9 +1,7 @@
 use axum::{
-    extract::FromRef,
     routing::{delete, get, post, put},
     Router,
 };
-use sqlx::PgPool;
 
 use crate::app_state::AppState;
 

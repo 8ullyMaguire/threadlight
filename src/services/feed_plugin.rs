@@ -292,7 +292,7 @@ impl FeedPluginService {
         .bind(user_id)
         .fetch_optional(&self.pool)
         .await?
-        .ok_or_else(|| AppError::NotFound)?;
+        .ok_or(AppError::NotFound)?;
 
         let plugin = self.get_plugin(plugin_id).await?;
 

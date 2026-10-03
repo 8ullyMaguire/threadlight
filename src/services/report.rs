@@ -88,7 +88,7 @@ pub async fn resolve_report(
     id: i64,
     status: i16,
 ) -> Result<PostReport, AppError> {
-    if status < 1 || status > 3 {
+    if !(1..=3).contains(&status) {
         return Err(AppError::Validation(format!(
             "invalid resolution status: {}",
             status

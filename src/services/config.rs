@@ -209,7 +209,7 @@ impl ConfigService {
         .bind(user_id)
         .fetch_optional(&self.pool)
         .await?
-        .ok_or_else(|| AppError::NotFound)?;
+        .ok_or(AppError::NotFound)?;
         Ok(invite)
     }
 

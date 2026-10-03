@@ -4,7 +4,7 @@ use axum::{
 };
 use sqlx::PgPool;
 
-use crate::api::middleware::auth::{AuthUser, RequiredAuth};
+use crate::api::middleware::auth::RequiredAuth;
 use crate::error::AppError;
 use crate::model::filter_setting::{
     CreateUserFilterRequest, FilterListQuery, UpdateCommunitySettingsRequest,
@@ -170,7 +170,7 @@ pub async fn update_community_settings(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[test]
     fn test_filter_type_validation() {

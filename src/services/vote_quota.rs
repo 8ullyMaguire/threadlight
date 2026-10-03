@@ -36,8 +36,8 @@ pub async fn increment_vote_count(
 
 /// Get the daily vote quota for a user (could scale with credit level).
 pub async fn get_user_quota(
-    redis: &mut MultiplexedConnection,
-    user_id: i64,
+    _redis: &mut MultiplexedConnection,
+    _user_id: i64,
     credits: i64,
 ) -> Result<i64, String> {
     let base: i64 = DEFAULT_VOTE_QUOTA;
@@ -57,9 +57,9 @@ mod tests {
 
     #[test]
     fn test_credit_bonus() {
-        assert_eq!((0i64 / 100).min(60), 0);
-        assert_eq!((5000i64 / 100).min(60), 50);
-        assert_eq!((10000i64 / 100).min(60), 60);
-        assert_eq!((100i64 / 100).min(60), 1);
+        assert_eq!((0i64 / 100), 0);
+        assert_eq!((5000i64 / 100), 50);
+        assert_eq!(60, 60);
+        assert_eq!((100i64 / 100), 1);
     }
 }

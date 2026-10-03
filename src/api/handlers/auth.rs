@@ -1,7 +1,7 @@
 use crate::api::middleware::auth::RequiredAuth;
 use crate::app_state::AppState;
 use crate::error::AppError;
-use crate::model::user::{LoginRequest, RegisterRequest, UpdateProfileRequest};
+use crate::model::user::{LoginRequest, RegisterRequest};
 use axum::{extract::State, Json};
 use serde_json::{json, Value};
 

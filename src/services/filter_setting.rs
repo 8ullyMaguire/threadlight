@@ -145,7 +145,7 @@ pub async fn check_filters(
             }
             "community" => {
                 if let Some(cn) = community_name {
-                    if cn == &f.filter_value {
+                    if cn == f.filter_value {
                         return Ok(true);
                     }
                 }
@@ -387,7 +387,7 @@ pub async fn delete_user_note(pool: &PgPool, user_id: i64, note_id: i64) -> Resu
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[test]
     fn test_filter_type_values() {

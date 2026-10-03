@@ -5,7 +5,7 @@ use axum::{
 use serde::Deserialize;
 use sqlx::PgPool;
 
-use crate::api::middleware::auth::{AuthUser, RequiredAuth};
+use crate::api::middleware::auth::RequiredAuth;
 use crate::error::AppError;
 use crate::model::response::ApiResponse;
 use crate::model::tag::{CreateTagRequest, Tag, UpdateTagRequest};
@@ -58,7 +58,7 @@ pub async fn get_by_id(
 /// PUT /api/v1/tags/{id}
 pub async fn update(
     State(pool): State<PgPool>,
-    auth: RequiredAuth,
+    _auth: RequiredAuth,
     Path(id): Path<i32>,
     Json(req): Json<UpdateTagRequest>,
 ) -> Result<Json<ApiResponse<Tag>>, AppError> {
@@ -72,7 +72,7 @@ pub async fn update(
 /// DELETE /api/v1/tags/{id}
 pub async fn delete(
     State(pool): State<PgPool>,
-    auth: RequiredAuth,
+    _auth: RequiredAuth,
     Path(id): Path<i32>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::tag::delete_tag(&pool, id).await?;
@@ -112,7 +112,7 @@ pub async fn tag_post(
 /// DELETE /api/v1/tags/posts/{post_id}/tags/{tag_id}
 pub async fn untag_post(
     State(pool): State<PgPool>,
-    auth: RequiredAuth,
+    _auth: RequiredAuth,
     Path((post_id, tag_id)): Path<(i64, i32)>,
 ) -> Result<Json<ApiResponse<&'static str>>, AppError> {
     services::post::remove_post_tag(&pool, post_id, tag_id).await?;

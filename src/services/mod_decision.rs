@@ -82,7 +82,7 @@ impl ModDecisionService {
         .bind(action_id)
         .fetch_optional(&self.pool)
         .await?
-        .ok_or_else(|| AppError::NotFound)?;
+        .ok_or(AppError::NotFound)?;
 
         // Cast/upsert the vote
         let review = sqlx::query_as::<_, ModDecisionReview>(

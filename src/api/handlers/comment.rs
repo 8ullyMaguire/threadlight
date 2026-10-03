@@ -87,8 +87,8 @@ pub async fn get_count(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use axum::http::StatusCode;
+    
+    
 
     #[test]
     fn test_score_bounds() {
