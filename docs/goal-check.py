@@ -92,17 +92,25 @@ BASELINE_INTEGRATION_BINARIES = 1
 
 # How many handlers may lack a route before this clause fails.
 #
-# Measured 2026-10-05: 193 of 233 handlers are unrouted. This is a RATCHET, not a
-# target -- wiring routes is a product decision (which endpoints are public, which
-# need auth, what the URL shape is), so the honest thing is to record today's number
-# and refuse to let it GROW. Lower it as routes are wired. Set to 193, which is the
-# measurement, not an aspiration.
+# Measured 2026-10-05: 85 of 233 handlers are unrouted (148 routed). This is a
+# RATCHET, not a target -- wiring routes is a product decision (which endpoints are
+# public, which need auth, what the URL shape is), so the honest thing is to record
+# today's number and refuse to let it GROW. Lower it as routes are wired.
 #
-# Note this is the only clause in any of this estate's predicates that is red on
-# arrival for a reason that is NOT "a test database was never provisioned". It is
-# red because a third of the API is unreachable, and it should stay red until
-# someone decides which of those endpoints should be public.
-MAX_UNROUTED_HANDLERS = 193
+# History, each step measured rather than assumed:
+#     193 unrouted (40 routed)  -- starting point
+#     125 unrouted (108 routed) -- 68 wired from doc comments x SPECIFICATION.md
+#      85 unrouted (148 routed) -- 41 wired from the Go original's own route table
+#
+# The last step mattered most: SPECIFICATION.md turned out to be a faithful SUBSET of
+# ~/code/go/threadlight/internal/api/router.go (0 spec paths absent from Go, 13 Go
+# paths absent from spec), so most of what was left was a documentation gap. Read the
+# source the spec points at before mining the spec again.
+#
+# The remaining 85 are enumerated in docs/specs/2026-10-04-routing-audit.md: 3 resource
+# renames needing a decision, and handlers behind Go's generic CRUD names (Create on
+# eleven routes, List on eleven) which cannot be placed by name alone.
+MAX_UNROUTED_HANDLERS = 85
 
 results = []
 

@@ -208,3 +208,50 @@ with no judgement, 45 more are real endpoints the spec forgot, and 75 have nothi
 authoritative to route them from.** An "add the missing routes" task that does not
 distinguish those three produces an API that is 100% reachable and about 40%
 specified.
+
+## The Go original settles what the spec left open (addendum, 2026-10-03)
+
+Everything above worked from SPECIFICATION.md and the handler doc comments. Both are
+hand-maintained, and measuring them against the Go original shows why the earlier
+pass stalled at 108/233:
+
+```
+spec paths absent from Go    0    the spec invented nothing
+Go paths absent from spec  13    the spec was INCOMPLETE
+routed paths absent from Go 11   Rust-only features, legitimately absent
+```
+
+`scripts/go_routes.py` reconstructs the Go list: 194 registrations over 150 paths,
+expanding gin's nested groups (`lists := apiV1.Group("/lists")`). No warnings -- every
+group resolved.
+
+**The spec is a faithful subset, not a wrong document.** So the remaining unrouted
+handlers were a documentation gap, not missing code, and the fix was to read the
+source the spec points at rather than to keep mining the spec.
+
+Routing 41 more handlers this way (149/233) needed two guards:
+
+**Param spelling is not a difference.** `/communities/{slug}/members` and
+`/communities/{id}/members` are one route in axum -- a param name is a binding name.
+Comparing them literally produced two false conflicts out of six; canonicalising every
+`{param}` to `{}` before comparing removed both.
+
+**Go reuses CRUD names across resources.** `Create` is on eleven routes, `List` on
+eleven, `GetByID` on five. Name-matching cannot place those. A module-aware variant
+was written and **discarded**: it produced `/api/v1/health` and `/api/v1/ready`, which
+exist only at the top level, because the path segment it inferred was wrong. Two
+nonsense matches were enough to stop trusting it. Those handlers stay unrouted and
+want per-resource work.
+
+Three genuine resource-shape conflicts, each a rename decision rather than a bug:
+
+| handler | doc comment | Go original |
+|---|---|---|
+| `feed::remove_source` | `/feeds/{id}/sources/{source_id}` | `/feeds/sources/{source_id}` |
+| `interaction::remove_interaction` | `/interactions/{post_id}/{interaction_type}` | `/interactions/{id}` |
+| `moderation::vote_jury` | `/moderation/jury/{id}/vote` | `/moderation/jurors/{panel_id}/vote` |
+
+And one name collision worth recording, because routing by name alone gets it wrong:
+`community::list_members` and `userlist::list_members` are different resources, and Go
+routes only the `lists` one. Both were left unrouted rather than bind the route to the
+wrong module.
