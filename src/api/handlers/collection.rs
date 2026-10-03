@@ -48,7 +48,7 @@ pub async fn list_user_collections(
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
     let page = params.page.unwrap_or(1).max(1);
-    let per_page = params.per_page.unwrap_or(20).max(1).min(100);
+    let per_page = params.per_page.unwrap_or(20).clamp(1, 100);
 
     let (collections, total) =
         services::collection::list_user_collections(&pool, user_id, auth.user_id, page, per_page)
@@ -123,7 +123,7 @@ pub async fn list_collection_posts(
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
     let page = params.page.unwrap_or(1).max(1);
-    let per_page = params.per_page.unwrap_or(20).max(1).min(100);
+    let per_page = params.per_page.unwrap_or(20).clamp(1, 100);
 
     let (posts, total) =
         services::collection::list_collection_posts(&pool, id, auth.user_id, page, per_page)

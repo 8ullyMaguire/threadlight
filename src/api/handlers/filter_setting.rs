@@ -170,7 +170,6 @@ pub async fn update_community_settings(
 
 #[cfg(test)]
 mod tests {
-    
 
     #[test]
     fn test_filter_type_validation() {

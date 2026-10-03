@@ -31,7 +31,7 @@ pub async fn get_leaderboard(
 ) -> Result<LeaderboardResponse, AppError> {
     let category_str = query.category.as_deref().unwrap_or("all");
     let period_str = query.period.as_deref().unwrap_or("all");
-    let limit = query.limit.unwrap_or(100).min(500).max(1);
+    let limit = query.limit.unwrap_or(100).clamp(1, 500);
     let offset = query.offset.unwrap_or(0).max(0);
 
     let category = category_str

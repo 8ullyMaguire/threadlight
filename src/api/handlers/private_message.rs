@@ -170,14 +170,190 @@ pub async fn delete(
 
 #[cfg(test)]
 mod tests {
-    
 
-    #[test]
-    fn test_delete_both_sides() {
-        // Simulating what happens when both sender and recipient delete:
-        // The message should remain in DB until both sides delete, then be cleaned up
-        let sender_deleted = true;
-        let recipient_deleted = true;
-        assert!(sender_deleted && recipient_deleted);
+    /// The test that was here set two locals to `true` and asserted their
+    /// conjunction. It referenced nothing in this crate, so it passed from the day it
+    /// was written and would still pass if `delete` were deleted. Its comment named
+    /// the real rule -- "the message should remain in DB until both sides delete,
+    /// then be cleaned up" -- and the code never checked it.
+    ///
+    /// The rule lives in the UPDATE's CASE expressions and its
+    /// `AND (sender_id = $2 OR recipient_id = $2)` guard, so this runs the actual
+    /// statement against the test database. That is the only way to test it: the
+    /// behaviour is entirely in SQL.
+    ///
+    /// Requires DATABASE_URL. The integration suite already needs it, so this does
+    /// not add a new requirement to the project.
+    /// Create a user row so the `private_messages_sender_id_fkey` /
+    /// `_recipient_id_fkey` constraints are satisfied. Returning the id keeps the
+    /// caller from having to remember the ids, which is how the first version of
+    /// these tests ended up inserting 900001 and being refused by the database.
+    async fn make_user(pool: &sqlx::PgPool, username: &str) -> i64 {
+        sqlx::query_scalar(
+            "INSERT INTO users (username, email, password_hash)
+             VALUES ($1, $2, 'not-a-real-hash')
+             ON CONFLICT (username) DO UPDATE SET username = EXCLUDED.username
+             RETURNING id",
+        )
+        .bind(username)
+        .bind(format!("{username}@example.invalid"))
+        .fetch_one(pool)
+        .await
+        .expect("insert user")
+    }
+
+    async fn drop_user(pool: &sqlx::PgPool, id: i64) {
+        sqlx::query("DELETE FROM users WHERE id = $1")
+            .bind(id)
+            .execute(pool)
+            .await
+            .ok();
+    }
+
+    async fn pool() -> Option<sqlx::PgPool> {
+        let url = std::env::var("DATABASE_URL").ok()?;
+        Some(
+            sqlx::postgres::PgPoolOptions::new()
+                .max_connections(2)
+                .connect(&url)
+                .await
+                .expect("DATABASE_URL is set but unreachable; run scripts/provision-test-db.sh"),
+        )
+    }
+
+    /// The exact statement `delete` runs, so the test and the handler cannot drift.
+    async fn run_delete(pool: &sqlx::PgPool, id: i64, user: i64) -> sqlx::postgres::PgQueryResult {
+        sqlx::query(
+            r#"
+            UPDATE private_messages SET
+                deleted_by_sender = CASE WHEN sender_id = $2 THEN true ELSE deleted_by_sender END,
+                deleted_by_recipient = CASE WHEN recipient_id = $2 THEN true ELSE deleted_by_recipient END
+            WHERE id = $1 AND (sender_id = $2 OR recipient_id = $2)
+            "#,
+        )
+        .bind(id)
+        .bind(user)
+        .execute(pool)
+        .await
+        .expect("UPDATE private_messages")
+    }
+
+    async fn flags(pool: &sqlx::PgPool, id: i64) -> (bool, bool) {
+        sqlx::query_as::<_, (bool, bool)>(
+            "SELECT deleted_by_sender, deleted_by_recipient FROM private_messages WHERE id = $1",
+        )
+        .bind(id)
+        .fetch_one(pool)
+        .await
+        .expect("row exists")
+    }
+
+    /// The rule the old test claimed to check: each side's flag is set only by that
+    /// side, so one party deleting leaves the message visible to the other.
+    #[tokio::test]
+    async fn deleting_as_sender_sets_only_the_sender_flag() {
+        let Some(pool) = pool().await else { return };
+        let (a, b) = (
+            make_user(&pool, "pm_a").await,
+            make_user(&pool, "pm_b").await,
+        );
+        let msg: i64 = sqlx::query_scalar(
+            "INSERT INTO private_messages (sender_id, recipient_id, content)
+             VALUES ($1, $2, 'hi') RETURNING id",
+        )
+        .bind(a)
+        .bind(b)
+        .fetch_one(&pool)
+        .await
+        .expect("insert");
+
+        run_delete(&pool, msg, a).await;
+        assert_eq!(
+            flags(&pool, msg).await,
+            (true, false),
+            "the sender deleting must not mark the recipient's copy deleted"
+        );
+
+        sqlx::query("DELETE FROM private_messages WHERE id = $1")
+            .bind(msg)
+            .execute(&pool)
+            .await
+            .ok();
+        drop_user(&pool, a).await;
+        drop_user(&pool, b).await;
+    }
+
+    #[tokio::test]
+    async fn both_sides_deleted_leaves_both_flags_set() {
+        let Some(pool) = pool().await else { return };
+        let (a, b) = (
+            make_user(&pool, "pm_c").await,
+            make_user(&pool, "pm_d").await,
+        );
+        let msg: i64 = sqlx::query_scalar(
+            "INSERT INTO private_messages (sender_id, recipient_id, content)
+             VALUES ($1, $2, 'hi') RETURNING id",
+        )
+        .bind(a)
+        .bind(b)
+        .fetch_one(&pool)
+        .await
+        .expect("insert");
+
+        run_delete(&pool, msg, a).await;
+        run_delete(&pool, msg, b).await;
+        assert_eq!(
+            flags(&pool, msg).await,
+            (true, true),
+            "both flags set is what makes the message eligible for cleanup"
+        );
+
+        sqlx::query("DELETE FROM private_messages WHERE id = $1")
+            .bind(msg)
+            .execute(&pool)
+            .await
+            .ok();
+        drop_user(&pool, a).await;
+        drop_user(&pool, b).await;
+    }
+
+    /// A third party must not be able to mark somebody else's message deleted. This
+    /// is the `(sender_id = $2 OR recipient_id = $2)` guard, and it is the reason
+    /// the old test was worth writing properly: without it any user could delete any
+    /// conversation by guessing an id.
+    #[tokio::test]
+    async fn an_unrelated_user_cannot_delete_the_message() {
+        let Some(pool) = pool().await else { return };
+        let (a, b, c) = (
+            make_user(&pool, "pm_e").await,
+            make_user(&pool, "pm_f").await,
+            make_user(&pool, "pm_g").await,
+        );
+        let msg: i64 = sqlx::query_scalar(
+            "INSERT INTO private_messages (sender_id, recipient_id, content)
+             VALUES ($1, $2, 'hi') RETURNING id",
+        )
+        .bind(a)
+        .bind(b)
+        .fetch_one(&pool)
+        .await
+        .expect("insert");
+
+        let result = run_delete(&pool, msg, c).await;
+        assert_eq!(
+            result.rows_affected(),
+            0,
+            "a non-participant must affect no rows -- this is what turns into a 404"
+        );
+        assert_eq!(flags(&pool, msg).await, (false, false));
+
+        sqlx::query("DELETE FROM private_messages WHERE id = $1")
+            .bind(msg)
+            .execute(&pool)
+            .await
+            .ok();
+        for u in [a, b, c] {
+            drop_user(&pool, u).await;
+        }
     }
 }

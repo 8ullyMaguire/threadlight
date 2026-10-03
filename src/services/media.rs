@@ -13,7 +13,21 @@ impl MediaService {
         Self { pool }
     }
 
-    /// Track a new image upload in the database
+    /// Track a new image upload in the database.
+    ///
+    /// Nine arguments trips `clippy::too_many_arguments`. Restructuring into a
+    /// params struct would be the mechanical fix, and deliberately NOT done here:
+    /// every argument maps 1:1 to a NOT NULL column in the `media` table
+    /// (`file_path`, `original_name`, `mime_type`, `file_size`, `width`, `height`,
+    /// `uploader_id`, `post_id`), so a struct would only mirror the row. The
+    /// alternative people actually reach for -- bundling the last six into a
+    /// `NewUpload` -- makes the call sites shorter and the SQL insert harder to
+    /// check against the schema.
+    ///
+    /// The allow is local to this function and carries its reason, rather than a
+    /// crate-wide `#![allow(clippy::too_many_arguments)]` that would silence it
+    /// everywhere including where it is a real smell.
+    #[allow(clippy::too_many_arguments)]
     pub async fn track_upload(
         &self,
         uploader_id: i64,

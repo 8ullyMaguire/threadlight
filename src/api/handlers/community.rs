@@ -60,7 +60,7 @@ pub async fn list_communities(
     Query(params): Query<ListCommunitiesParams>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
     let page = params.page.unwrap_or(1).max(1);
-    let per_page = params.per_page.unwrap_or(20).max(1).min(100);
+    let per_page = params.per_page.unwrap_or(20).clamp(1, 100);
 
     let (communities, total) =
         services::community::list_communities(&pool, params.tag.as_deref(), page, per_page).await?;
@@ -130,7 +130,7 @@ pub async fn list_members(
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
     let page = params.page.unwrap_or(1).max(1);
-    let per_page = params.per_page.unwrap_or(20).max(1).min(100);
+    let per_page = params.per_page.unwrap_or(20).clamp(1, 100);
 
     let (members, total) = services::community::list_members(&pool, id, page, per_page).await?;
 

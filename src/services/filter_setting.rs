@@ -387,7 +387,6 @@ pub async fn delete_user_note(pool: &PgPool, user_id: i64, note_id: i64) -> Resu
 
 #[cfg(test)]
 mod tests {
-    
 
     #[test]
     fn test_filter_type_values() {

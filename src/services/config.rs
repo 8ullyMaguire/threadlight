@@ -133,7 +133,7 @@ impl ConfigService {
         inviter_id: i64,
         req: GenerateInviteRequest,
     ) -> Result<Vec<UserInvite>, AppError> {
-        let count = req.count.unwrap_or(1).max(1).min(100);
+        let count = req.count.unwrap_or(1).clamp(1, 100);
         let mut invites = Vec::with_capacity(count as usize);
 
         for _ in 0..count {

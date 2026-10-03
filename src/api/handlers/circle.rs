@@ -48,7 +48,7 @@ pub async fn list_circles(
     Query(params): Query<ListCirclesParams>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
     let page = params.page.unwrap_or(1).max(1);
-    let per_page = params.per_page.unwrap_or(20).max(1).min(100);
+    let per_page = params.per_page.unwrap_or(20).clamp(1, 100);
 
     let (circles, total) =
         services::circle::list_circles(&pool, params.tag_id, page, per_page).await?;
@@ -152,7 +152,7 @@ pub async fn list_circle_members(
     Query(params): Query<PaginationParams>,
 ) -> Result<Json<ApiResponse<serde_json::Value>>, AppError> {
     let page = params.page.unwrap_or(1).max(1);
-    let per_page = params.per_page.unwrap_or(20).max(1).min(100);
+    let per_page = params.per_page.unwrap_or(20).clamp(1, 100);
 
     let (members, total) = services::circle::list_circle_members(&pool, id, page, per_page).await?;
 

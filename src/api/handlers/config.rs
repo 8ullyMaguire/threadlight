@@ -237,7 +237,7 @@ pub async fn generate_invites(
         return Err(AppError::Forbidden("Admin access required".into()));
     }
 
-    let count = req.count.unwrap_or(1).max(1).min(100);
+    let count = req.count.unwrap_or(1).clamp(1, 100);
     let mut invites = Vec::with_capacity(count as usize);
 
     for _ in 0..count {
