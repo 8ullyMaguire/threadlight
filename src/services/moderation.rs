@@ -187,7 +187,7 @@ impl ModerationService {
 
         let juror = sqlx::query_as::<_, JuryPanel>(
             r#"
-            INSERT INTO jury_panel (target_action_id, juror_id, reason)
+            INSERT INTO jury_panels (target_action_id, juror_id, reason)
             VALUES ($1, $2, $3)
             ON CONFLICT (target_action_id, juror_id) DO NOTHING
             RETURNING id, target_action_id, juror_id, vote, reason, created_at
@@ -204,7 +204,7 @@ impl ModerationService {
         sqlx::query(
             r#"
             UPDATE moderation_actions
-            SET jury_total = (SELECT COUNT(*) FROM jury_panel WHERE target_action_id = $1)
+            SET jury_total = (SELECT COUNT(*) FROM jury_panels WHERE target_action_id = $1)
             WHERE id = $1
             "#,
         )
@@ -223,7 +223,7 @@ impl ModerationService {
     ) -> Result<JuryPanel, AppError> {
         let vote = sqlx::query_as::<_, JuryPanel>(
             r#"
-            UPDATE jury_panel
+            UPDATE jury_panels
             SET vote = $3, reason = COALESCE($4, reason)
             WHERE target_action_id = $1 AND juror_id = $2
             RETURNING id, target_action_id, juror_id, vote, reason, created_at
@@ -241,8 +241,8 @@ impl ModerationService {
         sqlx::query(
             r#"
             UPDATE moderation_actions
-            SET jury_yes = (SELECT COUNT(*) FROM jury_panel WHERE target_action_id = $1 AND vote = true),
-                jury_no = (SELECT COUNT(*) FROM jury_panel WHERE target_action_id = $1 AND vote = false)
+            SET jury_yes = (SELECT COUNT(*) FROM jury_panels WHERE target_action_id = $1 AND vote = true),
+                jury_no = (SELECT COUNT(*) FROM jury_panels WHERE target_action_id = $1 AND vote = false)
             WHERE id = $1
             "#,
         )
@@ -257,7 +257,7 @@ impl ModerationService {
         let jury = sqlx::query_as::<_, JuryPanel>(
             r#"
             SELECT id, target_action_id, juror_id, vote, reason, created_at
-            FROM jury_panel
+            FROM jury_panels
             WHERE target_action_id = $1
             ORDER BY created_at ASC
             "#,
@@ -287,7 +287,7 @@ impl ModerationService {
         if action.moderator_id != Some(moderator_id) {
             return Err(AppError::Forbidden("not the action moderator".into()));
         }
-        sqlx::query("DELETE FROM jury_panel WHERE target_action_id = $1 AND juror_id = $2")
+        sqlx::query("DELETE FROM jury_panels WHERE target_action_id = $1 AND juror_id = $2")
             .bind(action_id)
             .bind(juror_id)
             .execute(&self.pool)
@@ -297,9 +297,9 @@ impl ModerationService {
         sqlx::query(
             r#"
             UPDATE moderation_actions
-            SET jury_yes = (SELECT COUNT(*) FROM jury_panel WHERE target_action_id = $1 AND vote = true),
-                jury_no = (SELECT COUNT(*) FROM jury_panel WHERE target_action_id = $1 AND vote = false),
-                jury_total = (SELECT COUNT(*) FROM jury_panel WHERE target_action_id = $1)
+            SET jury_yes = (SELECT COUNT(*) FROM jury_panels WHERE target_action_id = $1 AND vote = true),
+                jury_no = (SELECT COUNT(*) FROM jury_panels WHERE target_action_id = $1 AND vote = false),
+                jury_total = (SELECT COUNT(*) FROM jury_panels WHERE target_action_id = $1)
             WHERE id = $1
             "#,
         )

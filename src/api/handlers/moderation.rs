@@ -139,7 +139,7 @@ pub async fn add_juror(
 
     let juror = sqlx::query_as::<_, JuryPanel>(
         r#"
-        INSERT INTO jury_panel (target_action_id, juror_id, reason, created_at)
+        INSERT INTO jury_panels (target_action_id, juror_id, reason, created_at)
         VALUES ($1, $2, $3, NOW())
         RETURNING *
         "#,
@@ -161,7 +161,7 @@ pub async fn list_jurors(
     let jurors = sqlx::query_as::<_, JuryPanel>(
         r#"
         SELECT *
-        FROM jury_panel
+        FROM jury_panels
         WHERE target_action_id = $1
         ORDER BY created_at DESC
         "#,
@@ -181,7 +181,7 @@ pub async fn vote_jury(
     Json(req): Json<VoteJuryRequest>,
 ) -> Result<Json<ApiResponse<JuryPanel>>, AppError> {
     // Verify the user is a juror on this panel
-    let existing = sqlx::query_as::<_, JuryPanel>(r#"SELECT * FROM jury_panel WHERE id = $1"#)
+    let existing = sqlx::query_as::<_, JuryPanel>(r#"SELECT * FROM jury_panels WHERE id = $1"#)
         .bind(jury_id)
         .fetch_one(&pool)
         .await?;
@@ -194,7 +194,7 @@ pub async fn vote_jury(
 
     let juror = sqlx::query_as::<_, JuryPanel>(
         r#"
-        UPDATE jury_panel
+        UPDATE jury_panels
         SET vote = $1, reason = COALESCE($2, reason)
         WHERE id = $3
         RETURNING *
@@ -211,9 +211,9 @@ pub async fn vote_jury(
         sqlx::query(
             r#"
             UPDATE moderation_actions
-            SET jury_yes = (SELECT COUNT(*) FROM jury_panel WHERE target_action_id = $1 AND vote = true),
-                jury_no = (SELECT COUNT(*) FROM jury_panel WHERE target_action_id = $1 AND vote = false),
-                jury_total = (SELECT COUNT(*) FROM jury_panel WHERE target_action_id = $1 AND vote IS NOT NULL)
+            SET jury_yes = (SELECT COUNT(*) FROM jury_panels WHERE target_action_id = $1 AND vote = true),
+                jury_no = (SELECT COUNT(*) FROM jury_panels WHERE target_action_id = $1 AND vote = false),
+                jury_total = (SELECT COUNT(*) FROM jury_panels WHERE target_action_id = $1 AND vote IS NOT NULL)
             WHERE id = $1
             "#,
         )
@@ -231,7 +231,7 @@ pub async fn list_jury_votes(
     Path(jury_id): Path<i64>,
 ) -> Result<Json<ApiResponse<Vec<JuryPanel>>>, AppError> {
     // For a specific jury panel entry, return all votes for the same action
-    let panel_entry = sqlx::query_as::<_, JuryPanel>(r#"SELECT * FROM jury_panel WHERE id = $1"#)
+    let panel_entry = sqlx::query_as::<_, JuryPanel>(r#"SELECT * FROM jury_panels WHERE id = $1"#)
         .bind(jury_id)
         .fetch_one(&pool)
         .await?;
@@ -239,7 +239,7 @@ pub async fn list_jury_votes(
     let votes = if let Some(action_id) = panel_entry.target_action_id {
         sqlx::query_as::<_, JuryPanel>(
             r#"
-            SELECT * FROM jury_panel
+            SELECT * FROM jury_panels
             WHERE target_action_id = $1 AND vote IS NOT NULL
             ORDER BY created_at DESC
             "#,
