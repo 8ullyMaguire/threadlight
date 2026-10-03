@@ -281,6 +281,147 @@ pub fn create_router(state: AppState) -> Router {
                 .delete(handlers::tag::delete),
         )
         .route("/api/v1/tags/{id}/vote", post(handlers::tag::vote_tag))
+        // ---- Generated from the Go original ---------------------------
+        // 41 handlers across 35 paths where the handler's doc comment is silent
+        // and ~/code/go/threadlight/internal/api/router.go names the same
+        // function. Two independent sources, so a transcription rather than a
+        // guess -- the same bar the block above had to clear. Matched by handler
+        // NAME after reconstructing gin's nested group prefixes; a method or path
+        // shape DISAGREEING with a doc comment was not auto-routed, and neither
+        // was any name shared by two modules (community::list_members vs
+        // userlist::list_members). See docs/specs/2026-10-04-routing-audit.md.
+        .route(
+            "/api/v1/achievements/unlock",
+            post(handlers::achievement::unlock),
+        )
+        .route(
+            "/api/v1/achievements/user/{user_id}",
+            get(handlers::achievement::get_user_achievements),
+        )
+        .route(
+            "/api/v1/affinity/similar",
+            get(handlers::affinity::get_similar_users),
+        )
+        .route("/api/v1/auth/forgot", post(handlers::auth::forgot_password))
+        .route("/api/v1/auth/reset", post(handlers::auth::reset_password))
+        .route(
+            "/api/v1/communities/{slug}/curators/{user_id}",
+            delete(handlers::community::remove_curator),
+        )
+        .route(
+            "/api/v1/credits/balance",
+            get(handlers::credit::get_balance),
+        )
+        .route(
+            "/api/v1/credits/bounties",
+            post(handlers::credit::create_bounty),
+        )
+        .route(
+            "/api/v1/credits/bounties/{id}",
+            get(handlers::credit::get_bounty),
+        )
+        .route(
+            "/api/v1/credits/bounties/{id}/award",
+            post(handlers::credit::award_bounty),
+        )
+        .route("/api/v1/credits/costs", get(handlers::credit::get_costs))
+        .route(
+            "/api/v1/credits/daily-reward",
+            get(handlers::credit::get_daily_reward_status)
+                .post(handlers::credit::claim_daily_reward),
+        )
+        .route(
+            "/api/v1/credits/quest/complete",
+            post(handlers::credit::complete_quest),
+        )
+        .route(
+            "/api/v1/credits/transactions",
+            get(handlers::credit::get_transactions),
+        )
+        .route(
+            "/api/v1/interactions/post/{postID}",
+            get(handlers::interaction::get_post_interactions),
+        )
+        .route(
+            "/api/v1/lists/algorithmic",
+            post(handlers::userlist::create_algorithmic),
+        )
+        .route(
+            "/api/v1/lists/subscriptions",
+            get(handlers::userlist::my_subscriptions),
+        )
+        .route(
+            "/api/v1/lists/{id}/collaborators",
+            get(handlers::userlist::list_collaborators)
+                .post(handlers::userlist::invite_collaborator),
+        )
+        .route(
+            "/api/v1/lists/{id}/collaborators/accept",
+            post(handlers::userlist::accept_invite),
+        )
+        .route(
+            "/api/v1/lists/{id}/collaborators/{user_id}",
+            delete(handlers::userlist::remove_collaborator),
+        )
+        .route(
+            "/api/v1/lists/{id}/evaluate",
+            post(handlers::userlist::evaluate_algorithmic),
+        )
+        .route(
+            "/api/v1/lists/{id}/members",
+            get(handlers::userlist::list_members).post(handlers::userlist::add_member),
+        )
+        .route(
+            "/api/v1/lists/{id}/members/{user_id}",
+            delete(handlers::userlist::remove_member),
+        )
+        .route(
+            "/api/v1/lists/{id}/subscribe",
+            post(handlers::userlist::subscribe),
+        )
+        .route(
+            "/api/v1/lists/{id}/subscribers",
+            get(handlers::userlist::list_subscribers),
+        )
+        .route(
+            "/api/v1/lists/{id}/unsubscribe",
+            post(handlers::userlist::unsubscribe),
+        )
+        .route("/api/v1/media/upload", post(handlers::post::upload_image))
+        .route(
+            "/api/v1/modlog/controversial",
+            get(handlers::mod_decision::get_controversial),
+        )
+        .route(
+            "/api/v1/modlog/{id}/my-review",
+            get(handlers::mod_decision::get_my_vote),
+        )
+        .route(
+            "/api/v1/trust/connections",
+            post(handlers::trust::create_connection),
+        )
+        .route(
+            "/api/v1/trust/connections/{id}",
+            get(handlers::trust::get_connection)
+                .put(handlers::trust::update_connection)
+                .delete(handlers::trust::delete_connection),
+        )
+        .route(
+            "/api/v1/users/@me/avatar",
+            post(handlers::user::upload_avatar),
+        )
+        .route(
+            "/api/v1/users/@me/banner",
+            post(handlers::user::upload_banner),
+        )
+        .route(
+            "/api/v1/users/@me/blocks",
+            get(handlers::user::list_blocked_users),
+        )
+        .route(
+            "/api/v1/users/@me/notifications",
+            get(handlers::user::get_notifications),
+        )
         .with_state(state)
 }
 
@@ -341,10 +482,11 @@ mod tests {
         );
         assert_eq!(
             paths.len(),
-            81,
-            "expected 81 routes (30 hand-written + 51 generated); the generated block \
-             in src/api/mod.rs is out of step with SPECIFICATION.md. Regenerate with \
-             scripts/gen_routes.py."
+            116,
+            "expected 116 paths: 81 routed earlier + 35 generated from the Go original \
+             (~/code/go/threadlight/internal/api/router.go), which serves 41 handlers \
+             because several paths take more than one. A shortfall means a generated \
+             block in src/api/mod.rs was lost; regenerate with scripts/gen_routes.py."
         );
     }
 
