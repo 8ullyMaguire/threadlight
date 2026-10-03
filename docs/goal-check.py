@@ -92,7 +92,7 @@ BASELINE_INTEGRATION_BINARIES = 1
 
 # How many handlers may lack a route before this clause fails.
 #
-# Measured 2026-10-05: 72 of 233 handlers are unrouted (161 routed). This is a
+# Measured 2026-10-05: 62 of 233 handlers are unrouted (171 routed). This is a
 # RATCHET, not a target -- wiring routes is a product decision (which endpoints are
 # public, which need auth, what the URL shape is), so the honest thing is to record
 # today's number and refuse to let it GROW. Lower it as routes are wired.
@@ -103,16 +103,18 @@ BASELINE_INTEGRATION_BINARIES = 1
 #      85 unrouted (148 routed) -- 41 wired from the Go original's own route table
 #      72 unrouted (161 routed) -- 6 more by Go handler VARIABLE, 7 conflicts
 #                             resolved by the Path<T> extractor's arity
+#      62 unrouted (171 routed) -- 9 more by (Go module, Rust verb); 1 method
+#                             conflict resolved PUT over PATCH
 #
 # The last step mattered most: SPECIFICATION.md turned out to be a faithful SUBSET of
 # ~/code/go/threadlight/internal/api/router.go (0 spec paths absent from Go, 13 Go
 # paths absent from spec), so most of what was left was a documentation gap. Read the
 # source the spec points at before mining the spec again.
 #
-# The remaining 72 are enumerated in docs/specs/2026-10-04-routing-audit.md: 3 resource
+# The remaining 62 are enumerated in docs/specs/2026-10-04-routing-audit.md: 3 resource
 # renames needing a decision, and handlers behind Go's generic CRUD names (Create on
 # eleven routes, List on eleven) which cannot be placed by name alone.
-MAX_UNROUTED_HANDLERS = 72
+MAX_UNROUTED_HANDLERS = 62
 
 results = []
 

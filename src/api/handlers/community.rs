@@ -73,7 +73,7 @@ pub async fn list_communities(
     }))))
 }
 
-/// PATCH /api/communities/:id
+/// PUT /api/communities/:id
 pub async fn update_community(
     State(pool): State<PgPool>,
     auth: RequiredAuth,
