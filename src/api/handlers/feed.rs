@@ -109,7 +109,7 @@ pub async fn add_source(
     )))
 }
 
-/// DELETE /api/feeds/:id/sources/:source_id — Remove a source from a feed.
+/// DELETE /api/v1/feeds/{id}/sources/{source_id} — Remove a source from a feed.
 pub async fn remove_source(
     State(pool): State<PgPool>,
     auth: RequiredAuth,

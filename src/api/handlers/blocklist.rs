@@ -18,7 +18,7 @@ pub struct BlocklistListQuery {
     pub offset: Option<i64>,
 }
 
-/// GET /api/admin/blocklist?entry_type=&severity=&limit=&offset=
+/// GET /api/v1/blocklist/entries?entry_type=&severity=&limit=&offset=
 pub async fn list(
     State(pool): State<PgPool>,
     auth: AuthUser,
@@ -84,7 +84,7 @@ pub async fn get(
     Ok(Json(ApiResponse::new(entry)))
 }
 
-/// POST /api/admin/blocklist
+/// POST /api/v1/blocklist/entries
 pub async fn create(
     State(pool): State<PgPool>,
     auth: AuthUser,
@@ -155,7 +155,7 @@ pub async fn update(
     Ok(Json(ApiResponse::new(entry)))
 }
 
-/// DELETE /api/admin/blocklist/:id
+/// DELETE /api/v1/blocklist/entries/{id}
 pub async fn delete(
     State(pool): State<PgPool>,
     auth: AuthUser,
@@ -176,7 +176,7 @@ pub async fn delete(
     )))
 }
 
-/// GET /api/admin/blocklist/check?entry_type=&entry_value=
+/// GET /api/v1/blocklist/check?entry_type=&entry_value=
 pub async fn check(
     State(pool): State<PgPool>,
     Query(params): Query<CheckBlocklistQuery>,

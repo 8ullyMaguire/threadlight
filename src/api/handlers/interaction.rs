@@ -45,7 +45,7 @@ pub async fn create_interaction(
     )))
 }
 
-/// DELETE /api/interactions/:post_id/:interaction_type — Remove an interaction.
+/// DELETE /api/v1/interactions/{post_id}/{interaction_type} — Remove an interaction.
 pub async fn remove_interaction(
     State(pool): State<PgPool>,
     auth: RequiredAuth,

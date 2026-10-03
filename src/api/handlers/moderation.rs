@@ -173,7 +173,7 @@ pub async fn list_jurors(
     Ok(Json(ApiResponse::new(jurors)))
 }
 
-/// POST /api/moderation/jury/:id/vote
+/// POST /api/v1/moderation/jurors/{panel_id}/vote
 pub async fn vote_jury(
     State(pool): State<PgPool>,
     auth: RequiredAuth,

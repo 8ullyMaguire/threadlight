@@ -422,6 +422,81 @@ pub fn create_router(state: AppState) -> Router {
             "/api/v1/users/@me/notifications",
             get(handlers::user::get_notifications),
         )
+        // ---- Generated from the Go handler VARIABLE ----------------------
+        // 6 handlers whose doc comment is silent. Placed by joining on the Go
+        // handler variable (userlistHandler.Create -> userlist::create), NOT by
+        // inferring the resource from the URL -- that inference is what produced
+        // /api/v1/health in an earlier attempt. scripts/match_go_routes.py.
+        .route("/api/v1/achievements", get(handlers::achievement::list))
+        .route(
+            "/api/v1/lists",
+            get(handlers::userlist::list).post(handlers::userlist::create),
+        )
+        .route(
+            "/api/v1/lists/{id}",
+            get(handlers::userlist::get)
+                .put(handlers::userlist::update)
+                .delete(handlers::userlist::delete),
+        )
+        // ---- Conflicts resolved FOR THE GO ORIGINAL ---------------------
+        // 5 handlers where the doc comment and the Go route table disagreed.
+        // Decided by the handler's OWN Path<T> extractor, which axum checks at
+        // compile time: blocklist::list/create/delete/check and
+        // moderation::vote_jury each take exactly the params the Go path provides
+        // and not the params their doc comment implies. So the doc comments are
+        // wrong about resource naming (/admin/blocklist vs /blocklist/entries,
+        // /jury/{id} vs /jurors/{panel_id}) and the extractors agree with Go.
+        //
+        // blocklist::check is the ONE case in this block NOT settled by the extractor:
+        // it takes Query<T>, not Path<T>, so arity cannot veto. Routed GET, against the
+        // Go table's POST, because the handler is read-only -- Query<CheckBlocklistQuery>
+        // in, a JSON verdict out, no mutation. POST with query params and no body is the
+        // odd shape, and Go's choice there is an artefact of the original rather than a
+        // design constraint. An earlier version of this comment claimed the extractor
+        // settled it, and also edited the doc comment to POST -- which made the comment
+        // agree with the route by fiat instead of by evidence. Both are reverted.
+        // The other four doc comments above ARE corrected, because there the extractor
+        // independently confirms the Go shape and the old comments were simply stale.
+        .route("/api/v1/blocklist/check", get(handlers::blocklist::check))
+        .route(
+            "/api/v1/blocklist/entries",
+            get(handlers::blocklist::list).post(handlers::blocklist::create),
+        )
+        .route(
+            "/api/v1/blocklist/entries/{id}",
+            delete(handlers::blocklist::delete),
+        )
+        .route(
+            "/api/v1/moderation/jurors/{panel_id}/vote",
+            post(handlers::moderation::vote_jury),
+        )
+        // ---- Conflicts resolved FOR THE DOC COMMENT -----------------------
+        // 2 handlers where the extractor sides with the doc comment, not the Go
+        // table, so the Go path is impossible here:
+        //
+        //   feed::remove_source          Path<(id, source_id)>   arity 2
+        //     Go says  DELETE /api/v1/feeds/sources/{source_id}      1 param
+        //     doc says DELETE /api/v1/feeds/{id}/sources/{source_id} 2 params
+        //
+        //   interaction::remove_interaction  Path<(post_id, interaction_type)> 2
+        //     Go says  DELETE /api/v1/interactions/{id}                        1
+        //     doc says DELETE /api/v1/interactions/{post_id}/{interaction_type} 2
+        //
+        // Routing either to the Go path fails to COMPILE -- axum rejects a
+        // Path<T> whose arity does not match the pattern. So this is settled by the
+        // compiler, not by preference. The doc comments describe real, deliberate
+        // designs: an interaction is identified by post AND type, because one post
+        // can hold several interaction types, and the Go single-{id} form cannot
+        // address that. Routing the doc comment means the Go table is behind the
+        // Rust here, which is the expected direction for a port.
+        .route(
+            "/api/v1/feeds/{id}/sources/{source_id}",
+            delete(handlers::feed::remove_source),
+        )
+        .route(
+            "/api/v1/interactions/{post_id}/{interaction_type}",
+            delete(handlers::interaction::remove_interaction),
+        )
         .with_state(state)
 }
 
@@ -482,11 +557,12 @@ mod tests {
         );
         assert_eq!(
             paths.len(),
-            116,
-            "expected 116 paths: 81 routed earlier + 35 generated from the Go original \
-             (~/code/go/threadlight/internal/api/router.go), which serves 41 handlers \
-             because several paths take more than one. A shortfall means a generated \
-             block in src/api/mod.rs was lost; regenerate with scripts/gen_routes.py."
+            125,
+            "expected 125 paths: 81 from doc comments x SPECIFICATION.md, 35 matched to the Go \
+             original by handler name, 6 by Go handler VARIABLE, and 7 conflicts \
+             resolved by the Path<T> extractor arity. A shortfall means a generated \
+             block in src/api/mod.rs was lost; regenerate with scripts/gen_routes.py \
+             and scripts/match_go_routes.py."
         );
     }
 
