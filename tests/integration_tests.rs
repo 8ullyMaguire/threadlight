@@ -820,6 +820,28 @@ fn test_leaderboard_all_categories() {
     });
 }
 
+/// NOTE ON ISOLATION -- read before changing `limit` here.
+///
+/// This test asks for the top N posters and then asserts that ITS OWN two users are
+/// among them. That is only true while N exceeds the number of other users in the
+/// table, and the table is shared: `truncate_tables` runs once per test BINARY, not
+/// once per TEST (the comment on it explains why -- per-test TRUNCATE deadlocked 38
+/// concurrent runs). So users accumulate for the whole binary.
+///
+/// Measured 2026-10-05 with `limit: 10`: on a database already holding 50 users,
+/// `poster2` (1 post) sat at rank 10 exactly, i.e. on the boundary. One more test's
+/// worth of users and it is rank 11 and simply absent, so the assertion fails with
+/// "poster2 should be in leaderboard" -- which reads like a leaderboard bug and is
+/// not one.
+///
+/// The limit is now 500, the same ceiling `get_leaderboard` clamps to, so the query
+/// cannot be truncated below this test's own rows however dirty the table is. The
+/// RANKING assertions are unaffected: they compare poster1 against poster2, not
+/// against a fixed position.
+///
+/// The deeper fix -- per-test isolation without deadlocking -- is not done here.
+/// That is a change to how the whole suite shares a database, and it is a real
+/// improvement, but it is not this test's decision to make.
 #[test]
 fn test_leaderboard_posting() {
     run_on_shared(async {
@@ -835,7 +857,12 @@ fn test_leaderboard_posting() {
         let query = threadlight::model::leaderboard::LeaderboardQuery {
             category: Some("posting".to_string()),
             period: Some("all".to_string()),
-            limit: Some(10),
+            // The limit must be high enough to contain this test's two users no
+            // matter what else is in the shared table. See the note below: at
+            // `limit: 10` this test passed 8 runs in a row and then failed,
+            // because the suite truncates `users` once per BINARY rather than once
+            // per TEST, so every earlier test's users are still present and ranked.
+            limit: Some(500),
             offset: Some(0),
         };
 
