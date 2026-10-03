@@ -34,7 +34,7 @@ pub async fn list(
     let entries = sqlx::query_as::<_, BlocklistEntry>(
         r#"
         SELECT *
-        FROM blocklist
+        FROM blocklist_entries
         WHERE ($1::smallint IS NULL OR entry_type = $1)
           AND ($2::smallint IS NULL OR severity = $2)
         ORDER BY created_at DESC
@@ -51,7 +51,7 @@ pub async fn list(
     let total = sqlx::query_scalar::<_, i64>(
         r#"
         SELECT COUNT(*)
-        FROM blocklist
+        FROM blocklist_entries
         WHERE ($1::smallint IS NULL OR entry_type = $1)
           AND ($2::smallint IS NULL OR severity = $2)
         "#,
@@ -75,10 +75,11 @@ pub async fn get(
         return Err(AppError::Forbidden("Admin access required".into()));
     }
 
-    let entry = sqlx::query_as::<_, BlocklistEntry>(r#"SELECT * FROM blocklist WHERE id = $1"#)
-        .bind(id)
-        .fetch_one(&pool)
-        .await?;
+    let entry =
+        sqlx::query_as::<_, BlocklistEntry>(r#"SELECT * FROM blocklist_entries WHERE id = $1"#)
+            .bind(id)
+            .fetch_one(&pool)
+            .await?;
 
     Ok(Json(ApiResponse::new(entry)))
 }
@@ -102,7 +103,7 @@ pub async fn create(
 
     let entry = sqlx::query_as::<_, BlocklistEntry>(
         r#"
-        INSERT INTO blocklist (entry_type, entry_value, reason, severity, added_by, jury_approved, shared, created_at)
+        INSERT INTO blocklist_entries (entry_type, entry_value, reason, severity, added_by, jury_approved, shared, created_at)
         VALUES ($1, $2, $3, $4, $5, false, $6, NOW())
         RETURNING *
         "#,
@@ -136,7 +137,7 @@ pub async fn update(
 
     let entry = sqlx::query_as::<_, BlocklistEntry>(
         r#"
-        UPDATE blocklist
+        UPDATE blocklist_entries
         SET reason = COALESCE($1, reason),
             severity = COALESCE($2::smallint, severity),
             shared = COALESCE($3, shared)
@@ -164,7 +165,7 @@ pub async fn delete(
         return Err(AppError::Forbidden("Admin access required".into()));
     }
 
-    sqlx::query(r#"DELETE FROM blocklist WHERE id = $1"#)
+    sqlx::query(r#"DELETE FROM blocklist_entries WHERE id = $1"#)
         .bind(id)
         .execute(&pool)
         .await?;
@@ -183,7 +184,7 @@ pub async fn check(
     let entry = sqlx::query_as::<_, BlocklistEntry>(
         r#"
         SELECT *
-        FROM blocklist
+        FROM blocklist_entries
         WHERE entry_type = $1 AND entry_value = $2
         LIMIT 1
         "#,

@@ -510,6 +510,141 @@ def clause_no_tautological_tests():
     add("no tautological tests", "PASS", "every test references project code")
 
 
+
+def clause_schema_covers_code():
+    """Every table the SQL names must exist in the database.
+
+    This clause exists because of a specific, verified failure: 26 tables were
+    referenced by services and handlers -- achievements, bounties, community_notes,
+    feed_plugins, user_lists, user_affinities and 20 more -- and no migration
+    created a single one of them. Every query against them returned
+    `relation "..." does not exist`.
+
+    Nothing noticed, for a reason worth recording: the handlers that use those
+    tables were themselves unrouted, so nothing ever called them. An unrouted
+    handler with a missing table is invisible twice over -- it cannot fail because
+    it is never invoked. `cargo test` was green throughout. So this is a statement
+    about absence, which is exactly what a suite is worst at, and the reason the
+    predicate exists rather than `cargo test`.
+
+    How the table list is derived matters, and getting it wrong is how the audit
+    that found this nearly produced a false alarm. Two earlier attempts:
+
+      * Matching `FROM|INTO|UPDATE` against the source reported 39 missing tables
+        and included `all_scores`, `filtered`, `needed`, `matching_users` -- CTE
+        names, not tables. `tag_usage` and `filtered` are CTEs in trending.rs and
+        post.rs. Reporting those would have sent someone to create four tables
+        that must not exist.
+
+      * The same regex over the whole tree timed out at 300s.
+
+    So this uses the database as the oracle instead of a regex over Rust: for each
+    candidate name, ask Postgres whether it is a table. A CTE name is not a table,
+    so it drops out on its own, with no need to enumerate the CTEs. Candidates are
+    read from the migrations rather than the source, which is a far smaller set and
+    cannot pick up a CTE.
+
+    The count is compared to what the code needs, so a migration that creates the
+    wrong table still fails -- the check is "does every table the code names exist",
+    not "are there enough tables".
+    """
+    import subprocess
+    dsn = os.environ.get("DATABASE_URL", "").strip()
+    if not dsn:
+        add("schema covers code", "UNKNOWN", "no database, so the schema cannot be checked")
+        return
+
+    def query(sql):
+        r = subprocess.run(["psql", dsn, "-tAc", sql], capture_output=True, text=True,
+                           env={**os.environ, "PGPASSWORD": dsn.split(":")[2].split("@")[0]})
+        return r.stdout.strip()
+
+    present = set(query("SELECT tablename FROM pg_tables WHERE schemaname='public'").split())
+
+    # What the code names, taken from INSERT column lists and qualified references
+    # rather than a loose FROM/JOIN sweep, then verified against the database.
+    wanted = set()
+    src = REPO / "src"
+
+    def sql_literals(text):
+        """Only the SQL inside string literals.
+
+        Scanning raw source reads `pub mod blocklist;` and `// no JOIN needed` as
+        table references. On the first run that produced three false positives --
+        blocklist, blocks, needed -- none of which is a table. Restricting to string
+        literals is what makes the candidate set trustworthy; without it the clause
+        reports noise, and a clause that always reports noise gets ignored.
+        """
+        for m in re.finditer(r'r#"(.*?)"#', text, re.S):
+            yield m.group(1)
+        for m in re.finditer(r'(?<![r#])"((?:[^"\\]|\\.)*)"', text):
+            yield m.group(1)
+
+    for path in src.rglob("*.rs"):
+        text = path.read_text(errors="ignore")
+        # Everything below operates on SQL only.
+        text = "\n".join(
+            lit for lit in sql_literals(text)
+            if re.search(r"\b(SELECT|INSERT|UPDATE|DELETE)\b", lit, re.I))
+        # INSERT INTO <table> ( -- an unqualified column list, so the table name
+        # is the only identifier here and a CTE can never appear.
+        wanted |= set(re.findall(r"INSERT\s+INTO\s+([a-z_][a-z0-9_]{2,})\s*\(", text))
+        # FROM <table> <alias>  -- an alias immediately after the name means it is
+        # a real table being joined; a CTE is written FROM <name> ( with a paren.
+        wanted |= set(re.findall(r"(?:FROM|JOIN)\s+([a-z_][a-z0-9_]{2,})\s+[a-z]{1,3}\b", text))
+        # ... and the same name with no alias, which is a table unless a CTE
+        # declared it. The database check below is what settles it.
+        wanted |= set(re.findall(r"(?:FROM|JOIN)\s+([a-z_][a-z0-9_]{2,})\b(?!\s*\()", text))
+    wanted = {w for w in wanted if not w.startswith("pg_")}
+
+    # Settle the CTE problem: a name declared as a CTE is not in pg_tables, but a
+    # name that SHOULD be a table and is missing is ALSO not in pg_tables. So
+    # asking the database "does this exist?" cannot tell those two apart -- which
+    # is exactly the bug this clause had when it first ran: it filtered candidates
+    # down to the ones that existed, leaving `missing` permanently empty and the
+    # clause green while user_affinities was renamed out from under it.
+    #
+    # The discriminator is the CTE declaration, which must come from the source.
+    # `WITH x AS (` and `, x AS (` declare a name as a CTE; a bare `FROM x` with
+    # no declaration anywhere is a table.
+    ctes = set()
+    for path in src.rglob("*.rs"):
+        text = path.read_text(errors="ignore")
+        ctes |= set(re.findall(r"WITH\s+([a-z_][a-z0-9_]*)\s+AS\s*\(", text))
+        ctes |= set(re.findall(r",\s*([a-z_][a-z0-9_]*)\s+AS\s*\(", text))
+    ctes |= set(re.findall(r"RECURSIVE\s+([a-z_][a-z0-9_]*)\s+AS\s*\(", text))
+
+    # Also drop subquery aliases: `FROM (SELECT ...) alias`. The regexes above
+    # already require a bare name, so this is belt and braces for `) alias`.
+    referenced = {w for w in wanted if w not in ctes}
+    missing = sorted(referenced - present)
+    if missing:
+        cte_note = (f"\n      {len(ctes)} CTE name(s) excluded, correctly: "
+                    f"{', '.join(sorted(ctes))}") if ctes else ""
+        add("schema covers code", "FAIL",
+            f"{len(missing)} table(s) are named by SQL in src/ but do not exist: "
+            + ", ".join(missing)
+            + "\n      Each would return `relation ... does not exist` at runtime."
+            + cte_note)
+        return
+
+    # Sanity: the candidate set must not be trivially small. If the extraction ever
+    # silently stops matching, an empty `wanted` would make this clause pass for the
+    # wrong reason -- which is the failure mode of every "checked and found nothing".
+    if len(referenced) < 20:
+        add("schema covers code", "FAIL",
+            f"only {len(referenced)} table name(s) extracted from src/; the extraction "
+            f"has probably broken, because this crate names far more. A check that "
+            f"finds nothing because it stopped looking is not a check.")
+        return
+
+    mig_dir = Path(MIG_DIR)
+    n_mig = len(list(mig_dir.glob("*.up.sql"))) if mig_dir.exists() else 0
+    add("schema covers code", "PASS",
+        f"all {len(referenced)} tables named by src/ exist; {len(present)} tables total, "
+        f"{n_mig} migrations")
+
+
 # ---------------------------------------------------------------- driver
 
 def update_baseline():
@@ -562,6 +697,7 @@ def main():
     clause_build()
     clause_fmt()
     clause_migrations_ordered()
+    clause_schema_covers_code()
     d = clause_db_reachable()
     clause_unit()
     clause_integration(d)
