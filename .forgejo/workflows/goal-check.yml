@@ -1,0 +1,76 @@
+name: goal-check
+
+# Runs the repository's definition of done -- docs/goal-check.py -- on every push
+# and pull request.
+#
+# The predicate is strictly stronger than `cargo test`: it also fails when any
+# handler is unrouted, when any test cannot fail, and when the clippy set has
+# findings beyond dead code. Each of those caught something real -- see
+# docs/goal-check.md.
+#
+# The database clauses need Postgres. Without DATABASE_URL they report UNKNOWN and
+# the predicate exits non-zero, deliberately: a green build must mean the checks
+# ran. Provision it with scripts/provision-test-db.sh, which is idempotent, rather
+# than applying migrations inline.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  goal-check:
+    runs-on: docker
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: threadlight
+          POSTGRES_DB: threadlight_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U threadlight"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Check out
+        uses: https://git.polarisocial.xyz/forgejo/forgejo-actions-checkout@v4
+
+      - name: Set up Rust
+        uses: https://git.polarisocial.xyz/forgejo/forgejo-actions-setup-rust@v1
+        with:
+          rust-version: stable
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: https://git.polarisocial.xyz/forgejo/forgejo-actions-cache@v4
+        with:
+          key: cargo-${{ hashFiles('Cargo.lock') }}
+
+      - name: Install libpq (sqlx needs it to build)
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends libpq-dev
+          rm -rf /var/lib/apt/lists/*
+
+      - name: Provision the test database
+        env:
+          DATABASE_URL: postgres://threadlight:postgres@127.0.0.1:5432/threadlight_test?sslmode=disable
+        run: |
+          for i in $(seq 1 30); do
+            if pg_isready -h 127.0.0.1 -p 5432 -U threadlight; then break; fi
+            sleep 1
+          done
+          pg_isready -h 127.0.0.1 -p 5432 -U threadlight || {
+            echo "Postgres did not become ready in 30s" >&2; exit 1; }
+          bash scripts/provision-test-db.sh
+
+      - name: Run the goal-check predicate
+        env:
+          DATABASE_URL: postgres://threadlight:postgres@127.0.0.1:5432/threadlight_test?sslmode=disable
+          CI: "true"
+        run: python3 docs/goal-check.py
