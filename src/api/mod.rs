@@ -586,6 +586,10 @@ mod tests {
     #[tokio::test]
     async fn router_builds_without_shadowed_routes() {
         let Some(state) = test_state().await else {
+            eprintln!(
+                "SKIPPED (not passed): Redis is unreachable at redis://127.0.0.1:6379, so the \
+                 router could not be built and the routing assertions below did not run."
+            );
             return;
         };
         // Building it is half the check: it panics on a malformed path pattern.
@@ -665,6 +669,13 @@ mod tests {
     /// genuinely cannot be built without one. Skipping is right here: a missing
     /// Redis is an environment problem and must not be reported as a routing bug.
     /// Everything else in this file needs no server -- the Postgres pool is lazy.
+    ///
+    /// **The skip is announced, not silent.** The original shape returned `None` and the
+    /// caller did `else { return }`, so `router_builds_without_shadowed_routes ... ok` was
+    /// printed whether or not the routing check had run -- the same vacuous-pass shape fixed
+    /// in `private_message.rs`. Skipping is legitimate here; skipping *quietly* is not, so
+    /// this writes to stderr on every skip and `goal-check.py` separately asserts Redis is
+    /// reachable, which makes a silent skip impossible under the predicate.
     async fn test_state() -> Option<AppState> {
         let redis = redis::Client::open("redis://127.0.0.1:6379")
             .ok()?

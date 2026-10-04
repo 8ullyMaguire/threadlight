@@ -71,6 +71,7 @@ Do not file it as one.
 
 import os
 import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -457,6 +458,34 @@ def clause_handler_reachability():
 
 
 
+def clause_redis_reachable():
+    """Redis must be reachable, or three routing tests skip without saying so.
+
+    `api::tests::test_state` returns None when Redis is unavailable, because AppState
+    carries a multiplexer with no lazy form. The caller then skips, which is correct --
+    a missing Redis is an environment problem, not a routing bug.
+
+    But a skip means `router_builds_without_shadowed_routes` reports `ok` without having
+    checked anything, and this predicate would still print COMPLETE. So the environment
+    condition that causes the skip is itself a clause: if Redis is down, say so here
+    rather than letting the routing checks vanish quietly.
+    """
+    dsn = os.environ.get("REDIS_ADDR") or "redis://127.0.0.1:6379"
+    rc, out, err = sh(
+        f"redis-cli -u {shlex.quote(dsn)} ping 2>&1", timeout=30
+    )
+    pong = "PONG" in (out or "") + (err or "")
+    if pong:
+        add("redis reachable", "PASS", f"{dsn} answers PONG")
+        return True
+    add("redis reachable", "FAIL",
+        f"no PONG from {dsn}. Three api:: routing tests skip when Redis is absent, so "
+        f"they would report 'ok' without asserting anything (they now print SKIPPED to "
+        f"stderr, but this predicate is what makes the skip impossible to miss). Start "
+        f"Redis or set REDIS_ADDR.")
+    return False
+
+
 def clause_no_tautological_tests():
     """No test may consist only of assertions about literals.
 
@@ -711,6 +740,7 @@ def main():
     clause_migrations_ordered()
     clause_schema_covers_code()
     d = clause_db_reachable()
+    clause_redis_reachable()
     clause_unit()
     clause_integration(d)
     clause_clippy()

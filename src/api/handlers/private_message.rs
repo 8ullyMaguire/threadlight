@@ -210,15 +210,60 @@ mod tests {
             .ok();
     }
 
-    async fn pool() -> Option<sqlx::PgPool> {
-        let url = std::env::var("DATABASE_URL").ok()?;
-        Some(
-            sqlx::postgres::PgPoolOptions::new()
-                .max_connections(2)
-                .connect(&url)
+    /// The test pool. **Fails loudly if `DATABASE_URL` is unset or unreachable.**
+    ///
+    /// This used to return `Option` and the tests did `let Some(pool) = ... else {
+    /// return }`, which is the worst possible shape: with `DATABASE_URL` unset all three
+    /// tests reported `ok` in 0.00s having asserted nothing at all. Green because the
+    /// test did not run. It also produced a confusing failure in the other direction --
+    /// pointing at a shell that had leaked a *different* repo's `DATABASE_URL`
+    /// (`polaris_test`), so the insert failed with `42P01 relation "private_messages" does
+    /// not exist` and had nothing to do with this handler.
+    ///
+    /// The contract now: these three tests either run against the database or fail. There
+    /// is no third outcome.
+    async fn pool() -> sqlx::PgPool {
+        let url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
+            panic!(
+                "DATABASE_URL is not set, so these tests would silently pass without \
+                 running. Export it, e.g.\n  export DATABASE_URL=postgres://polaris:***@127.0.0.1:55433/threadlight_test?sslmode=disable\n\
+                 (the goal-check predicate sets this; running `cargo test` bare does not)"
+            )
+        });
+        sqlx::postgres::PgPoolOptions::new()
+            .max_connections(2)
+            .connect(&url)
+            .await
+            .unwrap_or_else(|e| {
+                panic!(
+                    "DATABASE_URL is set to {url:?} but unreachable: {e}\n\
+                     Point it at a database that has run this repo's migrations -- a \
+                     different repo's test database will not have private_messages."
+                )
+            })
+    }
+
+    /// Assert this is threadlight's database, not another repo's test database on the
+    /// same Postgres instance.
+    ///
+    /// Several repos share 127.0.0.1:55433. Pointing `DATABASE_URL` at the wrong one
+    /// used to surface as a confusing `42P01` from deep inside an INSERT; naming the
+    /// mismatch here says what is actually wrong.
+    async fn assert_is_threadlight_db(pool: &sqlx::PgPool) {
+        let present: bool =
+            sqlx::query_scalar("SELECT to_regclass('public.private_messages') IS NOT NULL")
+                .fetch_one(pool)
                 .await
-                .expect("DATABASE_URL is set but unreachable; run scripts/provision-test-db.sh"),
-        )
+                .expect("query to_regclass");
+
+        assert!(
+            present,
+            "DATABASE_URL points at a database with no private_messages table. This is \
+             almost certainly another repo's test database on the shared instance at \
+             127.0.0.1:55433 -- polaris_test and lorehaven_test both exist there. \
+             Set DATABASE_URL to .../threadlight_test?sslmode=disable and run this repo's \
+             migrations first (scripts/provision-test-db.sh)."
+        );
     }
 
     /// The exact statement `delete` runs, so the test and the handler cannot drift.
@@ -252,7 +297,8 @@ mod tests {
     /// side, so one party deleting leaves the message visible to the other.
     #[tokio::test]
     async fn deleting_as_sender_sets_only_the_sender_flag() {
-        let Some(pool) = pool().await else { return };
+        let pool = pool().await;
+        assert_is_threadlight_db(&pool).await;
         let (a, b) = (
             make_user(&pool, "pm_a").await,
             make_user(&pool, "pm_b").await,
@@ -285,7 +331,8 @@ mod tests {
 
     #[tokio::test]
     async fn both_sides_deleted_leaves_both_flags_set() {
-        let Some(pool) = pool().await else { return };
+        let pool = pool().await;
+        assert_is_threadlight_db(&pool).await;
         let (a, b) = (
             make_user(&pool, "pm_c").await,
             make_user(&pool, "pm_d").await,
@@ -323,7 +370,8 @@ mod tests {
     /// conversation by guessing an id.
     #[tokio::test]
     async fn an_unrelated_user_cannot_delete_the_message() {
-        let Some(pool) = pool().await else { return };
+        let pool = pool().await;
+        assert_is_threadlight_db(&pool).await;
         let (a, b, c) = (
             make_user(&pool, "pm_e").await,
             make_user(&pool, "pm_f").await,
