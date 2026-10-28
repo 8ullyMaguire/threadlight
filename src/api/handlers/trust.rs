@@ -40,40 +40,29 @@ pub async fn get_incoming(
 }
 
 pub async fn get_connection(
-    _auth: RequiredAuth,
+    auth: RequiredAuth,
     State(state): State<AppState>,
     Path(id): Path<i64>,
 ) -> Result<Json<Value>, AppError> {
-    let conn: TrustConnection = sqlx::query_as("SELECT * FROM trust_connections WHERE id = $1")
-        .bind(id)
-        .fetch_optional(&state.pool)
-        .await?
-        .ok_or(AppError::NotFound)?;
+    let conn = crate::services::trust::get_connection(&state.pool, id, auth.user_id).await?;
     Ok(Json(json!(conn)))
 }
 
 pub async fn update_connection(
-    _auth: RequiredAuth,
+    auth: RequiredAuth,
     State(state): State<AppState>,
     Path(id): Path<i64>,
     Json(req): Json<UpdateTrustConnectionRequest>,
 ) -> Result<Json<Value>, AppError> {
-    sqlx::query("UPDATE trust_connections SET weight = COALESCE($1, weight) WHERE id = $2")
-        .bind(req.weight)
-        .bind(id)
-        .execute(&state.pool)
-        .await?;
+    crate::services::trust::update_connection(&state.pool, id, auth.user_id, req.weight).await?;
     Ok(Json(json!({"message": "updated"})))
 }
 
 pub async fn delete_connection(
-    _auth: RequiredAuth,
+    auth: RequiredAuth,
     State(state): State<AppState>,
     Path(id): Path<i64>,
 ) -> Result<Json<Value>, AppError> {
-    sqlx::query("DELETE FROM trust_connections WHERE id = $1")
-        .bind(id)
-        .execute(&state.pool)
-        .await?;
+    crate::services::trust::delete_connection(&state.pool, id, auth.user_id).await?;
     Ok(Json(json!({"message": "deleted"})))
 }
