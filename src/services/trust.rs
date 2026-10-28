@@ -111,11 +111,30 @@ mod tests {
                  export DATABASE_URL=postgres://USER:***@127.0.0.1:55433/threadlight_test?sslmode=disable"
             )
         });
-        sqlx::postgres::PgPoolOptions::new()
+        let pool = sqlx::postgres::PgPoolOptions::new()
             .max_connections(2)
             .connect(&url)
             .await
-            .unwrap_or_else(|e| panic!("DATABASE_URL {url:?} is unreachable: {e}"))
+            .unwrap_or_else(|e| panic!("DATABASE_URL {url:?} is unreachable: {e}"));
+
+        // Rows may already exist in the test database (a developer's probe, a previous run, a
+        // demo). Explicit ids do not advance a serial sequence, so `nextval` can then hand out an
+        // id that is already taken and every fixture insert fails with a duplicate key. Syncing the
+        // sequence to the current maximum is what makes these tests independent of what is already
+        // in the table, instead of passing only on a virgin database.
+        sqlx::query(
+            // Monotonic: GREATEST against the sequence's own last_value. A plain setval to MAX(id)
+            // REWINDS the sequence when another test has already taken a higher id but not yet
+            // committed, which hands out a duplicate and makes the suite flaky rather than wrong.
+            "SELECT setval('users_id_seq',
+                           GREATEST(COALESCE((SELECT MAX(id) FROM users), 0) + 1,
+                                    (SELECT last_value FROM users_id_seq)),
+                           true)",
+        )
+        .execute(&pool)
+        .await
+        .expect("sync users_id_seq");
+        pool
     }
 
     async fn make_user(pool: &PgPool, label: &str) -> i64 {
