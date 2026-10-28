@@ -87,9 +87,12 @@ pub async fn search(
         LEFT JOIN community_posts cp ON cp.post_id = p.id
         LEFT JOIN communities c ON c.id = cp.community_id
         WHERE p.is_deleted = false
-          AND (p.title ILIKE '%' || $1 || '%' OR p.body ILIKE '%' || $1 || '%')
+          AND (
+                p.search_tsv @@ websearch_to_tsquery('simple', $1)
+                OR (websearch_to_tsquery('simple', $1) IS NULL AND p.title ILIKE '%' || $1 || '%')
+              )
           AND ($2::text IS NULL OR c.slug = $2)
-        ORDER BY p.created_at DESC
+        ORDER BY ts_rank(p.search_tsv, websearch_to_tsquery('simple', $1)) DESC, p.created_at DESC
         LIMIT $3 OFFSET $4
         "#,
     )
@@ -168,8 +171,8 @@ pub async fn advanced(
                 FROM posts p
                 LEFT JOIN users u ON u.id = p.author_id
                 WHERE p.is_deleted = false
-                  AND (p.title ILIKE '%' || $1 || '%' OR p.body ILIKE '%' || $1 || '%')
-                ORDER BY p.interaction_count DESC
+                  AND p.search_tsv @@ websearch_to_tsquery('simple', $1)
+                ORDER BY ts_rank(p.search_tsv, websearch_to_tsquery('simple', $1)) DESC, p.interaction_count DESC
                 LIMIT $2 OFFSET $3
                 "#,
             )
